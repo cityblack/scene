@@ -5,6 +5,7 @@ import com.lzh.game.scene.common.SceneInstance;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 /**
  *
@@ -25,17 +26,17 @@ public interface AsyncSceneApi {
      * @param group
      * @param status 需要注册的事件类型
      */
-    CompletableFuture<SceneInstance> subscribe(String group, SceneChangeStatus status);
+    void subscribe(String group, SceneChangeStatus status, Consumer<SceneInstance> instance);
 
     /**
      * 向场景管理中心订阅场景改变事件 指定map
-     * 相比{@link #subscribe(String, SceneChangeStatus)} 力度小
+     * 相比{@link #subscribe(String, SceneChangeStatus, Consumer)} 力度小
      * @param group
      * @param status
      * @param map
      * @return
      */
-    CompletableFuture<SceneInstance> subscribe(String group, SceneChangeStatus status, int map);
+    void subscribe(String group, SceneChangeStatus status, int map, Consumer<SceneInstance> instance);
 
     /**
      * 获取指定地图的所有实例

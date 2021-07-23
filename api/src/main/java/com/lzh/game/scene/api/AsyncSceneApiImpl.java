@@ -5,6 +5,7 @@ import com.lzh.game.scene.common.SceneInstance;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 public class AsyncSceneApiImpl implements AsyncSceneApi {
 
@@ -14,13 +15,13 @@ public class AsyncSceneApiImpl implements AsyncSceneApi {
     }
 
     @Override
-    public CompletableFuture<SceneInstance> subscribe(String group, SceneChangeStatus status) {
-        return null;
+    public void subscribe(String group, SceneChangeStatus status, Consumer<SceneInstance> instance) {
+
     }
 
     @Override
-    public CompletableFuture<SceneInstance> subscribe(String group, SceneChangeStatus status, int map) {
-        return null;
+    public void subscribe(String group, SceneChangeStatus status, int map, Consumer<SceneInstance> instance) {
+
     }
 
     @Override
