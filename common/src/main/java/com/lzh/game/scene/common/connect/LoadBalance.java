@@ -1,4 +1,4 @@
-package com.lzh.game.scene.api.connect;
+package com.lzh.game.scene.common.connect;
 
 import java.util.Collection;
 

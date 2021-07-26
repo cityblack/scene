@@ -1,4 +1,4 @@
-package com.lzh.game.scene.api.client;
+package com.lzh.game.scene.common.connect;
 
 public class Request {
 

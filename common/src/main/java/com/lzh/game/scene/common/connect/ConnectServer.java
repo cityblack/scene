@@ -1,10 +1,13 @@
 package com.lzh.game.scene.common.connect;
 
-public interface ConnectServer {
+import com.lzh.game.scene.common.connect.scene.SceneConnectManage;
+
+public interface ConnectServer extends SceneConnectManage {
 
     int port();
 
     void start();
 
+    ServerConfig config();
 
 }

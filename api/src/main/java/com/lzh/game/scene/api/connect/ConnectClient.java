@@ -1,26 +1,19 @@
 package com.lzh.game.scene.api.connect;
 
 import com.lzh.game.scene.api.config.ApiConfig;
-import com.lzh.game.scene.common.NodeType;
+import com.lzh.game.scene.common.connect.Connect;
 
-import java.util.Collection;
 
 /**
  * 连接管理器，所有的链接，心跳，亚健康处理都由其管理
  */
-public interface ConnectClient {
+public interface ConnectClient<T extends Connect> {
 
     void init(ApiConfig config);
 
-    Connect getConnect(String key);
+    T createConnect(String address);
 
-    Collection<Connect> getAllConnect();
+    T createConnect(String host, int port);
 
-    void putConnect(String key, Connect connect);
-
-    boolean removeConnect(String key);
-
-    void shutdown();
-
-    Connect createConnect(String address, NodeType type);
+    void onConnectClose(T connect);
 }

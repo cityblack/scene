@@ -1,8 +1,8 @@
 package com.lzh.game.scene.common;
 
 public enum SceneChangeStatus {
-
-    CREATE,
+    // create or change
+    CHANGE,
 
     DESTROY,
 }
