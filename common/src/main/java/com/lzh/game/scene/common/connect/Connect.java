@@ -5,6 +5,8 @@ package com.lzh.game.scene.common.connect;
  */
 public interface Connect {
 
+    String KEY_SIGN = "com.lzh.game.scene.connect.id.source";
+
     Response sendMessage(Request request);
 
     long reflectCount();

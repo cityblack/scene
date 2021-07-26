@@ -11,6 +11,9 @@ import com.lzh.game.scene.common.connect.scene.SceneConnect;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Wrapper Sofa connect client
+ */
 public class SceneConnectClientImpl implements SceneConnectClient {
 
     private SofaConnectClient client;
@@ -20,6 +23,10 @@ public class SceneConnectClientImpl implements SceneConnectClient {
     private Map<String, Set<NodeType>> connectNode = new ConcurrentHashMap<>();
 
     private Map<NodeType, List<SceneConnect>> nodeConnect = new ConcurrentHashMap<>();
+
+    public SceneConnectClientImpl(SofaConnectClient client) {
+        this.client = client;
+    }
 
     @Override
     public void init(ApiConfig config) {
@@ -49,6 +56,13 @@ public class SceneConnectClientImpl implements SceneConnectClient {
 
     @Override
     public boolean removeConnect(String key) {
+        SceneConnect connect = getSceneConnect(key);
+        if (Objects.isNull(connect)) {
+            return false;
+        }
+
+//        client.removeConnect();
+
         return false;
     }
 
@@ -60,9 +74,13 @@ public class SceneConnectClientImpl implements SceneConnectClient {
     @Override
     public void putConnect(String key, SceneConnect connect) {
         client.putConnect(connect.key(), connect);
-
-//        client.putConnect(key, connect);
-
+        NodeType type = connect.type();
+        this.nodeConnect.merge(type, Arrays.asList(connect), (o1, o2) -> {
+            o1.addAll(o2);
+            return o1;
+        });
+        String unique = connect.key();
+        this.connects.put(unique, connect);
     }
 
     @Override
@@ -118,6 +136,7 @@ public class SceneConnectClientImpl implements SceneConnectClient {
         SofaSceneConnect wrapper = new SofaSceneConnect(connect, type, key);
         this.putConnect(key, wrapper);
         connect.setAttr(SCENE_CONNECT_KEY, key);
+        connect.setAttr(Connect.KEY_SIGN, connect.key());
         return wrapper;
     }
 

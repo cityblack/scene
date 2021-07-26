@@ -15,5 +15,4 @@ public interface SceneConnect extends Connect {
      * @return
      */
     String key();
-
 }
