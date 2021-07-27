@@ -13,6 +13,8 @@ import com.lzh.game.scene.common.connect.Request;
 import com.lzh.game.scene.common.connect.codec.Serializer;
 
 /**
+ * 节约带宽，按SOFA自身协议 把请求CMD和对应的class信息写到信息头里面
+ * 信息的BODY直接写参数进去
  * header -> int 4b 标识请求唯一
  * context ->
  */
@@ -27,6 +29,17 @@ public class SofaRpcSerialization extends DefaultCustomSerializer {
 
     @Override
     public <T extends RequestCommand> boolean serializeHeader(T request, InvokeContext invokeContext) throws SerializationException {
+        if (request instanceof RpcRequestCommand) {
+            RpcRequestCommand command = (RpcRequestCommand) request;
+            Object o = command.getRequestObject();
+            if (o instanceof Request) {
+                Request r = (Request) o;
+                int cmd = r.getId();
+                String className = r.getClassName();
+
+            }
+        }
+
         return super.serializeHeader(request, invokeContext);
     }
 
@@ -40,7 +53,11 @@ public class SofaRpcSerialization extends DefaultCustomSerializer {
         if (request instanceof RpcRequestCommand) {
             RpcRequestCommand command = (RpcRequestCommand) request;
             Object o = command.getRequestObject();
-
+            if (o instanceof Request) {
+                Object value = ((Request)o).getParam();
+                byte[] content = serializer.encode(value);
+                request.setContent(content);
+            }
         }
         return super.serializeContent(request, invokeContext);
     }

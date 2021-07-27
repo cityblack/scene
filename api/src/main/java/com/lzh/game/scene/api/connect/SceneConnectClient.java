@@ -13,8 +13,6 @@ import java.util.Collection;
  */
 public interface SceneConnectClient extends ConnectClient<Connect>, SceneConnectManage<SceneConnect> {
 
-    String SCENE_CONNECT_KEY = "com.lzh.game.scene.connect.id";
-
     /**
      * NodeType + connect#key
      * @param key

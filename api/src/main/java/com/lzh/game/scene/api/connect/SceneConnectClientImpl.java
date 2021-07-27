@@ -2,6 +2,7 @@ package com.lzh.game.scene.api.connect;
 
 import com.lzh.game.scene.api.config.ApiConfig;
 import com.lzh.game.scene.api.connect.sofa.SofaConnectClient;
+import com.lzh.game.scene.common.ContextDefined;
 import com.lzh.game.scene.common.NodeType;
 import com.lzh.game.scene.common.connect.Connect;
 import com.lzh.game.scene.common.connect.scene.SceneConnect;
@@ -145,7 +146,7 @@ public class SceneConnectClientImpl implements SceneConnectClient {
         String key = type.getName() + connect.address();
         SofaSceneConnect wrapper = new SofaSceneConnect(connect, type, key);
         this.putConnect(key, wrapper);
-        connect.setAttr(SCENE_CONNECT_KEY, key);
+        connect.setAttr(ContextDefined.SCENE_CONNECT_KEY, key);
         return wrapper;
     }
 }
