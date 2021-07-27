@@ -8,17 +8,14 @@ import com.alipay.remoting.rpc.RpcClient;
 import com.lzh.game.scene.api.config.ApiConfig;
 import com.lzh.game.scene.api.config.Member;
 import com.lzh.game.scene.api.connect.ConnectClient;
-import com.lzh.game.scene.common.NodeType;
-import com.lzh.game.scene.common.connect.AbstractConnectManage;
-import com.lzh.game.scene.common.connect.Connect;
-import com.lzh.game.scene.common.connect.Request;
-import com.lzh.game.scene.common.connect.Response;
-import com.lzh.game.scene.common.connect.scene.SceneConnect;
+import com.lzh.game.scene.common.connect.*;
+import com.lzh.game.scene.common.connect.sofa.SofaUserProcess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -32,10 +29,9 @@ public class SofaConnectClient extends AbstractConnectManage<Connect> implements
 
     private ConnectionEventProcessor closeEvent = new ConnectCloseEvent(this);
 
-    private static final String ID_SIGN = "connect_id";
-
     public SofaConnectClient() {
-
+        rpcClient.addConnectionEventProcessor(ConnectionEventType.CLOSE, closeEvent);
+        rpcClient.registerUserProcessor(new SofaUserProcess());
     }
 
     @Override
@@ -54,7 +50,7 @@ public class SofaConnectClient extends AbstractConnectManage<Connect> implements
     public Connect createConnect(String address) {
         try {
             Connection connection = rpcClient.createStandaloneConnection(address, 5000);
-            return wrapper(connection);
+            return wrapper(connection, address);
         } catch (RemotingException e) {
             e.printStackTrace();
         }
@@ -65,7 +61,7 @@ public class SofaConnectClient extends AbstractConnectManage<Connect> implements
     public Connect createConnect(String host, int port) {
         try {
             Connection connection = rpcClient.createStandaloneConnection(host, port, 5000);
-            return wrapper(connection);
+            return wrapper(connection, toAddress(host, port));
         } catch (RemotingException e) {
             e.printStackTrace();
         }
@@ -82,24 +78,38 @@ public class SofaConnectClient extends AbstractConnectManage<Connect> implements
         rpcClient.shutdown();
     }
 
-    private SofaConnect wrapper(Connection connection) {
-        rpcClient.addConnectionEventProcessor(ConnectionEventType.CLOSE, closeEvent);
-        SofaConnect connect = new SofaConnect(connection);
+    private SofaConnect wrapper(Connection connection, String address) {
+        SofaConnect connect = new SofaConnect(connection, address);
+        connect.setAttr(Connect.KEY_SIGN, connect.address());
+        logger.info("Create connect client [{}]!!", address);
         return connect;
     }
 
-    private class SofaConnect implements SceneConnect {
+    private class SofaConnect implements Connect {
 
         private AtomicLong CONNECT_COUNT = new AtomicLong();
 
         private Connection connection;
 
-        public SofaConnect(Connection connection) {
+        private String address;
+
+        public SofaConnect(Connection connection, String address) {
             this.connection = connection;
+            this.address = address;
         }
 
         @Override
-        public Response sendMessage(Request request) {
+        public void sendOneWay(Request request) {
+            try {
+                rpcClient.oneway(connection, request);
+            } catch (RemotingException e) {
+                logger.error("Request error!!", e);
+            }
+        }
+
+        @Override
+        public CompletableFuture<Response> sendMessage(Request request) {
+//            rpcClient.invokeWithFuture(connection, request, );
             return null;
         }
 
@@ -119,13 +129,8 @@ public class SofaConnectClient extends AbstractConnectManage<Connect> implements
         }
 
         @Override
-        public NodeType type() {
-            return null;
-        }
-
-        @Override
-        public String key() {
-            return null;
+        public String address() {
+            return address;
         }
     }
 
@@ -139,7 +144,7 @@ public class SofaConnectClient extends AbstractConnectManage<Connect> implements
 
         @Override
         public void onEvent(String remoteAddr, Connection conn) {
-            String key = (String) conn.getAttribute(ID_SIGN);
+            String key = (String) conn.getAttribute(Connect.KEY_SIGN);
             client.removeConnect(key);
             logger.info("Close connect [{}-{}]!!", conn.getUrl(), key);
         }

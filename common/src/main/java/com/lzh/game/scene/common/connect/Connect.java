@@ -1,5 +1,7 @@
 package com.lzh.game.scene.common.connect;
 
+import java.util.concurrent.CompletableFuture;
+
 /**
  * 服务端和客户端都持有
  */
@@ -7,7 +9,9 @@ public interface Connect {
 
     String KEY_SIGN = "com.lzh.game.scene.connect.id.source";
 
-    Response sendMessage(Request request);
+    void sendOneWay(Request request);
+
+    CompletableFuture<Response> sendMessage(Request request);
 
     long reflectCount();
 
@@ -19,5 +23,5 @@ public interface Connect {
      * 唯一连接
      * @return
      */
-    String key();
+    String address();
 }

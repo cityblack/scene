@@ -4,9 +4,8 @@ import com.lzh.game.scene.api.config.ApiConfig;
 import com.lzh.game.scene.api.connect.sofa.SofaConnectClient;
 import com.lzh.game.scene.common.NodeType;
 import com.lzh.game.scene.common.connect.Connect;
-import com.lzh.game.scene.common.connect.Request;
-import com.lzh.game.scene.common.connect.Response;
 import com.lzh.game.scene.common.connect.scene.SceneConnect;
+import com.lzh.game.scene.common.connect.sofa.SofaSceneConnect;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,6 +19,7 @@ public class SceneConnectClientImpl implements SceneConnectClient {
 
     private Map<String, SceneConnect> connects = new ConcurrentHashMap<>();
 
+    // connect key -> Set<NodeType>
     private Map<String, Set<NodeType>> connectNode = new ConcurrentHashMap<>();
 
     private Map<NodeType, List<SceneConnect>> nodeConnect = new ConcurrentHashMap<>();
@@ -46,24 +46,28 @@ public class SceneConnectClientImpl implements SceneConnectClient {
 
     @Override
     public SceneConnect getConnect(String key) {
-        return null;
+        return this.connects.get(key);
     }
 
     @Override
     public Collection<SceneConnect> getAllConnect() {
-        return null;
+        return this.connects.values();
     }
 
     @Override
     public boolean removeConnect(String key) {
-        SceneConnect connect = getSceneConnect(key);
+        SceneConnect connect = this.connects.remove(key);
         if (Objects.isNull(connect)) {
             return false;
         }
+        NodeType type = connect.type();
+        this.nodeConnect.getOrDefault(type, new ArrayList<>()).remove(connect);
+        this.connectNode.remove(key);
 
-//        client.removeConnect();
+        String address = connect.address();
+        client.removeConnect(address);
 
-        return false;
+        return true;
     }
 
     @Override
@@ -73,14 +77,20 @@ public class SceneConnectClientImpl implements SceneConnectClient {
 
     @Override
     public void putConnect(String key, SceneConnect connect) {
-        client.putConnect(connect.key(), connect);
+        client.putConnect(connect.address(), connect);
         NodeType type = connect.type();
         this.nodeConnect.merge(type, Arrays.asList(connect), (o1, o2) -> {
             o1.addAll(o2);
             return o1;
         });
-        String unique = connect.key();
+        String unique = connect.address();
         this.connects.put(unique, connect);
+        Set<NodeType> set = new HashSet<>(1);
+        set.add(type);
+        this.connectNode.merge(key, set , (o1, o2) -> {
+            o1.addAll(o2);
+            return o1;
+        });
     }
 
     @Override
@@ -102,7 +112,7 @@ public class SceneConnectClientImpl implements SceneConnectClient {
 
     @Override
     public Collection<SceneConnect> getByNode(NodeType type) {
-        return null;
+        return this.nodeConnect.getOrDefault(type, Collections.EMPTY_LIST);
     }
 
     @Override
@@ -112,7 +122,7 @@ public class SceneConnectClientImpl implements SceneConnectClient {
 
     @Override
     public Set<NodeType> getConnectNodeType(SceneConnect connect) {
-        return null;
+        return this.connectNode.getOrDefault(connect, Collections.EMPTY_SET);
     }
 
     private Connect getOrCreateConnect(String address) {
@@ -132,58 +142,10 @@ public class SceneConnectClientImpl implements SceneConnectClient {
     }
 
     private SceneConnect wrapper(Connect connect, NodeType type) {
-        String key = type.getName() + connect.key();
+        String key = type.getName() + connect.address();
         SofaSceneConnect wrapper = new SofaSceneConnect(connect, type, key);
         this.putConnect(key, wrapper);
         connect.setAttr(SCENE_CONNECT_KEY, key);
-        connect.setAttr(Connect.KEY_SIGN, connect.key());
         return wrapper;
     }
-
-    private class SofaSceneConnect implements SceneConnect {
-
-        private Connect connect;
-
-        private NodeType type;
-
-        private String key;
-
-        public SofaSceneConnect(Connect connect, NodeType type, String key) {
-            this.connect = connect;
-            this.type = type;
-            this.key = key;
-        }
-
-        @Override
-        public Response sendMessage(Request request) {
-            return connect.sendMessage(request);
-        }
-
-        @Override
-        public long reflectCount() {
-            return connect.reflectCount();
-        }
-
-        @Override
-        public Object getAttr(String key) {
-            return connect.getAttr(key);
-        }
-
-        @Override
-        public void setAttr(String key, Object o) {
-            connect.setAttr(key, o);
-        }
-
-        @Override
-        public NodeType type() {
-            return type;
-        }
-
-        @Override
-        public String key() {
-            return key;
-        }
-    }
-
-
 }
