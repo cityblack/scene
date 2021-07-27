@@ -3,11 +3,13 @@ package com.lzh.game.scene.api.connect.sofa;
 import com.alipay.remoting.Connection;
 import com.alipay.remoting.ConnectionEventProcessor;
 import com.alipay.remoting.ConnectionEventType;
+import com.alipay.remoting.InvokeContext;
 import com.alipay.remoting.exception.RemotingException;
 import com.alipay.remoting.rpc.RpcClient;
 import com.lzh.game.scene.api.config.ApiConfig;
 import com.lzh.game.scene.api.config.Member;
 import com.lzh.game.scene.api.connect.ConnectClient;
+import com.lzh.game.scene.common.ContextDefined;
 import com.lzh.game.scene.common.connect.*;
 import com.lzh.game.scene.common.connect.sofa.SofaUserProcess;
 import org.slf4j.Logger;
@@ -80,7 +82,7 @@ public class SofaConnectClient extends AbstractConnectManage<Connect> implements
 
     private SofaConnect wrapper(Connection connection, String address) {
         SofaConnect connect = new SofaConnect(connection, address);
-        connect.setAttr(Connect.KEY_SIGN, connect.address());
+        connect.setAttr(ContextDefined.KEY_SIGN, connect.address());
         logger.info("Create connect client [{}]!!", address);
         return connect;
     }
@@ -144,7 +146,7 @@ public class SofaConnectClient extends AbstractConnectManage<Connect> implements
 
         @Override
         public void onEvent(String remoteAddr, Connection conn) {
-            String key = (String) conn.getAttribute(Connect.KEY_SIGN);
+            String key = (String) conn.getAttribute(ContextDefined.KEY_SIGN);
             client.removeConnect(key);
             logger.info("Close connect [{}-{}]!!", conn.getUrl(), key);
         }

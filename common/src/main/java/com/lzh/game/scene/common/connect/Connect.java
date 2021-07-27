@@ -7,8 +7,6 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface Connect {
 
-    String KEY_SIGN = "com.lzh.game.scene.connect.id.source";
-
     void sendOneWay(Request request);
 
     CompletableFuture<Response> sendMessage(Request request);

@@ -11,6 +11,13 @@ class SerializerTest {
     private Serializer serializer = new ProtostuffSerializer();
 
     @Test
+    void encodeBase() {
+        int i = 100-000-000;
+        byte[] bytes = serializer.encode(i);
+        System.out.println(bytes.length);
+    }
+
+    @Test
     void encodeList() throws IOException {
         List<String> list = Arrays.asList("lzh");
         byte[] bytes = serializer.encode(list);
