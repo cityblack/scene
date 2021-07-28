@@ -8,10 +8,10 @@ import com.alipay.remoting.rpc.RequestCommand;
 import com.alipay.remoting.rpc.ResponseCommand;
 import com.alipay.remoting.rpc.protocol.RpcRequestCommand;
 import com.alipay.remoting.rpc.protocol.RpcResponseCommand;
-import com.lzh.game.scene.common.connect.server.CmdManage;
 import com.lzh.game.scene.common.connect.Request;
 import com.lzh.game.scene.common.connect.Response;
 import com.lzh.game.scene.common.connect.codec.Serializer;
+import com.lzh.game.scene.common.connect.server.ConnectServer;
 
 import java.util.Objects;
 
@@ -26,7 +26,12 @@ public class SofaRpcSerialization extends DefaultCustomSerializer {
 
     private Serializer serializer;
 
-    private CmdManage cmdManage;
+    private ConnectServer connectServer;
+
+    public SofaRpcSerialization(Serializer serializer, ConnectServer connectServer) {
+        this.serializer = serializer;
+        this.connectServer = connectServer;
+    }
 
     @Override
     public <T extends ResponseCommand> boolean serializeHeader(T response) throws SerializationException {
@@ -94,7 +99,7 @@ public class SofaRpcSerialization extends DefaultCustomSerializer {
             RpcRequestCommand command = (RpcRequestCommand) request;
             int cmd = (int) command.getRequestHeader();
             Request build = Request.of(cmd);
-            Class<?> clazz = cmdManage.getClass(cmd);
+            Class<?> clazz = connectServer.classManage().findClass(cmd);
             if (Objects.nonNull(clazz)) {
                 byte[] data = command.getContent();
                 Object value = serializer.decode(data, clazz);

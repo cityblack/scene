@@ -2,8 +2,8 @@ package com.lzh.game.scene.common.connect.sofa;
 
 import com.alipay.remoting.ConnectionEventType;
 import com.alipay.remoting.rpc.RpcServer;
-import com.lzh.game.scene.common.connect.server.ConnectServer;
-import com.lzh.game.scene.common.connect.server.ServerConfig;
+import com.lzh.game.scene.common.connect.Request;
+import com.lzh.game.scene.common.connect.server.*;
 import com.lzh.game.scene.common.connect.scene.SceneConnect;
 import com.lzh.game.scene.common.connect.scene.SceneConnectManage;
 
@@ -51,6 +51,21 @@ public class SofaServer implements ConnectServer {
 
     @Override
     public SceneConnectManage<SceneConnect> manage() {
+        return null;
+    }
+
+    @Override
+    public RequestHandler requestHandler() {
+        return null;
+    }
+
+    @Override
+    public CmdClassManage classManage() {
+        return null;
+    }
+
+    @Override
+    public InvokeManage invokeManage() {
         return null;
     }
 

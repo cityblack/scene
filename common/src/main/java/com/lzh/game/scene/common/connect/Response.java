@@ -2,11 +2,11 @@ package com.lzh.game.scene.common.connect;
 
 public class Response {
 
-    private String className;
-
     private String error;
 
     private Object param;
+
+    private RequestContext context;
 
     public String getError() {
         return error;
@@ -14,14 +14,6 @@ public class Response {
 
     public void setError(String error) {
         this.error = error;
-    }
-
-    public String getClassName() {
-        return className;
-    }
-
-    public void setClassName(String className) {
-        this.className = className;
     }
 
     public Object getParam() {
@@ -32,10 +24,17 @@ public class Response {
         this.param = param;
     }
 
+    public RequestContext getContext() {
+        return context;
+    }
+
+    public void setContext(RequestContext context) {
+        this.context = context;
+    }
+
     public static Response of(Object param) {
         Response response = new Response();
         response.setParam(param);
-        response.setClassName(param.getClass().getName());
         return response;
     }
 }

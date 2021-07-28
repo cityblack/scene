@@ -6,6 +6,8 @@ public class Request {
 
     private Object param;
 
+    private RequestContext context;
+
     public int getId() {
         return id;
     }
@@ -20,6 +22,14 @@ public class Request {
 
     public void setParam(Object param) {
         this.param = param;
+    }
+
+    public RequestContext getContext() {
+        return context;
+    }
+
+    public void setContext(RequestContext context) {
+        this.context = context;
     }
 
     public static Request of(int id) {

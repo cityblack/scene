@@ -1,9 +1,9 @@
 package com.lzh.game.scene.common.connect.server;
 
-import com.lzh.game.scene.common.connect.Connect;
 import com.lzh.game.scene.common.connect.Request;
+import com.lzh.game.scene.common.connect.Response;
 
 public interface RequestHandler {
 
-    void dispatch(Connect connect, Request request);
+    Response dispatch(Request request);
 }

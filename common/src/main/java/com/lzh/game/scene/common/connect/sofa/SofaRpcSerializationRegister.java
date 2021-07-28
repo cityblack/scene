@@ -1,12 +1,10 @@
 package com.lzh.game.scene.common.connect.sofa;
 
-import com.alipay.remoting.CustomSerializerManager;
-
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class SofaRpcSerializationRegister {
 
-    private static final SofaRpcSerialization RPC_SERIALIZATION = new SofaRpcSerialization();
+//    private static final SofaRpcSerialization RPC_SERIALIZATION = new SofaRpcSerialization();
 
     private static volatile AtomicBoolean registered = new AtomicBoolean(false);
 

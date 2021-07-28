@@ -2,53 +2,76 @@ package com.lzh.game.scene.common.connect.sofa;
 
 import com.alipay.remoting.AsyncContext;
 import com.alipay.remoting.BizContext;
-import com.alipay.remoting.Connection;
-import com.alipay.remoting.exception.RemotingException;
 import com.alipay.remoting.rpc.RpcServer;
 import com.alipay.remoting.rpc.protocol.AsyncUserProcessor;
 import com.lzh.game.scene.common.ContextDefined;
-import com.lzh.game.scene.common.connect.Connect;
 import com.lzh.game.scene.common.connect.Request;
+import com.lzh.game.scene.common.connect.RequestContext;
 import com.lzh.game.scene.common.connect.Response;
-import com.lzh.game.scene.common.connect.scene.SceneConnectManage;
+import com.lzh.game.scene.common.connect.server.ConnectServer;
+import com.lzh.game.scene.common.connect.server.MethodInvoke;
+import com.lzh.game.scene.common.connect.server.InvokeException;
 import com.lzh.game.scene.common.connect.server.RequestHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 
 public class SofaUserProcess extends AsyncUserProcessor<Request> {
+
+    private static final Logger logger = LoggerFactory.getLogger(SofaUserProcess.class);
+
+    private static final String INTEREST = Request.class.getName();
 
     static {
        SofaRpcSerializationRegister.registerCustomSerializer();
     }
 
-    private RequestHandler requestHandler;
+    private ConnectServer server;
 
-    private SceneConnectManage connectManage;
-
-    private RpcServer rpcServer;
-
-    public SofaUserProcess(RequestHandler requestHandler, SceneConnectManage connectManage) {
-        this.requestHandler = requestHandler;
-        this.connectManage = connectManage;
+    public SofaUserProcess(ConnectServer server) {
+        this.server = server;
     }
 
     @Override
     public void handleRequest(BizContext bizCtx, AsyncContext asyncCtx, Request request) {
-        Connection connection = bizCtx.getConnection();
-        Object key = connection.getAttribute(ContextDefined.SCENE_CONNECT_KEY);
-        // 说明是已经注册过的链接 将其转成
-        if (Objects.nonNull(key)) {
-//            Connect connect = connectManage.getConnect((String) key);
-//            requestHandler.dispatch(connect, request);
-        } else {
 
+        try {
+            RequestContext requestContext = new RequestContext();
+            requestContext.setAttr(ContextDefined.SOFA_ASYNC_CONTEXT, asyncCtx);
+            requestContext.setAttr(ContextDefined.SOFA_CONNECT_REQUEST, bizCtx.getConnection());
+
+            request.setContext(requestContext);
+
+            RequestHandler handler = server.requestHandler();
+            Response response = handler.dispatch(request);
+
+            if (bizCtx.isRequestTimeout()) {
+                response.setError("Request timeout!!");
+                asyncCtx.sendResponse(response);
+                return;
+            }
+
+            if (Objects.nonNull(response.getError())) {
+                response.setError(response.getError());
+                asyncCtx.sendResponse(response);
+            }
+
+            if (Objects.nonNull(response.getParam())) {
+                asyncCtx.sendResponse(response);
+            }
+
+        } catch (Exception e) {
+            logger.error("Request error!!", e);
+            Response response = new Response();
+            response.setError(e.getMessage());
+            asyncCtx.sendResponse(response);
         }
     }
 
     @Override
     public String interest() {
-        return null;
+        return INTEREST;
     }
 
 }
