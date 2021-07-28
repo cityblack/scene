@@ -1,4 +1,4 @@
-package com.lzh.game.scene;
+package com.lzh.game.scene.core;
 
 import com.lzh.game.scene.common.SceneInstance;
 

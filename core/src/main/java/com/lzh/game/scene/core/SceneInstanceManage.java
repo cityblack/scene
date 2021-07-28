@@ -1,11 +1,11 @@
-package com.lzh.game.scene;
+package com.lzh.game.scene.core;
 
 import com.lzh.game.scene.common.SceneInstance;
 
 import java.util.List;
 
 /**
- * 地图场景管理器
+ * 地图场景管理器, 只用作存储信息
  */
 public interface SceneInstanceManage {
 
