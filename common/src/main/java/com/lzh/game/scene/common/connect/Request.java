@@ -1,12 +1,30 @@
 package com.lzh.game.scene.common.connect;
 
-public class Request extends ExchangeBase {
+public class Request {
 
-    public static Request of(int id, Object param) {
+    private int id;
+
+    private Object param;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public Object getParam() {
+        return param;
+    }
+
+    public void setParam(Object param) {
+        this.param = param;
+    }
+
+    public static Request of(int id) {
         Request request = new Request();
         request.setId(id);
-        request.setParam(param);
-        request.setClassName(param.getClass().getName());
         return request;
     }
 }

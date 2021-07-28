@@ -2,6 +2,10 @@ package com.lzh.game.scene.common.connect;
 
 import java.util.Collection;
 
+/**
+ *
+ * @param <T>
+ */
 public interface ConnectManage<T extends Connect> {
 
     T getConnect(String key);

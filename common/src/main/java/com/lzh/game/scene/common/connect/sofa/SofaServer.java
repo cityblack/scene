@@ -2,8 +2,8 @@ package com.lzh.game.scene.common.connect.sofa;
 
 import com.alipay.remoting.ConnectionEventType;
 import com.alipay.remoting.rpc.RpcServer;
-import com.lzh.game.scene.common.connect.ConnectServer;
-import com.lzh.game.scene.common.connect.ServerConfig;
+import com.lzh.game.scene.common.connect.server.ConnectServer;
+import com.lzh.game.scene.common.connect.server.ServerConfig;
 import com.lzh.game.scene.common.connect.scene.SceneConnect;
 import com.lzh.game.scene.common.connect.scene.SceneConnectManage;
 

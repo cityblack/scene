@@ -1,4 +1,4 @@
-package com.lzh.game.scene.common.connect;
+package com.lzh.game.scene.common.connect.server;
 
 public class ServerConfig {
 

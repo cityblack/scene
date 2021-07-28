@@ -1,4 +1,4 @@
-package com.lzh.game.scene.common.connect;
+package com.lzh.game.scene.common.connect.server;
 
 import com.lzh.game.scene.common.connect.scene.SceneConnect;
 import com.lzh.game.scene.common.connect.scene.SceneConnectManage;
