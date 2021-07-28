@@ -13,7 +13,7 @@ public class SofaServer implements ConnectServer {
 
     private RpcServer rpcServer;
 
-    private SofaUserProcess sofaUserProcess = new SofaUserProcess();
+    private SofaUserProcess sofaUserProcess;
 
     private SofaConnectConnectedEvent createEvent = new SofaConnectConnectedEvent();
 

@@ -3,6 +3,7 @@ package com.lzh.game.scene.api;
 import com.lzh.game.scene.api.config.ApiConfig;
 import com.lzh.game.scene.api.config.Member;
 import com.lzh.game.scene.common.SceneChangeStatus;
+import com.lzh.game.scene.common.SceneInstance;
 
 public class App {
 
@@ -22,6 +23,25 @@ public class App {
 
         api.subscribe(group, SceneChangeStatus.CHANGE, instance -> System.out.println(instance));
 
+        api.registerSceneInstance(group, new Instance());
 
+    }
+
+    public static class Instance implements SceneInstance {
+
+        @Override
+        public String group() {
+            return null;
+        }
+
+        @Override
+        public String unique() {
+            return null;
+        }
+
+        @Override
+        public int map() {
+            return 0;
+        }
     }
 }

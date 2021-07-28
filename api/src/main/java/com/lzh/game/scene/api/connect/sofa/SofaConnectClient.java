@@ -33,7 +33,7 @@ public class SofaConnectClient extends AbstractConnectManage<Connect> implements
 
     public SofaConnectClient() {
         rpcClient.addConnectionEventProcessor(ConnectionEventType.CLOSE, closeEvent);
-        rpcClient.registerUserProcessor(new SofaUserProcess());
+//        rpcClient.registerUserProcessor(new SofaUserProcess());
     }
 
     @Override

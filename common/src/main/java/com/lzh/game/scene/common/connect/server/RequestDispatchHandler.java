@@ -1,5 +1,6 @@
 package com.lzh.game.scene.common.connect.server;
 
+import com.lzh.game.scene.common.connect.Connect;
 import com.lzh.game.scene.common.connect.Request;
 import com.lzh.game.scene.common.connect.Response;
 
@@ -8,7 +9,7 @@ public class RequestDispatchHandler implements RequestHandler {
     private CmdManage cmdManage;
 
     @Override
-    public void dispatch(Request request) {
+    public void dispatch(Connect connect, Request request) {
         Invoke invoke = cmdManage.getInvoke(request.getId());
         Response response = new Response();
         try {
@@ -19,4 +20,5 @@ public class RequestDispatchHandler implements RequestHandler {
             response.setError(e.getMessage());
         }
     }
+
 }
