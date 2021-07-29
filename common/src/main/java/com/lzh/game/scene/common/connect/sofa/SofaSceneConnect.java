@@ -41,10 +41,9 @@ public class SofaSceneConnect implements SceneConnect {
     }
 
     @Override
-    public Object getAttr(String key) {
+    public <T> T getAttr(String key) {
         return connect.getAttr(key);
     }
-
     @Override
     public void setAttr(String key, Object o) {
         connect.setAttr(key, o);
@@ -56,7 +55,7 @@ public class SofaSceneConnect implements SceneConnect {
     }
 
     @Override
-    public String address() {
+    public String key() {
         return key;
     }
 }

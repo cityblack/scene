@@ -65,9 +65,8 @@ public class SceneConnectClientImpl implements SceneConnectClient {
         this.nodeConnect.getOrDefault(type, new ArrayList<>()).remove(connect);
         this.connectNode.remove(key);
 
-        String address = connect.address();
+        String address = connect.getAttr(ContextDefined.SCENE_CONNECT_KEY);
         client.removeConnect(address);
-
         return true;
     }
 
@@ -78,20 +77,17 @@ public class SceneConnectClientImpl implements SceneConnectClient {
 
     @Override
     public void putConnect(String key, SceneConnect connect) {
-        client.putConnect(connect.address(), connect);
+        String address = connect.getAttr(ContextDefined.SCENE_CONNECT_KEY);
+        client.putConnect(address, connect);
+
         NodeType type = connect.type();
-        this.nodeConnect.merge(type, Arrays.asList(connect), (o1, o2) -> {
-            o1.addAll(o2);
-            return o1;
-        });
-        String unique = connect.address();
+        List<SceneConnect> connects = this.nodeConnect.putIfAbsent(type, new ArrayList<>());
+        connects.add(connect);
+
+        String unique = connect.key();
         this.connects.put(unique, connect);
-        Set<NodeType> set = new HashSet<>(1);
+        Set<NodeType> set = this.connectNode.putIfAbsent(key, new HashSet<>());
         set.add(type);
-        this.connectNode.merge(key, set , (o1, o2) -> {
-            o1.addAll(o2);
-            return o1;
-        });
     }
 
     @Override
@@ -143,10 +139,10 @@ public class SceneConnectClientImpl implements SceneConnectClient {
     }
 
     private SceneConnect wrapper(Connect connect, NodeType type) {
-        String key = type.getName() + connect.address();
+        String key = type.getName() + connect.key();
         SofaSceneConnect wrapper = new SofaSceneConnect(connect, type, key);
         this.putConnect(key, wrapper);
-        connect.setAttr(ContextDefined.SCENE_CONNECT_KEY, key);
+        connect.setAttr(ContextDefined.SCENE_CONNECT_KEY, connect.key());
         return wrapper;
     }
 }

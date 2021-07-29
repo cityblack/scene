@@ -13,7 +13,7 @@ public interface Connect {
 
     long reflectCount();
 
-    Object getAttr(String key);
+    <T>T getAttr(String key);
 
     void setAttr(String key, Object o);
 
@@ -21,5 +21,5 @@ public interface Connect {
      * 唯一连接
      * @return
      */
-    String address();
+    String key();
 }
