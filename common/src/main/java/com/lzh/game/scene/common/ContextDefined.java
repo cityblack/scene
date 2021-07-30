@@ -2,7 +2,8 @@ package com.lzh.game.scene.common;
 
 public class ContextDefined {
 
-    public static String KEY_SIGN = "com.lzh.game.scene.connect.id.source";
+    // sofa connect标识包装的connect 通过该标识从sofa找到对应的connect
+    public static String SOURCE_CONNECT_RELATION = "com.lzh.game.scene.connect.id.source";
 
     public static String CMD_KEY = "com.lzh.game.scene.connect.cmd";
 

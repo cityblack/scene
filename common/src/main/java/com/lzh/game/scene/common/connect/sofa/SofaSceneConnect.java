@@ -9,7 +9,7 @@ import com.lzh.game.scene.common.connect.scene.SceneConnect;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * 包装Sofa的Connection对象
+ * 包装connect对象
  */
 public class SofaSceneConnect implements SceneConnect {
 
@@ -57,5 +57,10 @@ public class SofaSceneConnect implements SceneConnect {
     @Override
     public String key() {
         return key;
+    }
+
+    @Override
+    public Connect bridge() {
+        return connect;
     }
 }

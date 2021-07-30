@@ -6,8 +6,7 @@ public enum NodeType {
     // 客户端节点
     CLIENT_NODE("com.lzh.game.client.node."),
     // 场景节点
-    SCENE_NODE("com.lzh.game.scene.node.")
-
+    SCENE_NODE("com.lzh.game.scene.node."),
     ;
 
     private String name;

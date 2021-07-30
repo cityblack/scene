@@ -2,23 +2,19 @@ package com.lzh.game.scene.common.connect;
 
 import java.util.Collection;
 
-/**
- *
- * @param <T>
- */
-public interface ConnectManage<T extends Connect> {
+public interface ConnectManage {
 
-    T getConnect(String key);
+    Connect getConnect(String key);
 
-    Collection<T> getAllConnect();
-
-    void putConnect(String key, T connect);
-
-    boolean removeConnect(String key);
+    Collection<Connect> getAllConnect();
 
     void shutdown();
+
+    Connect putConnect(String key, Connect connect);
 
     default String toAddress(String host, int port) {
         return host + ":" + port;
     }
+
+    void removeConnect(String key);
 }

@@ -23,14 +23,10 @@ public class SofaUserProcess extends AsyncUserProcessor<Request> {
 
     private static final String INTEREST = Request.class.getName();
 
-    static {
-       SofaRpcSerializationRegister.registerCustomSerializer();
-    }
+    private RequestHandler handler;
 
-    private ConnectServer server;
-
-    public SofaUserProcess(ConnectServer server) {
-        this.server = server;
+    public SofaUserProcess(RequestHandler requestHandler) {
+        this.handler = requestHandler;
     }
 
     @Override
@@ -43,7 +39,6 @@ public class SofaUserProcess extends AsyncUserProcessor<Request> {
 
             request.setContext(requestContext);
 
-            RequestHandler handler = server.requestHandler();
             Response response = handler.dispatch(request);
 
             if (bizCtx.isRequestTimeout()) {

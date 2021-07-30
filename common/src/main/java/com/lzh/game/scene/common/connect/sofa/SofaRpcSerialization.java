@@ -11,6 +11,7 @@ import com.alipay.remoting.rpc.protocol.RpcResponseCommand;
 import com.lzh.game.scene.common.connect.Request;
 import com.lzh.game.scene.common.connect.Response;
 import com.lzh.game.scene.common.connect.codec.Serializer;
+import com.lzh.game.scene.common.connect.server.CmdClassManage;
 import com.lzh.game.scene.common.connect.server.ConnectServer;
 
 import java.util.Objects;
@@ -26,11 +27,14 @@ public class SofaRpcSerialization extends DefaultCustomSerializer {
 
     private Serializer serializer;
 
-    private ConnectServer connectServer;
+    private CmdClassManage classManage;
 
-    public SofaRpcSerialization(Serializer serializer, ConnectServer connectServer) {
+    public SofaRpcSerialization() {
+    }
+
+    public SofaRpcSerialization(Serializer serializer, CmdClassManage classManage) {
         this.serializer = serializer;
-        this.connectServer = connectServer;
+        this.classManage = classManage;
     }
 
     @Override
@@ -99,7 +103,7 @@ public class SofaRpcSerialization extends DefaultCustomSerializer {
             RpcRequestCommand command = (RpcRequestCommand) request;
             int cmd = (int) command.getRequestHeader();
             Request build = Request.of(cmd);
-            Class<?> clazz = connectServer.classManage().findClass(cmd);
+            Class<?> clazz = classManage.findClass(cmd);
             if (Objects.nonNull(clazz)) {
                 byte[] data = command.getContent();
                 Object value = serializer.decode(data, clazz);
@@ -111,4 +115,11 @@ public class SofaRpcSerialization extends DefaultCustomSerializer {
     }
 
 
+    public void setSerializer(Serializer serializer) {
+        this.serializer = serializer;
+    }
+
+    public void setClassManage(CmdClassManage classManage) {
+        this.classManage = classManage;
+    }
 }

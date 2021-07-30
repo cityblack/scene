@@ -1,10 +1,16 @@
 package com.lzh.game.scene.common.connect.sofa;
 
+import com.alipay.remoting.CustomSerializerManager;
+import com.lzh.game.scene.common.connect.Request;
+import com.lzh.game.scene.common.connect.Response;
+import com.lzh.game.scene.common.connect.codec.Serializer;
+import com.lzh.game.scene.common.connect.server.CmdClassManage;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class SofaRpcSerializationRegister {
 
-//    private static final SofaRpcSerialization RPC_SERIALIZATION = new SofaRpcSerialization();
+    private static final SofaRpcSerialization RPC_SERIALIZATION = new SofaRpcSerialization();
 
     private static volatile AtomicBoolean registered = new AtomicBoolean(false);
 
@@ -19,13 +25,21 @@ public final class SofaRpcSerializationRegister {
      */
     protected static void innerRegisterCustomSerializer() {
         // 注册序列化器到bolt
-//        if (CustomSerializerManager.getCustomSerializer(SofaRequest.class.getName()) == null) {
-//            CustomSerializerManager.registerCustomSerializer(SofaRequest.class.getName(),
-//                    RPC_SERIALIZATION);
-//        }
-//        if (CustomSerializerManager.getCustomSerializer(SofaResponse.class.getName()) == null) {
-//            CustomSerializerManager.registerCustomSerializer(SofaResponse.class.getName(),
-//                    RPC_SERIALIZATION);
-//        }
+        if (CustomSerializerManager.getCustomSerializer(Request.class.getName()) == null) {
+            CustomSerializerManager.registerCustomSerializer(Request.class.getName(),
+                    RPC_SERIALIZATION);
+        }
+        if (CustomSerializerManager.getCustomSerializer(Response.class.getName()) == null) {
+            CustomSerializerManager.registerCustomSerializer(Response.class.getName(),
+                    RPC_SERIALIZATION);
+        }
+    }
+
+    public static void setSerialization(Serializer serializer) {
+        RPC_SERIALIZATION.setSerializer(serializer);
+    }
+
+    public static void setClassManage(CmdClassManage classManage) {
+        RPC_SERIALIZATION.setClassManage(classManage);
     }
 }
