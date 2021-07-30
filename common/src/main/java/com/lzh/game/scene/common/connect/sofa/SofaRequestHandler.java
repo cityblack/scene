@@ -7,6 +7,8 @@ import com.lzh.game.scene.common.connect.server.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 public class SofaRequestHandler implements RequestHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(SofaRequestHandler.class);
@@ -22,6 +24,10 @@ public class SofaRequestHandler implements RequestHandler {
         Response response = new Response();
 
         MethodInvoke invoke = invokeManage.findInvoke(request.getId());
+        if (Objects.isNull(invoke)) {
+            response.setError("Illegal request, Not defined cmd " + request.getId());
+            return response;
+        }
         try {
             doInvoke(request, response, invoke);
         } catch (InvokeException e) {

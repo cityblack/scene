@@ -31,6 +31,12 @@ class AppTest {
         request.setParam("hell world!!");
         connect.sendOneWay(request);
 
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
 //        AsyncSceneApi api = new AsyncSceneApiImpl();
 //        String group = "test";
 //

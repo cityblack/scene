@@ -110,6 +110,7 @@ public class SofaRpcSerialization extends DefaultCustomSerializer {
                 build.setParam(value);
             }
             command.setRequestObject(build);
+            return true;
         }
         return super.deserializeContent(request);
     }

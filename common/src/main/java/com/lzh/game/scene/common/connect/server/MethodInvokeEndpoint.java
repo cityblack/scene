@@ -16,6 +16,12 @@ public class MethodInvokeEndpoint implements MethodInvoke {
 
     private Class<?>[] params;
 
+    public MethodInvokeEndpoint(Object target, Method method, Class<?>[] params) {
+        this.target = target;
+        this.method = method;
+        this.params = params;
+    }
+
     @Override
     public Object invoke(Object... param) throws InvokeException {
         try {

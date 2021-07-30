@@ -12,31 +12,31 @@ public class ServerMessageManage implements CmdClassManage, InvokeManage {
 
     @Override
     public Class<?> findClass(int cmd) {
-        return null;
+        return this.clazz.get(cmd);
     }
 
     @Override
     public void registerClass(int cmd, Class<?> clazz) {
-
+        this.clazz.put(cmd, clazz);
     }
 
     @Override
     public boolean existClass(int cmd) {
-        return false;
+        return this.clazz.containsKey(cmd);
     }
 
     @Override
     public MethodInvoke findInvoke(int cmd) {
-        return null;
+        return this.invokes.get(cmd);
     }
 
     @Override
     public void registerInvoke(int cmd, MethodInvoke methodInvoke) {
-
+        this.invokes.put(cmd, methodInvoke);
     }
 
     @Override
     public boolean existInvoke(int cmd) {
-        return false;
+        return this.invokes.containsKey(cmd);
     }
 }
