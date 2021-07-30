@@ -19,11 +19,15 @@ import java.util.Objects;
 /**
  * 节约带宽，按SOFA自身协议 把请求CMD和对应的class信息写到信息头里面
  * 信息的BODY直接写参数进去
- * header -> int 标识请求唯一, 一般压缩之后小于4bit
- *
- * context ->
+ * request header -> int 标识请求唯一, 一般压缩之后小于4bit
+ * <p>
+ * response header -> 返回分两种, 一种是正确的值, 一种是错误信息. 用1位字节标识是否正确响应
  */
 public class SofaRpcSerialization extends DefaultCustomSerializer {
+
+    private static final byte RIGHT_RESPONSE = 0x0;
+
+    private static final byte ERROR_RESPONSE = 0x1;
 
     private Serializer serializer;
 
@@ -39,7 +43,50 @@ public class SofaRpcSerialization extends DefaultCustomSerializer {
 
     @Override
     public <T extends ResponseCommand> boolean serializeHeader(T response) throws SerializationException {
+        if (response instanceof RpcResponseCommand) {
+            RpcResponseCommand command = (RpcResponseCommand) response;
+            Object o = command.getResponseObject();
+            if (o instanceof Response) {
+                Response r = (Response) o;
+                byte sign = Objects.isNull(r.getError()) ? RIGHT_RESPONSE : ERROR_RESPONSE;
+                command.setHeader(new byte[] { sign });
+                return true;
+            }
+        }
         return super.serializeHeader(response);
+    }
+
+    @Override
+    public <T extends ResponseCommand> boolean deserializeHeader(T response, InvokeContext invokeContext) throws DeserializationException {
+        if (response instanceof RpcResponseCommand) {
+            RpcResponseCommand command = (RpcResponseCommand) response;
+            byte[] values = command.getHeader();
+            if (values.length < 0) {
+                command.setResponseHeader(ERROR_RESPONSE);
+            } else {
+                command.setResponseHeader(values[0]);
+            }
+            return true;
+        }
+        return super.deserializeHeader(response, invokeContext);
+    }
+
+    @Override
+    public <T extends ResponseCommand> boolean deserializeContent(T response, InvokeContext invokeContext) throws DeserializationException {
+        if (response instanceof RpcResponseCommand) {
+            RpcResponseCommand command = (RpcResponseCommand) response;
+            Object o = command.getResponseObject();
+
+            if (o instanceof Response) {
+                Response r = (Response) o;
+                byte sign = (byte) command.getResponseHeader();
+                if (sign == RIGHT_RESPONSE) {
+
+                }
+                return true;
+            }
+        }
+        return super.deserializeContent(response, invokeContext);
     }
 
     @Override
@@ -77,7 +124,7 @@ public class SofaRpcSerialization extends DefaultCustomSerializer {
             RpcRequestCommand command = (RpcRequestCommand) request;
             Object o = command.getRequestObject();
             if (o instanceof Request) {
-                Object value = ((Request)o).getParam();
+                Object value = ((Request) o).getParam();
                 byte[] content = serializer.encode(value);
                 request.setContent(content);
                 return true;
@@ -114,7 +161,6 @@ public class SofaRpcSerialization extends DefaultCustomSerializer {
         }
         return super.deserializeContent(request);
     }
-
 
     public void setSerializer(Serializer serializer) {
         this.serializer = serializer;
