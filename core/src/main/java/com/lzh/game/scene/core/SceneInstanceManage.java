@@ -13,7 +13,7 @@ public interface SceneInstanceManage {
 
     List<SceneInstance> get(String group, int mapId);
 
-    SceneInstance getInstance(String unique);
+    SceneInstance getInstance(String group, String unique);
 
     boolean put(String group, SceneInstance instance);
 

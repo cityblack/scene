@@ -4,6 +4,7 @@ import com.alipay.remoting.Connection;
 import com.alipay.remoting.exception.RemotingException;
 import com.alipay.remoting.rpc.RpcServer;
 import com.lzh.game.scene.common.connect.*;
+import com.lzh.game.scene.common.connect.server.AbstractServerBootstrap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +14,11 @@ public class SofaServerConnectFactory implements ConnectFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(SofaServerConnectFactory.class);
 
-    private RpcServer rpcServer;
+    private AbstractServerBootstrap bootstrap;
+
+    public SofaServerConnectFactory(AbstractServerBootstrap bootstrap) {
+        this.bootstrap = bootstrap;
+    }
 
     @Override
     public Connect createConnect(String address, Object param) {
@@ -32,7 +37,7 @@ public class SofaServerConnectFactory implements ConnectFactory {
         @Override
         public void sendOneWay(Request request) {
             try {
-                rpcServer.oneway(connection, request);
+                bootstrap.getRpcServer().oneway(connection, request);
             } catch (RemotingException e) {
                 logger.error("Request error!!", e);
             }

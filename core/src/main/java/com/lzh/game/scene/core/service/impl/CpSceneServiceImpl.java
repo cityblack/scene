@@ -1,17 +1,24 @@
-package com.lzh.game.scene.core.service;
+package com.lzh.game.scene.core.service.impl;
 
 import com.lzh.game.scene.common.SceneChangeStatus;
 import com.lzh.game.scene.common.SceneInstance;
 import com.lzh.game.scene.core.SceneInstanceManage;
+import com.lzh.game.scene.core.exchange.DataRequest;
+import com.lzh.game.scene.core.jrfa.JRService;
+import com.lzh.game.scene.core.service.SceneService;
 
 import java.util.List;
 
-public class SceneServiceImpl implements SceneService {
+public class CpSceneServiceImpl implements SceneService {
 
     private SceneInstanceManage manage;
 
+    private JRService jrService;
+
     @Override
     public SceneInstance registerSceneInstance(String group, SceneInstance instance) {
+        DataRequest request = new DataRequest();
+        jrService.commitTask(request);
         return null;
     }
 
@@ -37,6 +44,11 @@ public class SceneServiceImpl implements SceneService {
 
     @Override
     public void subscribe(String group, SceneChangeStatus status, int map) {
+
+    }
+
+    @Override
+    public void keepMapInstances(String group, int map, int numLimit) {
 
     }
 }

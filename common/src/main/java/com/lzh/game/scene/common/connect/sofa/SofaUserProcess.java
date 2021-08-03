@@ -64,4 +64,9 @@ public class SofaUserProcess extends AsyncUserProcessor<Request> {
         return INTEREST;
     }
 
+    @Override
+    public ExecutorSelector getExecutorSelector() {
+        // todo 将jfra的线程和工作线程分开
+        return super.getExecutorSelector();
+    }
 }

@@ -52,4 +52,10 @@ public interface SceneService {
      */
     void subscribe(String group, SceneChangeStatus status, int map);
 
+    /**
+     * 向中心注册保持地图实例数量, 当地图实例不足的时候(宕机, 失联)将自动向场景节点请求创建地图
+     * @param map
+     * @param numLimit
+     */
+    void keepMapInstances(String group, int map, int numLimit);
 }

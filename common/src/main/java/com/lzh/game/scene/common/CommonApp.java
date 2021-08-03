@@ -15,7 +15,7 @@ public class CommonApp {
         CommonApp app = new CommonApp();
         ServerConfig config = new ServerConfig();
         config.setPort(8181);
-        ConnectServer server = new SofaServer(config);
+        ConnectServer<ServerConfig> server = new SofaServer(config);
         server.start();
         CmdClassManage classManage = server.classManage();
         classManage.registerClass(10086, String.class);
