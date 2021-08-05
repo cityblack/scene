@@ -1,6 +1,7 @@
-package com.lzh.game.scene.core;
+package com.lzh.game.scene.core.service.impl;
 
 import com.lzh.game.scene.common.SceneInstance;
+import com.lzh.game.scene.core.service.SceneInstanceManage;
 
 import java.util.List;
 

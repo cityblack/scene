@@ -45,7 +45,7 @@ public class SofaServerConnectFactory implements ConnectFactory {
 
         @Override
         public CompletableFuture<Response> sendMessage(Request request) {
-            return null;
+            throw new IllegalArgumentException("Server can't use future!!");
         }
     }
 }

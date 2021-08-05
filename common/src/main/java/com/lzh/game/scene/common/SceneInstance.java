@@ -1,19 +1,15 @@
 package com.lzh.game.scene.common;
 
-public interface SceneInstance {
+import java.io.Serializable;
 
-    String group();
-    /**
-     * 地图实例唯一标识
-     * @return
-     */
-    String unique();
+public class SceneInstance implements Serializable {
 
-    /**
-     * 对应的mapId
-     * @return
-     */
-    int map();
+    private static final long serialVersionUID = -1904095131138925745L;
 
+    private String group;
+
+    private String unique;
+
+    private int map;
 
 }

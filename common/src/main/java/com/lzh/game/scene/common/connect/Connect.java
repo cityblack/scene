@@ -9,6 +9,11 @@ public interface Connect {
 
     void sendOneWay(Request request);
 
+    /**
+     * 非必要去使用get进行阻塞
+     * @param request
+     * @return
+     */
     CompletableFuture<Response> sendMessage(Request request);
 
     long reflectCount();

@@ -1,5 +1,6 @@
 package com.lzh.game.scene.core.jrfa;
 
+import com.google.protobuf.Message;
 import com.lzh.game.scene.common.connect.Response;
 import com.lzh.game.scene.common.connect.codec.Serializer;
 import com.lzh.game.scene.core.ClusterServerConfig;
@@ -12,11 +13,11 @@ public interface JRService {
 
     <T extends ClusterServerConfig>void start(T config);
 
-    CompletableFuture<Response> commitTask(DataRequest request);
+    <E extends Message, T extends Message>CompletableFuture<E> commitTask(T request);
 
-    void onRequest(DataRequest request);
+//    void onRequest(DataRequest request);
 
-    void onResponse(DataResponse response);
+//    void onResponse(DataResponse response);
 
     Serializer serializer();
 }

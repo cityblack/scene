@@ -7,6 +7,8 @@ public class ApiConfig {
 
     private List<Member> cluster = new ArrayList<>();
 
+    private int requestOutTime = 5000;
+
     public List<Member> getCluster() {
         return cluster;
     }
@@ -17,5 +19,13 @@ public class ApiConfig {
 
     public void addMember(Member member) {
         this.cluster.add(member);
+    }
+
+    public int getRequestOutTime() {
+        return requestOutTime;
+    }
+
+    public void setRequestOutTime(int requestOutTime) {
+        this.requestOutTime = requestOutTime;
     }
 }

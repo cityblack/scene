@@ -12,7 +12,7 @@ public interface SceneService {
      * @param group
      * @param instance
      */
-    SceneInstance registerSceneInstance(String group, SceneInstance instance);
+    void registerSceneInstance(String group, SceneInstance instance);
 
     /**
      * 移除场景实例

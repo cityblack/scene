@@ -13,6 +13,8 @@ public class ClusterServerConfig extends ServerConfig {
 
     private String consistLogUri;
 
+    private int invokeOutTime = 5000;
+
     private List<String> cluster = new ArrayList<>();
 
     public List<String> getCluster() {
@@ -45,5 +47,13 @@ public class ClusterServerConfig extends ServerConfig {
 
     public void setIp(String ip) {
         this.ip = ip;
+    }
+
+    public int getInvokeOutTime() {
+        return invokeOutTime;
+    }
+
+    public void setInvokeOutTime(int invokeOutTime) {
+        this.invokeOutTime = invokeOutTime;
     }
 }

@@ -1,6 +1,7 @@
 package com.lzh.game.scene.api.connect.sofa;
 
 import com.alipay.remoting.Connection;
+import com.alipay.remoting.InvokeCallback;
 import com.alipay.remoting.exception.RemotingException;
 import com.alipay.remoting.rpc.RpcClient;
 import com.lzh.game.scene.common.connect.Connect;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 public class SofaClientConnectFactory implements ConnectFactory {
 
@@ -19,8 +21,11 @@ public class SofaClientConnectFactory implements ConnectFactory {
 
     private RpcClient rpcClient;
 
-    public SofaClientConnectFactory(RpcClient rpcClient) {
+    private int requestOutTime;
+
+    public SofaClientConnectFactory(RpcClient rpcClient, int requestOutTime) {
         this.rpcClient = rpcClient;
+        this.requestOutTime = requestOutTime;
     }
 
     @Override
@@ -52,8 +57,39 @@ public class SofaClientConnectFactory implements ConnectFactory {
 
         @Override
         public CompletableFuture<Response> sendMessage(Request request) {
-//            rpcClient.invokeWithFuture(connection, request, );
-            return null;
+            CompletableFuture<Response> future = new CompletableFuture<>();
+            try {
+                rpcClient.invokeWithCallback(connection, request, new InvokeCallback() {
+
+                    @Override
+                    public void onResponse(Object result) {
+                        if (future.isCancelled()) {
+                            return;
+                        }
+                        if (future.isDone()) {
+                            logger.error("Response message but future is done!");
+                            return;
+                        }
+                        future.complete((Response) result);
+                    }
+
+                    @Override
+                    public void onException(Throwable e) {
+                        if (future.isCancelled()) {
+                            return;
+                        }
+                        future.completeExceptionally(e);
+                    }
+
+                    @Override
+                    public Executor getExecutor() {
+                        return null;
+                    }
+                }, requestOutTime);
+            } catch (RemotingException e) {
+                future.completeExceptionally(e);
+            }
+            return future;
         }
     }
 }

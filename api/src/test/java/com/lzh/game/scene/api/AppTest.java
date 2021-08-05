@@ -5,13 +5,12 @@ import com.lzh.game.scene.api.config.Member;
 import com.lzh.game.scene.api.connect.ConnectClient;
 import com.lzh.game.scene.api.connect.sofa.SofaConnectClient;
 import com.lzh.game.scene.common.NodeType;
-import com.lzh.game.scene.common.SceneChangeStatus;
-import com.lzh.game.scene.common.SceneInstance;
 import com.lzh.game.scene.common.connect.Connect;
 import com.lzh.game.scene.common.connect.Request;
+import com.lzh.game.scene.common.connect.Response;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.concurrent.CompletableFuture;
 
 class AppTest {
 
@@ -31,6 +30,8 @@ class AppTest {
         request.setParam("hell world!!");
         connect.sendOneWay(request);
 
+        CompletableFuture<Response> future = connect.sendMessage(request);
+        future.thenAccept(response -> System.out.println(response.getParam()));
         try {
             Thread.sleep(10000);
         } catch (InterruptedException e) {
@@ -43,23 +44,5 @@ class AppTest {
 //        api.subscribe(group, SceneChangeStatus.CHANGE, instance -> System.out.println(instance));
 //
 //        api.registerSceneInstance(group, new Instance());
-    }
-
-    public static class Instance implements SceneInstance {
-
-        @Override
-        public String group() {
-            return "xxx";
-        }
-
-        @Override
-        public String unique() {
-            return "hello xxx";
-        }
-
-        @Override
-        public int map() {
-            return 10086;
-        }
     }
 }

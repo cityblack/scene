@@ -1,4 +1,4 @@
-package com.lzh.game.scene.core.service;
+package com.lzh.game.scene.core.node;
 
 import com.lzh.game.scene.common.NodeType;
 import com.lzh.game.scene.common.connect.Connect;

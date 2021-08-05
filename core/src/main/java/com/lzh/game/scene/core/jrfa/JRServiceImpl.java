@@ -1,24 +1,22 @@
 package com.lzh.game.scene.core.jrfa;
 
 import com.alipay.remoting.rpc.RpcServer;
-import com.alipay.sofa.jraft.JRaftUtils;
-import com.alipay.sofa.jraft.Node;
-import com.alipay.sofa.jraft.RaftGroupService;
-import com.alipay.sofa.jraft.StateMachine;
+import com.alipay.sofa.jraft.*;
 import com.alipay.sofa.jraft.conf.Configuration;
+import com.alipay.sofa.jraft.core.CliServiceImpl;
 import com.alipay.sofa.jraft.entity.PeerId;
 import com.alipay.sofa.jraft.entity.Task;
+import com.alipay.sofa.jraft.option.CliOptions;
 import com.alipay.sofa.jraft.option.NodeOptions;
+import com.alipay.sofa.jraft.rpc.ClientService;
+import com.alipay.sofa.jraft.rpc.RpcResponseClosure;
 import com.alipay.sofa.jraft.rpc.impl.BoltRpcServer;
 import com.alipay.sofa.jraft.util.Endpoint;
 import com.google.protobuf.Message;
-import com.lzh.game.scene.common.connect.Response;
 import com.lzh.game.scene.common.connect.codec.Serializer;
 import com.lzh.game.scene.core.ClusterServerConfig;
-import com.lzh.game.scene.core.exchange.DataRequest;
-import com.lzh.game.scene.core.exchange.DataResponse;
+import com.lzh.game.scene.core.exception.NoLeaderException;
 
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -41,6 +39,10 @@ public class JRServiceImpl implements JRService {
 
     private Serializer serializer;
 
+    private ClientService clientService;
+
+    private int invokeOutTime;
+
     public JRServiceImpl(RpcServer rpcServer, Serializer serializer) {
         this.rpcServer = rpcServer;
         this.serializer = serializer;
@@ -52,7 +54,7 @@ public class JRServiceImpl implements JRService {
         List<String> list = config.getCluster();
         Configuration conf = JRaftUtils.getConfiguration(String.join(",", list));
         if (conf.isValid()) {
-            throw new IllegalArgumentException("JRfa config error!!");
+            throw new IllegalArgumentException("JRaft config error!!");
         }
         this.build();
 
@@ -66,43 +68,55 @@ public class JRServiceImpl implements JRService {
         RaftGroupService service = new RaftGroupService(JR_GROUP, id, options, new BoltRpcServer(this.rpcServer));
         Node node = service.start();
 
+        CliOptions cliOptions = new CliOptions();
+        CliService cliService = RaftServiceFactory.createAndInitCliService(cliOptions);
+
+        this.clientService = ((CliServiceImpl)cliService).getCliClientService();
         this.groupService = service;
         this.configuration = conf;
         this.options = options;
         this.node = node;
+        this.invokeOutTime = config.getInvokeOutTime();
     }
 
     @Override
-    public CompletableFuture<Response> commitTask(DataRequest request) {
-        if (node.isLeader()) {
-
+    public <E extends Message, T extends Message> CompletableFuture<E> commitTask(T request) {
+        CompletableFuture<E> future = new CompletableFuture<>();
+        if (this.node.isLeader()) {
+            applyOperation(this.node, request, future);
         } else {
-
+            invokeToLeader(request, invokeOutTime, future);
         }
-        return null;
+        return future;
     }
 
-    /*protected void applyOperation(Node node, Message data, FailoverClosure closure) {
+    protected <T extends Message> void invokeToLeader(final Message request, final int timeoutMillis, final CompletableFuture<T> future) {
+        final PeerId peerId = getLeader();
+        if (Objects.isNull(peerId)) {
+            future.completeExceptionally(new NoLeaderException("Can't find leader!!"));
+            return;
+        }
+        final Endpoint leaderIp = peerId.getEndpoint();
+        RpcResponseClosure<T> done = new FutureClosure<>(future);
+        this.clientService.invokeWithDone(leaderIp, request, done, timeoutMillis);
+    }
+
+    protected PeerId getLeader() {
+        return this.node.getLeaderId();
+    }
+
+    protected <T, R extends Message>void applyOperation(Node node, T data, final CompletableFuture<R> future) {
         final Task task = new Task();
-        task.setDone(new NacosClosure(data, status -> {
-            NacosClosure.NacosStatus nacosStatus = (NacosClosure.NacosStatus) status;
-            closure.setThrowable(nacosStatus.getThrowable());
-            closure.setResponse(nacosStatus.getResponse());
-            closure.run(nacosStatus);
-        }));
-        task.setData(ByteBuffer.wrap(data.toByteArray()));
+//        task.setDone(new NacosClosure(data, status -> {
+//            NacosClosure.NacosStatus nacosStatus = (NacosClosure.NacosStatus) status;
+//            closure.setThrowable(nacosStatus.getThrowable());
+//            closure.setResponse(nacosStatus.getResponse());
+//            closure.run(nacosStatus);
+//        }));
+//        task.setData(data.);
         node.apply(task);
-    }*/
-
-    @Override
-    public void onRequest(DataRequest request) {
-
     }
 
-    @Override
-    public void onResponse(DataResponse response) {
-
-    }
 
     @Override
     public Serializer serializer() {

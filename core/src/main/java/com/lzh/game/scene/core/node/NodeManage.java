@@ -1,4 +1,4 @@
-package com.lzh.game.scene.core;
+package com.lzh.game.scene.core.node;
 
 /**
  * 服务器节点管理器

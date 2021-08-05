@@ -1,6 +1,7 @@
 package com.lzh.game.scene.core;
 
 import com.lzh.game.scene.common.connect.server.ConnectServer;
+import com.lzh.game.scene.core.service.SofaClusterServer;
 
 public class CoreApp {
 

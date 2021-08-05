@@ -1,4 +1,4 @@
-package com.lzh.game.scene.core;
+package com.lzh.game.scene.core.service;
 
 import com.alipay.remoting.Connection;
 import com.alipay.remoting.ConnectionEventProcessor;
@@ -7,6 +7,7 @@ import com.alipay.remoting.rpc.RpcServer;
 import com.lzh.game.scene.common.ContextDefined;
 import com.lzh.game.scene.common.connect.server.AbstractServerBootstrap;
 import com.lzh.game.scene.common.connect.sofa.SofaConnectConnectedEvent;
+import com.lzh.game.scene.core.ClusterServerConfig;
 import com.lzh.game.scene.core.jrfa.JRService;
 import com.lzh.game.scene.core.jrfa.JRServiceImpl;
 import org.slf4j.Logger;

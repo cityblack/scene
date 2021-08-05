@@ -2,9 +2,8 @@ package com.lzh.game.scene.core.service.impl;
 
 import com.lzh.game.scene.common.SceneChangeStatus;
 import com.lzh.game.scene.common.SceneInstance;
-import com.lzh.game.scene.core.SceneInstanceManage;
-import com.lzh.game.scene.core.exchange.DataRequest;
-import com.lzh.game.scene.core.jrfa.JRService;
+import com.lzh.game.scene.core.service.SceneInstanceManage;
+import com.lzh.game.scene.core.service.Replicator;
 import com.lzh.game.scene.core.service.SceneService;
 
 import java.util.List;
@@ -13,13 +12,11 @@ public class CpSceneServiceImpl implements SceneService {
 
     private SceneInstanceManage manage;
 
-    private JRService jrService;
+    private Replicator replicator;
 
     @Override
-    public SceneInstance registerSceneInstance(String group, SceneInstance instance) {
-        DataRequest request = new DataRequest();
-        jrService.commitTask(request);
-        return null;
+    public void registerSceneInstance(String group, SceneInstance instance) {
+
     }
 
     @Override
