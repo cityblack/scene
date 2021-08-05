@@ -23,7 +23,7 @@ import java.util.Objects;
  * <p>
  * response header -> 返回分两种, 一种是正确的值, 一种是错误信息. 用1位字节标识是否正确响应
  */
-public class SofaRpcSerialization extends DefaultCustomSerializer {
+public class SofaRpcSerializer extends DefaultCustomSerializer {
 
     private static final byte RIGHT_RESPONSE = 0x0;
 
@@ -33,10 +33,10 @@ public class SofaRpcSerialization extends DefaultCustomSerializer {
 
     private CmdClassManage classManage;
 
-    public SofaRpcSerialization() {
+    public SofaRpcSerializer() {
     }
 
-    public SofaRpcSerialization(Serializer serializer, CmdClassManage classManage) {
+    public SofaRpcSerializer(Serializer serializer, CmdClassManage classManage) {
         this.serializer = serializer;
         this.classManage = classManage;
     }

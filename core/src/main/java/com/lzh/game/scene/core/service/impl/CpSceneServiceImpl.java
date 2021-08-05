@@ -2,6 +2,7 @@ package com.lzh.game.scene.core.service.impl;
 
 import com.lzh.game.scene.common.SceneChangeStatus;
 import com.lzh.game.scene.common.SceneInstance;
+import com.lzh.game.scene.common.connect.scene.SceneConnect;
 import com.lzh.game.scene.core.service.SceneInstanceManage;
 import com.lzh.game.scene.core.service.Replicator;
 import com.lzh.game.scene.core.service.SceneService;
@@ -15,23 +16,23 @@ public class CpSceneServiceImpl implements SceneService {
     private Replicator replicator;
 
     @Override
-    public void registerSceneInstance(String group, SceneInstance instance) {
+    public void registerSceneInstance(SceneConnect connect, String group, SceneInstance instance) {
 
     }
 
     @Override
-    public Boolean removeSceneInstance(String group, SceneInstance instance) {
-        return null;
+    public void removeSceneInstance(SceneConnect connect, String group, SceneInstance instance) {
+
     }
 
     @Override
-    public List<SceneInstance> getAllSceneInstances(String group) {
-        return null;
+    public void getAllSceneInstances(SceneConnect connect, String group) {
+
     }
 
     @Override
-    public List<SceneInstance> getSceneInstances(String group, int map) {
-        return manage.get(group, map);
+    public void getSceneInstances(SceneConnect connect, String group, int map) {
+
     }
 
     @Override

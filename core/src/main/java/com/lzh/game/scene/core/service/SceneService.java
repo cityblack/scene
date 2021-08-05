@@ -2,6 +2,7 @@ package com.lzh.game.scene.core.service;
 
 import com.lzh.game.scene.common.SceneChangeStatus;
 import com.lzh.game.scene.common.SceneInstance;
+import com.lzh.game.scene.common.connect.scene.SceneConnect;
 
 import java.util.List;
 
@@ -12,21 +13,21 @@ public interface SceneService {
      * @param group
      * @param instance
      */
-    void registerSceneInstance(String group, SceneInstance instance);
+    void registerSceneInstance(SceneConnect connect, String group, SceneInstance instance);
 
     /**
      * 移除场景实例
      * @param group
      * @param instance
      */
-    Boolean removeSceneInstance(String group, SceneInstance instance);
+    void removeSceneInstance(SceneConnect connect, String group, SceneInstance instance);
 
     /**
      * 获取所有场景
      * @param group
      * @return
      */
-    List<SceneInstance> getAllSceneInstances(String group);
+    void getAllSceneInstances(SceneConnect connect, String group);
 
     /**
      * 获取所有场景 -- 指定地图
@@ -34,7 +35,7 @@ public interface SceneService {
      * @param map
      * @return
      */
-    List<SceneInstance> getSceneInstances(String group, int map);
+    void getSceneInstances(SceneConnect connect, String group, int map);
 
     /**
      * 向场景管理中心订阅场景改变事件

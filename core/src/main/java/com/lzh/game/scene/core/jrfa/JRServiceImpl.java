@@ -17,6 +17,7 @@ import com.lzh.game.scene.common.connect.codec.Serializer;
 import com.lzh.game.scene.core.ClusterServerConfig;
 import com.lzh.game.scene.core.exception.NoLeaderException;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -82,7 +83,7 @@ public class JRServiceImpl implements JRService {
     @Override
     public <E extends Message, T extends Message> CompletableFuture<E> commitTask(T request) {
         CompletableFuture<E> future = new CompletableFuture<>();
-        if (this.node.isLeader()) {
+        if (isLeader()) {
             applyOperation(this.node, request, future);
         } else {
             invokeToLeader(request, invokeOutTime, future);
@@ -105,8 +106,18 @@ public class JRServiceImpl implements JRService {
         return this.node.getLeaderId();
     }
 
-    protected <T, R extends Message>void applyOperation(Node node, T data, final CompletableFuture<R> future) {
+    @Override
+    public <T extends Message, R extends Message>void applyOperation(Node node, T data, final CompletableFuture<R> future) {
         final Task task = new Task();
+        task.setData(ByteBuffer.wrap(data.toByteArray()));
+        task.setDone(new Closure() {
+            @Override
+            public void run(Status status) {
+                if (status.isOk()) {
+//                    future.complete()
+                }
+            }
+        });
 //        task.setDone(new NacosClosure(data, status -> {
 //            NacosClosure.NacosStatus nacosStatus = (NacosClosure.NacosStatus) status;
 //            closure.setThrowable(nacosStatus.getThrowable());
@@ -115,6 +126,16 @@ public class JRServiceImpl implements JRService {
 //        }));
 //        task.setData(data.);
         node.apply(task);
+    }
+
+    @Override
+    public boolean isLeader() {
+        return this.node.isLeader();
+    }
+
+    @Override
+    public Node node() {
+        return this.node;
     }
 
 

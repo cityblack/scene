@@ -109,7 +109,7 @@ public class SofaConnectClient extends AbstractBootstrap implements ConnectClien
 
     @Override
     protected ConnectFactory getDefaultFactory() {
-        return new SofaClientConnectFactory(rpcClient);
+        return new SofaClientConnectFactory(rpcClient, config.getRequestOutTime());
     }
 
     private class ConnectCloseEvent implements ConnectionEventProcessor {
