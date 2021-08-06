@@ -2,25 +2,34 @@ package com.lzh.game.scene.core.jrfa;
 
 import com.alipay.sofa.jraft.Closure;
 import com.alipay.sofa.jraft.Iterator;
+import com.alipay.sofa.jraft.Status;
 import com.alipay.sofa.jraft.core.StateMachineAdapter;
+import com.lzh.game.scene.common.connect.codec.Serializer;
 
 import java.util.Objects;
 
 public class CommandStateMachine extends StateMachineAdapter {
 
-    private JRService jrService;
+    private Serializer serializer;
 
     @Override
     public void onApply(Iterator iter) {
 
         while (iter.hasNext()) {
-            Closure closure = iter.done();
-            // 这里说明当前节点是主节点
-            if (Objects.isNull(closure)) {
+            Status status = Status.OK();
+            CommandClosure commandClosure = null;
+            try {
+                Closure closure = iter.done();
+                if (Objects.nonNull(closure)) {
+                    commandClosure = (CommandClosure) closure;
+                } else {
 
-            } else {
+//                    commandClosure = new CommandClosure(null, iter.getData(), serializer);
+                }
+            } catch (Exception e) {
 
-//                jrService.onRequest();
+            } finally {
+                commandClosure.run(status);
             }
         }
     }

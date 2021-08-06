@@ -16,7 +16,9 @@ import com.google.protobuf.Message;
 import com.lzh.game.scene.common.connect.codec.Serializer;
 import com.lzh.game.scene.core.ClusterServerConfig;
 import com.lzh.game.scene.core.exception.NoLeaderException;
+import com.lzh.game.scene.core.jrfa.rpc.entity.Response;
 
+import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Objects;
@@ -66,13 +68,14 @@ public class JRServiceImpl implements JRService {
 
         Endpoint addr = new Endpoint(config.getIp(), config.getPort());
         PeerId id = PeerId.parsePeer(addr.toString());
-        RaftGroupService service = new RaftGroupService(JR_GROUP, id, options, new BoltRpcServer(this.rpcServer));
+        RaftGroupService service =
+                new RaftGroupService(JR_GROUP, id, options, new BoltRpcServer(this.rpcServer));
         Node node = service.start();
 
         CliOptions cliOptions = new CliOptions();
         CliService cliService = RaftServiceFactory.createAndInitCliService(cliOptions);
 
-        this.clientService = ((CliServiceImpl)cliService).getCliClientService();
+        this.clientService = ((CliServiceImpl) cliService).getCliClientService();
         this.groupService = service;
         this.configuration = conf;
         this.options = options;
@@ -81,17 +84,19 @@ public class JRServiceImpl implements JRService {
     }
 
     @Override
-    public <E extends Message, T extends Message> CompletableFuture<E> commitTask(T request) {
-        CompletableFuture<E> future = new CompletableFuture<>();
+    public <T extends Serializable, R extends Message, P extends Response>
+    CompletableFuture<P> commitTask(T data, R request) {
+        CompletableFuture<P> future = new CompletableFuture<>();
         if (isLeader()) {
-            applyOperation(this.node, request, future);
+            this.applyOperation(data, request, future);
         } else {
-            invokeToLeader(request, invokeOutTime, future);
+            this.invokeToLeader(request, this.invokeOutTime, future);
         }
         return future;
     }
 
-    protected <T extends Message> void invokeToLeader(final Message request, final int timeoutMillis, final CompletableFuture<T> future) {
+    protected <T extends Message> void invokeToLeader(
+            final Message request, final int timeoutMillis, final CompletableFuture<T> future) {
         final PeerId peerId = getLeader();
         if (Objects.isNull(peerId)) {
             future.completeExceptionally(new NoLeaderException("Can't find leader!!"));
@@ -107,28 +112,6 @@ public class JRServiceImpl implements JRService {
     }
 
     @Override
-    public <T extends Message, R extends Message>void applyOperation(Node node, T data, final CompletableFuture<R> future) {
-        final Task task = new Task();
-        task.setData(ByteBuffer.wrap(data.toByteArray()));
-        task.setDone(new Closure() {
-            @Override
-            public void run(Status status) {
-                if (status.isOk()) {
-//                    future.complete()
-                }
-            }
-        });
-//        task.setDone(new NacosClosure(data, status -> {
-//            NacosClosure.NacosStatus nacosStatus = (NacosClosure.NacosStatus) status;
-//            closure.setThrowable(nacosStatus.getThrowable());
-//            closure.setResponse(nacosStatus.getResponse());
-//            closure.run(nacosStatus);
-//        }));
-//        task.setData(data.);
-        node.apply(task);
-    }
-
-    @Override
     public boolean isLeader() {
         return this.node.isLeader();
     }
@@ -138,10 +121,29 @@ public class JRServiceImpl implements JRService {
         return this.node;
     }
 
-
     @Override
     public Serializer serializer() {
         return serializer;
+    }
+
+    private <T extends Serializable, R extends Message, P extends Message>
+        void applyOperation(T data, R request, CompletableFuture<P> future) {
+
+        Task task = new Task();
+        task.setData(ByteBuffer.wrap(request.toByteArray()));
+        task.setDone(new CommandClosure(data, request, serializer) {
+            @Override
+            public void run(Status status) {
+                super.run(status);
+                if (status.isOk()) {
+                    Response response = getResponse();
+//                    future.complete(response);
+                } else {
+                    future.completeExceptionally(new IllegalArgumentException(status.getErrorMsg()));
+                }
+            }
+        });
+        this.node.apply(task);
     }
 
     public StateMachine getStateMachine() {

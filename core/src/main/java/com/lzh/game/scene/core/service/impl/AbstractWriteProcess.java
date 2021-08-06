@@ -8,21 +8,26 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class AbstractWriteProcess<T extends Serializable> {
 
-    public static Map<ReplicatorCmd, AbstractWriteProcess> PROCESSES = new ConcurrentHashMap<>();
+    public static final Map<Class<?>, AbstractWriteProcess> SINGLE = new ConcurrentHashMap<>();
 
-    public static void addProcess(ReplicatorCmd cmd, AbstractWriteProcess process) {
-        PROCESSES.put(cmd, process);
+    public static void addProcess(Class<?> clazz, AbstractWriteProcess process) {
+        SINGLE.put(clazz, process);
     }
 
-    public static AbstractWriteProcess findProcess(ReplicatorCmd cmd) {
-        return PROCESSES.get(cmd);
+    public static AbstractWriteProcess findProcess(Class<? extends AbstractWriteProcess> clazz) {
+        return SINGLE.get(clazz);
     }
 
-    public static AbstractWriteProcess findProcess(int key) {
-        ReplicatorCmd cmd = ReplicatorCmd.of(key);
-        return findProcess(cmd);
+    private Class<T> clazz;
+
+    public AbstractWriteProcess(Class<T> clazz) {
+        this.clazz = clazz;
+        addProcess(this.getClass(),this);
     }
 
-    public abstract void onRequest(T data);
+    public Class<T> getClazz() {
+        return clazz;
+    }
 
+    public abstract void onRequest(ReplicatorCmd cmd, T data);
 }

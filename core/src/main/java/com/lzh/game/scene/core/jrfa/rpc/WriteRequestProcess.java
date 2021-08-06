@@ -32,7 +32,7 @@ public class WriteRequestProcess extends AsyncUserProcessor<WriteRequest> {
             return;
         }
         CompletableFuture<Response> future = new CompletableFuture<>();
-        jrService.applyOperation(node, request, future);
+//        jrService.applyOperation(node, request, future);
 //        future.thenAccept(response -> asyncCtx.sendResponse())
     }
 

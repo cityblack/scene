@@ -21,7 +21,7 @@ public class ReplicatorImpl implements Replicator {
     @Override
     public CompletableFuture<Response> registerSceneInstance(SceneInstance sceneInstance) {
 
-        return jrService.commitTask(buildRequest(ReplicatorCmd.REGISTER_SCENE.getCmd(), sceneInstance));
+        return jrService.commitTask(buildRequest(ReplicatorCmd.REGISTER_SCENE.getCmd(), sceneInstance), );
     }
 
     private WriteRequest buildRequest(int cmd, Object param) {

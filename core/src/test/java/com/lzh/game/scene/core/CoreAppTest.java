@@ -12,10 +12,20 @@ import com.lzh.game.scene.common.connect.codec.Serializer;
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 class CoreAppTest {
+
+    @Test
+    public void map() {
+        Map<String, List<Integer>> map = new HashMap<>();
+        List<Integer> list = map.computeIfAbsent("1", (k) -> new ArrayList<>());
+        list.add(1);
+        System.out.println(map.get("1"));
+    }
 
     @Test
     public void nodeTest() throws InterruptedException {
@@ -55,13 +65,7 @@ class CoreAppTest {
                         if (node.isLeader()) {
                             Task task = new Task();
                             task.setData(ByteBuffer.wrap(serializer.encode(5)));
-                            task.setDone(new Closure() {
-                                @Override
-                                public void run(Status status) {
-                                    System.out.println("结果" + status.getCode());
-                                    System.out.println(status.getErrorMsg());
-                                }
-                            });
+                            task.setDone(new TestClosure(5, id));
 //                            task.setExpectedTerm(TimeUnit.SECONDS.toMillis(5));
                             node.apply(task);
                         }
@@ -87,5 +91,24 @@ class CoreAppTest {
         }
 
         latch.await();
+    }
+
+    public static class TestClosure implements Closure {
+
+        private Object object;
+
+        private PeerId peerId;
+
+        public TestClosure(Object object, PeerId peerId) {
+            this.object = object;
+            this.peerId = peerId;
+        }
+
+        @Override
+        public void run(Status status) {
+            if (status.isOk()) {
+                System.out.println("node:" + peerId.toString() + " -> "+ object);
+            }
+        }
     }
 }

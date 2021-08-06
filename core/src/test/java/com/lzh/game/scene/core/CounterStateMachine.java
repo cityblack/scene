@@ -37,14 +37,23 @@ public class CounterStateMachine extends StateMachineAdapter {
     @Override
     public void onApply(Iterator iter) {
        while (iter.hasNext()) {
-           ByteBuffer data = iter.getData();
-           int value = serializer.decode(data.array(), Integer.class);
-           System.out.println(String.format("当前节点:%s 值:%d count:%d", peerId.toString(), value, count.incrementAndGet()));
-           Closure closure = iter.done();
-           if (Objects.nonNull(closure)) {
-               closure.run(Status.OK());
+           Closure testClosure = null;
+           Status status = Status.OK();
+           try {
+               Closure closure = iter.done();
+               if (Objects.nonNull(closure)) {
+                   testClosure = closure;
+               } else {
+                   byte[] data = iter.getData().array();
+                   Object o = serializer.decode(data, Integer.class);
+                   testClosure = new CoreAppTest.TestClosure(o, peerId);
+               }
+           } catch (Exception e) {
+
+           } finally {
+               testClosure.run(status);
+               iter.next();
            }
-           iter.next();
        }
     }
 }
