@@ -15,9 +15,14 @@ public class CpSceneServiceImpl implements SceneService {
 
     private Replicator replicator;
 
+    public CpSceneServiceImpl(SceneInstanceManage manage, Replicator replicator) {
+        this.manage = manage;
+        this.replicator = replicator;
+    }
+
     @Override
     public void registerSceneInstance(SceneConnect connect, String group, SceneInstance instance) {
-
+//        replicator.registerSceneInstance()
     }
 
     @Override

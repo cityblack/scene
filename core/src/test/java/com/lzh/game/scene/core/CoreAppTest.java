@@ -5,20 +5,71 @@ import com.alipay.sofa.jraft.conf.Configuration;
 import com.alipay.sofa.jraft.entity.PeerId;
 import com.alipay.sofa.jraft.entity.Task;
 import com.alipay.sofa.jraft.option.NodeOptions;
-import com.alipay.sofa.jraft.rpc.RaftRpcServerFactory;
-import com.alipay.sofa.jraft.rpc.RpcServer;
+import com.lzh.game.scene.common.SceneInstance;
 import com.lzh.game.scene.common.connect.codec.ProtostuffSerializer;
 import com.lzh.game.scene.common.connect.codec.Serializer;
+import com.lzh.game.scene.core.jrfa.JRService;
+import com.lzh.game.scene.core.service.SofaClusterServer;
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 class CoreAppTest {
+
+    public List<SofaClusterServer> cluster() {
+        ClusterServerConfig config = new ClusterServerConfig();
+        config.getCluster().add("localhost:8081");
+        config.getCluster().add("localhost:8082");
+        config.getCluster().add("localhost:8083");
+        List<SofaClusterServer> servers = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            config.setPort(8081 + i);
+            config.setConsistLogUri("/Users/jsonp/Documents/logs/scene/" + config.getPort());
+            config.setMetaUri("/Users/jsonp/Documents/mate/" + config.getPort());
+            SofaClusterServer<ClusterServerConfig> server = new SofaClusterServer<>(config);
+            server.start();
+            servers.add(server);
+        }
+        return servers;
+    }
+
+    @Test
+    public void start() {
+        AtomicInteger count = new AtomicInteger(1);
+        List<SofaClusterServer> servers = cluster();
+        while (true) {
+            for (SofaClusterServer server: servers) {
+                JRService jrService = server.getJrService();
+                if (jrService.node().getLeaderId() == null) {
+                    continue;
+                }
+                if (!jrService.isLeader()) {
+                    SceneInstance sceneInstance = new SceneInstance();
+                    sceneInstance.setGroup("group");
+                    sceneInstance.setMap(1);
+                    sceneInstance.setUnique(String.valueOf(count.getAndIncrement()));
+                    jrService
+                            .replicator()
+                            .registerSceneInstance(sceneInstance)
+                    .exceptionally(throwable -> {
+                        throwable.printStackTrace();
+                        return null;
+                    });
+                }
+            }
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     @Test
     public void map() {
@@ -39,16 +90,9 @@ class CoreAppTest {
         CountDownLatch latch = new CountDownLatch(1);
         Configuration conf = JRaftUtils.getConfiguration("localhost:8081,localhost:8082,localhost:8083");
 
-//        for (PeerId id : conf.getPeers()) {
-//            nodeManager.addAddress(id.getEndpoint());
-//            RpcServer rpcServer = RaftRpcServerFactory.createAndStartRaftRpcServer(id.getEndpoint());
-//            rpcServer.init(null);
-//        }
         Serializer serializer = new ProtostuffSerializer();
 
         NodeOptions options = new NodeOptions();
-//        options.setLogUri("/Users/jsonp/Documents/logs/scene");
-//        options.setRaftMetaUri("/Users/jsonp/Documents/mate");
         options.setInitialConf(conf);
 
         String groupId = "jraft";
@@ -61,6 +105,8 @@ class CoreAppTest {
             options.setLogUri("/Users/jsonp/Documents/logs/scene/" + i);
             options.setRaftMetaUri("/Users/jsonp/Documents/mate/" + i);
 //            nodeManager.addAddress(id.getEndpoint());
+//            RpcServer rpcServer = new RpcServer();
+
             RaftGroupService service = new RaftGroupService(groupId, id, options);
             Node node = service.start();
             machine.setNode(node);
@@ -76,7 +122,7 @@ class CoreAppTest {
 //                            task.setExpectedTerm(TimeUnit.SECONDS.toMillis(5));
                             node.apply(task);
                         }
-
+//                        System.out.println("leader" + node.getLeaderId());
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -114,7 +160,7 @@ class CoreAppTest {
         @Override
         public void run(Status status) {
             if (status.isOk()) {
-                System.out.println("node:" + peerId.toString() + " -> "+ object);
+//                System.out.println("node:" + peerId.toString() + " -> "+ object);
             }
         }
     }

@@ -13,6 +13,10 @@ public class WriteStateMachine extends StateMachineAdapter {
 
     private Serializer serializer;
 
+    public WriteStateMachine(Serializer serializer) {
+        this.serializer = serializer;
+    }
+
     @Override
     public void onApply(Iterator iter) {
 

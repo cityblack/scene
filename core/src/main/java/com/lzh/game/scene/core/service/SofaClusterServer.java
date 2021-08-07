@@ -35,19 +35,23 @@ public class SofaClusterServer<T extends ClusterServerConfig> extends AbstractSe
 
     @Override
     protected RpcServer init(T config) {
-        RpcServer server = new RpcServer(config.getPort());
+        JRService service = createJRServer(config);
+        RpcServer rpcServer = service.rpcServer();
+        this.jrService = service;
+        this.rpcInit(rpcServer);
+        return rpcServer;
+    }
+
+    private JRService createJRServer(T config) {
+        JRService service = new JRServiceImpl(getSerializer());
+        service.start(config);
+        return service;
+    }
+
+    private void rpcInit(RpcServer server) {
         server.registerUserProcessor(getSofaUserProcess());
         server.addConnectionEventProcessor(ConnectionEventType.CONNECT, new SofaConnectConnectedEvent(getConnectManage(), getConnectFactory()));
         server.addConnectionEventProcessor(ConnectionEventType.CLOSE, new ConnectCloseEvent());
-        JRService service = createJRServer(config, server);
-        this.jrService = service;
-        return server;
-    }
-
-    private JRService createJRServer(T config, RpcServer server) {
-        JRService service = new JRServiceImpl(server, getSerializer());
-        service.start(config);
-        return service;
     }
 
     private class ConnectCloseEvent implements ConnectionEventProcessor {
