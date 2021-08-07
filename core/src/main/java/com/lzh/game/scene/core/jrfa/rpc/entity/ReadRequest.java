@@ -16,7 +16,7 @@ private static final long serialVersionUID = 0L;
     super(builder);
   }
   private ReadRequest() {
-    group_ = "";
+    key_ = 0;
     data_ = com.google.protobuf.ByteString.EMPTY;
   }
 
@@ -44,28 +44,14 @@ private static final long serialVersionUID = 0L;
           case 0:
             done = true;
             break;
-          case 10: {
-            String s = input.readStringRequireUtf8();
+          case 8: {
 
-            group_ = s;
+            key_ = input.readInt32();
             break;
           }
           case 18: {
 
             data_ = input.readBytes();
-            break;
-          }
-          case 26: {
-            if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
-              extendInfo_ = com.google.protobuf.MapField.newMapField(
-                  ExtendInfoDefaultEntryHolder.defaultEntry);
-              mutable_bitField0_ |= 0x00000004;
-            }
-            com.google.protobuf.MapEntry<String, String>
-            extendInfo__ = input.readMessage(
-                ExtendInfoDefaultEntryHolder.defaultEntry.getParserForType(), extensionRegistry);
-            extendInfo_.getMutableMap().put(
-                extendInfo__.getKey(), extendInfo__.getValue());
             break;
           }
           default: {
@@ -92,18 +78,6 @@ private static final long serialVersionUID = 0L;
     return Consistency.internal_static_ReadRequest_descriptor;
   }
 
-  @SuppressWarnings({"rawtypes"})
-  @Override
-  protected com.google.protobuf.MapField internalGetMapField(
-      int number) {
-    switch (number) {
-      case 3:
-        return internalGetExtendInfo();
-      default:
-        throw new RuntimeException(
-            "Invalid map field number: " + number);
-    }
-  }
   @Override
   protected FieldAccessorTable
       internalGetFieldAccessorTable() {
@@ -112,39 +86,13 @@ private static final long serialVersionUID = 0L;
             ReadRequest.class, Builder.class);
   }
 
-  private int bitField0_;
-  public static final int GROUP_FIELD_NUMBER = 1;
-  private volatile Object group_;
+  public static final int KEY_FIELD_NUMBER = 1;
+  private int key_;
   /**
-   * <code>string group = 1;</code>
+   * <code>int32 key = 1;</code>
    */
-  public String getGroup() {
-    Object ref = group_;
-    if (ref instanceof String) {
-      return (String) ref;
-    } else {
-      com.google.protobuf.ByteString bs =
-          (com.google.protobuf.ByteString) ref;
-      String s = bs.toStringUtf8();
-      group_ = s;
-      return s;
-    }
-  }
-  /**
-   * <code>string group = 1;</code>
-   */
-  public com.google.protobuf.ByteString
-      getGroupBytes() {
-    Object ref = group_;
-    if (ref instanceof String) {
-      com.google.protobuf.ByteString b =
-          com.google.protobuf.ByteString.copyFromUtf8(
-              (String) ref);
-      group_ = b;
-      return b;
-    } else {
-      return (com.google.protobuf.ByteString) ref;
-    }
+  public int getKey() {
+    return key_;
   }
 
   public static final int DATA_FIELD_NUMBER = 2;
@@ -154,82 +102,6 @@ private static final long serialVersionUID = 0L;
    */
   public com.google.protobuf.ByteString getData() {
     return data_;
-  }
-
-  public static final int EXTENDINFO_FIELD_NUMBER = 3;
-  private static final class ExtendInfoDefaultEntryHolder {
-    static final com.google.protobuf.MapEntry<
-        String, String> defaultEntry =
-            com.google.protobuf.MapEntry
-            .<String, String>newDefaultInstance(
-                Consistency.internal_static_ReadRequest_ExtendInfoEntry_descriptor,
-                com.google.protobuf.WireFormat.FieldType.STRING,
-                "",
-                com.google.protobuf.WireFormat.FieldType.STRING,
-                "");
-  }
-  private com.google.protobuf.MapField<
-      String, String> extendInfo_;
-  private com.google.protobuf.MapField<String, String>
-  internalGetExtendInfo() {
-    if (extendInfo_ == null) {
-      return com.google.protobuf.MapField.emptyMapField(
-          ExtendInfoDefaultEntryHolder.defaultEntry);
-    }
-    return extendInfo_;
-  }
-
-  public int getExtendInfoCount() {
-    return internalGetExtendInfo().getMap().size();
-  }
-  /**
-   * <code>map&lt;string, string&gt; extendInfo = 3;</code>
-   */
-
-  public boolean containsExtendInfo(
-      String key) {
-    if (key == null) { throw new NullPointerException(); }
-    return internalGetExtendInfo().getMap().containsKey(key);
-  }
-  /**
-   * Use {@link #getExtendInfoMap()} instead.
-   */
-  @Deprecated
-  public java.util.Map<String, String> getExtendInfo() {
-    return getExtendInfoMap();
-  }
-  /**
-   * <code>map&lt;string, string&gt; extendInfo = 3;</code>
-   */
-
-  public java.util.Map<String, String> getExtendInfoMap() {
-    return internalGetExtendInfo().getMap();
-  }
-  /**
-   * <code>map&lt;string, string&gt; extendInfo = 3;</code>
-   */
-
-  public String getExtendInfoOrDefault(
-      String key,
-      String defaultValue) {
-    if (key == null) { throw new NullPointerException(); }
-    java.util.Map<String, String> map =
-        internalGetExtendInfo().getMap();
-    return map.containsKey(key) ? map.get(key) : defaultValue;
-  }
-  /**
-   * <code>map&lt;string, string&gt; extendInfo = 3;</code>
-   */
-
-  public String getExtendInfoOrThrow(
-      String key) {
-    if (key == null) { throw new NullPointerException(); }
-    java.util.Map<String, String> map =
-        internalGetExtendInfo().getMap();
-    if (!map.containsKey(key)) {
-      throw new IllegalArgumentException();
-    }
-    return map.get(key);
   }
 
   private byte memoizedIsInitialized = -1;
@@ -246,18 +118,12 @@ private static final long serialVersionUID = 0L;
   @Override
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
-    if (!getGroupBytes().isEmpty()) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 1, group_);
+    if (key_ != 0) {
+      output.writeInt32(1, key_);
     }
     if (!data_.isEmpty()) {
       output.writeBytes(2, data_);
     }
-    com.google.protobuf.GeneratedMessageV3
-      .serializeStringMapTo(
-        output,
-        internalGetExtendInfo(),
-        ExtendInfoDefaultEntryHolder.defaultEntry,
-        3);
     unknownFields.writeTo(output);
   }
 
@@ -267,22 +133,13 @@ private static final long serialVersionUID = 0L;
     if (size != -1) return size;
 
     size = 0;
-    if (!getGroupBytes().isEmpty()) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, group_);
+    if (key_ != 0) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeInt32Size(1, key_);
     }
     if (!data_.isEmpty()) {
       size += com.google.protobuf.CodedOutputStream
         .computeBytesSize(2, data_);
-    }
-    for (java.util.Map.Entry<String, String> entry
-         : internalGetExtendInfo().getMap().entrySet()) {
-      com.google.protobuf.MapEntry<String, String>
-      extendInfo__ = ExtendInfoDefaultEntryHolder.defaultEntry.newBuilderForType()
-          .setKey(entry.getKey())
-          .setValue(entry.getValue())
-          .build();
-      size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(3, extendInfo__);
     }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
@@ -300,12 +157,10 @@ private static final long serialVersionUID = 0L;
     ReadRequest other = (ReadRequest) obj;
 
     boolean result = true;
-    result = result && getGroup()
-        .equals(other.getGroup());
+    result = result && (getKey()
+        == other.getKey());
     result = result && getData()
         .equals(other.getData());
-    result = result && internalGetExtendInfo().equals(
-        other.internalGetExtendInfo());
     result = result && unknownFields.equals(other.unknownFields);
     return result;
   }
@@ -317,14 +172,10 @@ private static final long serialVersionUID = 0L;
     }
     int hash = 41;
     hash = (19 * hash) + getDescriptor().hashCode();
-    hash = (37 * hash) + GROUP_FIELD_NUMBER;
-    hash = (53 * hash) + getGroup().hashCode();
+    hash = (37 * hash) + KEY_FIELD_NUMBER;
+    hash = (53 * hash) + getKey();
     hash = (37 * hash) + DATA_FIELD_NUMBER;
     hash = (53 * hash) + getData().hashCode();
-    if (!internalGetExtendInfo().getMap().isEmpty()) {
-      hash = (37 * hash) + EXTENDINFO_FIELD_NUMBER;
-      hash = (53 * hash) + internalGetExtendInfo().hashCode();
-    }
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -432,28 +283,6 @@ private static final long serialVersionUID = 0L;
       return Consistency.internal_static_ReadRequest_descriptor;
     }
 
-    @SuppressWarnings({"rawtypes"})
-    protected com.google.protobuf.MapField internalGetMapField(
-        int number) {
-      switch (number) {
-        case 3:
-          return internalGetExtendInfo();
-        default:
-          throw new RuntimeException(
-              "Invalid map field number: " + number);
-      }
-    }
-    @SuppressWarnings({"rawtypes"})
-    protected com.google.protobuf.MapField internalGetMutableMapField(
-        int number) {
-      switch (number) {
-        case 3:
-          return internalGetMutableExtendInfo();
-        default:
-          throw new RuntimeException(
-              "Invalid map field number: " + number);
-      }
-    }
     @Override
     protected FieldAccessorTable
         internalGetFieldAccessorTable() {
@@ -480,11 +309,10 @@ private static final long serialVersionUID = 0L;
     @Override
     public Builder clear() {
       super.clear();
-      group_ = "";
+      key_ = 0;
 
       data_ = com.google.protobuf.ByteString.EMPTY;
 
-      internalGetMutableExtendInfo().clear();
       return this;
     }
 
@@ -511,13 +339,8 @@ private static final long serialVersionUID = 0L;
     @Override
     public ReadRequest buildPartial() {
       ReadRequest result = new ReadRequest(this);
-      int from_bitField0_ = bitField0_;
-      int to_bitField0_ = 0;
-      result.group_ = group_;
+      result.key_ = key_;
       result.data_ = data_;
-      result.extendInfo_ = internalGetExtendInfo();
-      result.extendInfo_.makeImmutable();
-      result.bitField0_ = to_bitField0_;
       onBuilt();
       return result;
     }
@@ -566,15 +389,12 @@ private static final long serialVersionUID = 0L;
 
     public Builder mergeFrom(ReadRequest other) {
       if (other == ReadRequest.getDefaultInstance()) return this;
-      if (!other.getGroup().isEmpty()) {
-        group_ = other.group_;
-        onChanged();
+      if (other.getKey() != 0) {
+        setKey(other.getKey());
       }
       if (other.getData() != com.google.protobuf.ByteString.EMPTY) {
         setData(other.getData());
       }
-      internalGetMutableExtendInfo().mergeFrom(
-          other.internalGetExtendInfo());
       this.mergeUnknownFields(other.unknownFields);
       onChanged();
       return this;
@@ -603,73 +423,29 @@ private static final long serialVersionUID = 0L;
       }
       return this;
     }
-    private int bitField0_;
 
-    private Object group_ = "";
+    private int key_ ;
     /**
-     * <code>string group = 1;</code>
+     * <code>int32 key = 1;</code>
      */
-    public String getGroup() {
-      Object ref = group_;
-      if (!(ref instanceof String)) {
-        com.google.protobuf.ByteString bs =
-            (com.google.protobuf.ByteString) ref;
-        String s = bs.toStringUtf8();
-        group_ = s;
-        return s;
-      } else {
-        return (String) ref;
-      }
+    public int getKey() {
+      return key_;
     }
     /**
-     * <code>string group = 1;</code>
+     * <code>int32 key = 1;</code>
      */
-    public com.google.protobuf.ByteString
-        getGroupBytes() {
-      Object ref = group_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b =
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (String) ref);
-        group_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-    /**
-     * <code>string group = 1;</code>
-     */
-    public Builder setGroup(
-        String value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
+    public Builder setKey(int value) {
 
-      group_ = value;
+      key_ = value;
       onChanged();
       return this;
     }
     /**
-     * <code>string group = 1;</code>
+     * <code>int32 key = 1;</code>
      */
-    public Builder clearGroup() {
+    public Builder clearKey() {
 
-      group_ = getDefaultInstance().getGroup();
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string group = 1;</code>
-     */
-    public Builder setGroupBytes(
-        com.google.protobuf.ByteString value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-
-      group_ = value;
+      key_ = 0;
       onChanged();
       return this;
     }
@@ -700,129 +476,6 @@ private static final long serialVersionUID = 0L;
 
       data_ = getDefaultInstance().getData();
       onChanged();
-      return this;
-    }
-
-    private com.google.protobuf.MapField<
-        String, String> extendInfo_;
-    private com.google.protobuf.MapField<String, String>
-    internalGetExtendInfo() {
-      if (extendInfo_ == null) {
-        return com.google.protobuf.MapField.emptyMapField(
-            ExtendInfoDefaultEntryHolder.defaultEntry);
-      }
-      return extendInfo_;
-    }
-    private com.google.protobuf.MapField<String, String>
-    internalGetMutableExtendInfo() {
-      onChanged();;
-      if (extendInfo_ == null) {
-        extendInfo_ = com.google.protobuf.MapField.newMapField(
-            ExtendInfoDefaultEntryHolder.defaultEntry);
-      }
-      if (!extendInfo_.isMutable()) {
-        extendInfo_ = extendInfo_.copy();
-      }
-      return extendInfo_;
-    }
-
-    public int getExtendInfoCount() {
-      return internalGetExtendInfo().getMap().size();
-    }
-    /**
-     * <code>map&lt;string, string&gt; extendInfo = 3;</code>
-     */
-
-    public boolean containsExtendInfo(
-        String key) {
-      if (key == null) { throw new NullPointerException(); }
-      return internalGetExtendInfo().getMap().containsKey(key);
-    }
-    /**
-     * Use {@link #getExtendInfoMap()} instead.
-     */
-    @Deprecated
-    public java.util.Map<String, String> getExtendInfo() {
-      return getExtendInfoMap();
-    }
-    /**
-     * <code>map&lt;string, string&gt; extendInfo = 3;</code>
-     */
-
-    public java.util.Map<String, String> getExtendInfoMap() {
-      return internalGetExtendInfo().getMap();
-    }
-    /**
-     * <code>map&lt;string, string&gt; extendInfo = 3;</code>
-     */
-
-    public String getExtendInfoOrDefault(
-        String key,
-        String defaultValue) {
-      if (key == null) { throw new NullPointerException(); }
-      java.util.Map<String, String> map =
-          internalGetExtendInfo().getMap();
-      return map.containsKey(key) ? map.get(key) : defaultValue;
-    }
-    /**
-     * <code>map&lt;string, string&gt; extendInfo = 3;</code>
-     */
-
-    public String getExtendInfoOrThrow(
-        String key) {
-      if (key == null) { throw new NullPointerException(); }
-      java.util.Map<String, String> map =
-          internalGetExtendInfo().getMap();
-      if (!map.containsKey(key)) {
-        throw new IllegalArgumentException();
-      }
-      return map.get(key);
-    }
-
-    public Builder clearExtendInfo() {
-      internalGetMutableExtendInfo().getMutableMap()
-          .clear();
-      return this;
-    }
-    /**
-     * <code>map&lt;string, string&gt; extendInfo = 3;</code>
-     */
-
-    public Builder removeExtendInfo(
-        String key) {
-      if (key == null) { throw new NullPointerException(); }
-      internalGetMutableExtendInfo().getMutableMap()
-          .remove(key);
-      return this;
-    }
-    /**
-     * Use alternate mutation accessors instead.
-     */
-    @Deprecated
-    public java.util.Map<String, String>
-    getMutableExtendInfo() {
-      return internalGetMutableExtendInfo().getMutableMap();
-    }
-    /**
-     * <code>map&lt;string, string&gt; extendInfo = 3;</code>
-     */
-    public Builder putExtendInfo(
-        String key,
-        String value) {
-      if (key == null) { throw new NullPointerException(); }
-      if (value == null) { throw new NullPointerException(); }
-      internalGetMutableExtendInfo().getMutableMap()
-          .put(key, value);
-      return this;
-    }
-    /**
-     * <code>map&lt;string, string&gt; extendInfo = 3;</code>
-     */
-
-    public Builder putAllExtendInfo(
-        java.util.Map<String, String> values) {
-      internalGetMutableExtendInfo().getMutableMap()
-          .putAll(values);
       return this;
     }
     @Override

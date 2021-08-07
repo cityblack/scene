@@ -3,8 +3,10 @@ package com.lzh.game.scene.core.service.impl.process;
 import com.lzh.game.scene.common.SceneInstance;
 import com.lzh.game.scene.core.service.ReplicatorCmd;
 import com.lzh.game.scene.core.service.SceneInstanceManage;
-import com.lzh.game.scene.core.service.impl.AbstractWriteProcess;
 
+/**
+ * 节点场景写入处理
+ */
 public class SceneInstanceProcess extends AbstractWriteProcess<SceneInstance> {
 
     private SceneInstanceManage manage;
@@ -15,7 +17,7 @@ public class SceneInstanceProcess extends AbstractWriteProcess<SceneInstance> {
     }
 
     @Override
-    public void onRequest(ReplicatorCmd cmd, SceneInstance data) {
+    public void doRequest(ReplicatorCmd cmd, SceneInstance data) {
         switch (cmd) {
             case REGISTER_SCENE: {
                 manage.put(data.getGroup(), data);

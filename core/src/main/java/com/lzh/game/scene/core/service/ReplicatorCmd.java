@@ -1,6 +1,6 @@
 package com.lzh.game.scene.core.service;
 
-import com.lzh.game.scene.core.service.impl.AbstractWriteProcess;
+import com.lzh.game.scene.core.service.impl.AbstractExchangeProcess;
 import com.lzh.game.scene.core.service.impl.process.SceneInstanceProcess;
 
 import java.io.Serializable;
@@ -14,7 +14,7 @@ public enum ReplicatorCmd {
     ;
     private int cmd;
     // 实现的类型 一对多
-    private Class<? extends AbstractWriteProcess> processClass;
+    private Class<? extends AbstractExchangeProcess> processClass;
 
     private final static Map<Integer, ReplicatorCmd> CACHE = new HashMap<>(values().length << 1);
 
@@ -24,7 +24,7 @@ public enum ReplicatorCmd {
         }
     }
 
-    ReplicatorCmd(int cmd, Class<? extends AbstractWriteProcess> processClass) {
+    ReplicatorCmd(int cmd, Class<? extends AbstractExchangeProcess> processClass) {
         this.cmd = cmd;
         this.processClass = processClass;
     }
@@ -33,8 +33,8 @@ public enum ReplicatorCmd {
         return cmd;
     }
 
-    public <T extends Serializable>AbstractWriteProcess<T> getProcess() {
-        return AbstractWriteProcess.findProcess(this.processClass);
+    public <T extends Serializable, R extends Object> AbstractExchangeProcess<T, R> getProcess() {
+        return AbstractExchangeProcess.findProcess(this.processClass);
     }
 
     public static ReplicatorCmd of(int cmd) {

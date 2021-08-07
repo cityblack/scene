@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -21,10 +22,16 @@ class CoreAppTest {
 
     @Test
     public void map() {
-        Map<String, List<Integer>> map = new HashMap<>();
-        List<Integer> list = map.computeIfAbsent("1", (k) -> new ArrayList<>());
-        list.add(1);
-        System.out.println(map.get("1"));
+        CompletableFuture<Integer> future = new CompletableFuture<>();
+        future.exceptionally(throwable -> {
+            System.out.println("??");
+            return 1;
+        }).thenAccept(k -> {
+            System.out.println("??x");
+        });
+        future.complete(1);
+//        future.completeExceptionally(new RuntimeException());
+
     }
 
     @Test

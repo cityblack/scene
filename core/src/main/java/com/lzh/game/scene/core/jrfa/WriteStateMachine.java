@@ -5,10 +5,11 @@ import com.alipay.sofa.jraft.Iterator;
 import com.alipay.sofa.jraft.Status;
 import com.alipay.sofa.jraft.core.StateMachineAdapter;
 import com.lzh.game.scene.common.connect.codec.Serializer;
+import com.lzh.game.scene.core.jrfa.rpc.entity.WriteRequest;
 
 import java.util.Objects;
 
-public class CommandStateMachine extends StateMachineAdapter {
+public class WriteStateMachine extends StateMachineAdapter {
 
     private Serializer serializer;
 
@@ -17,19 +18,19 @@ public class CommandStateMachine extends StateMachineAdapter {
 
         while (iter.hasNext()) {
             Status status = Status.OK();
-            CommandClosure commandClosure = null;
+            WriteClosure writeClosure = null;
             try {
                 Closure closure = iter.done();
                 if (Objects.nonNull(closure)) {
-                    commandClosure = (CommandClosure) closure;
+                    writeClosure = (WriteClosure) closure;
                 } else {
-
-//                    commandClosure = new CommandClosure(null, iter.getData(), serializer);
+                    WriteRequest request = WriteRequest.parseFrom(iter.getData().array());
+                    writeClosure = new WriteClosure(null, request, serializer);
                 }
             } catch (Exception e) {
 
             } finally {
-                commandClosure.run(status);
+                writeClosure.run(status);
             }
         }
     }

@@ -16,7 +16,9 @@ import com.google.protobuf.Message;
 import com.lzh.game.scene.common.connect.codec.Serializer;
 import com.lzh.game.scene.core.ClusterServerConfig;
 import com.lzh.game.scene.core.exception.NoLeaderException;
+import com.lzh.game.scene.core.jrfa.rpc.WriteRequestProcess;
 import com.lzh.game.scene.core.jrfa.rpc.entity.Response;
+import com.lzh.game.scene.core.jrfa.rpc.entity.WriteRequest;
 
 import java.io.Serializable;
 import java.nio.ByteBuffer;
@@ -81,12 +83,12 @@ public class JRServiceImpl implements JRService {
         this.options = options;
         this.node = node;
         this.invokeOutTime = config.getInvokeOutTime();
+        this.rpcServer.registerUserProcessor(new WriteRequestProcess(this));
     }
 
     @Override
-    public <T extends Serializable, R extends Message, P extends Response>
-    CompletableFuture<P> commitTask(T data, R request) {
-        CompletableFuture<P> future = new CompletableFuture<>();
+    public <T extends Serializable, R extends WriteRequest> CompletableFuture<Void> commitWrite(T data, R request) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
         if (isLeader()) {
             this.applyOperation(data, request, future);
         } else {
@@ -95,15 +97,15 @@ public class JRServiceImpl implements JRService {
         return future;
     }
 
-    protected <T extends Message> void invokeToLeader(
-            final Message request, final int timeoutMillis, final CompletableFuture<T> future) {
+    protected <P> void invokeToLeader(
+            final Message request, final int timeoutMillis, final CompletableFuture<P> future) {
         final PeerId peerId = getLeader();
         if (Objects.isNull(peerId)) {
             future.completeExceptionally(new NoLeaderException("Can't find leader!!"));
             return;
         }
         final Endpoint leaderIp = peerId.getEndpoint();
-        RpcResponseClosure<T> done = new FutureClosure<>(future);
+        RpcResponseClosure<Response> done = new FutureClosure<>(future);
         this.clientService.invokeWithDone(leaderIp, request, done, timeoutMillis);
     }
 
@@ -122,23 +124,25 @@ public class JRServiceImpl implements JRService {
     }
 
     @Override
+    public <R extends WriteRequest> void leaderWriteInvoke(R request, CompletableFuture<Void> future) {
+        this.applyOperation(null, request, future);
+    }
+
+    @Override
     public Serializer serializer() {
         return serializer;
     }
 
-    private <T extends Serializable, R extends Message, P extends Message>
-        void applyOperation(T data, R request, CompletableFuture<P> future) {
+    private <T extends Serializable, R extends Message, P extends Object>
+        void applyOperation(T data, R request, CompletableFuture<Void> future) {
 
         Task task = new Task();
         task.setData(ByteBuffer.wrap(request.toByteArray()));
-        task.setDone(new CommandClosure(data, request, serializer) {
+        task.setDone(new WriteClosure(data, request, serializer) {
             @Override
             public void run(Status status) {
                 super.run(status);
-                if (status.isOk()) {
-                    Response response = getResponse();
-//                    future.complete(response);
-                } else {
+                if (!status.isOk()) {
                     future.completeExceptionally(new IllegalArgumentException(status.getErrorMsg()));
                 }
             }
@@ -156,7 +160,7 @@ public class JRServiceImpl implements JRService {
 
     protected void build() {
         if (Objects.isNull(this.stateMachine)) {
-            this.stateMachine = new CommandStateMachine();
+            this.stateMachine = new WriteStateMachine();
         }
     }
 }

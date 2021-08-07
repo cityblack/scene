@@ -25,11 +25,6 @@ public final class Consistency {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_ReadRequest_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_ReadRequest_ExtendInfoEntry_descriptor;
-  static final
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_ReadRequest_ExtendInfoEntry_fieldAccessorTable;
-  static final com.google.protobuf.Descriptors.Descriptor
     internal_static_Response_descriptor;
   static final
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -44,13 +39,11 @@ public final class Consistency {
   static {
     String[] descriptorData = {
       "\n\021consistency.proto\")\n\014WriteRequest\022\013\n\003k" +
-      "ey\030\001 \001(\005\022\014\n\004data\030\002 \001(\014\"\217\001\n\013ReadRequest\022\r" +
-      "\n\005group\030\001 \001(\t\022\014\n\004data\030\002 \001(\014\0220\n\nextendInf" +
-      "o\030\003 \003(\0132\034.ReadRequest.ExtendInfoEntry\0321\n" +
-      "\017ExtendInfoEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002" +
-      " \001(\t:\0028\001\"9\n\010Response\022\014\n\004data\030\001 \001(\014\022\016\n\006er" +
-      "rMsg\030\002 \001(\t\022\017\n\007success\030\003 \001(\010B+\n\'com.lzh.g" +
-      "ame.scene.core.jrfa.rpc.entityP\001b\006proto3"
+      "ey\030\001 \001(\005\022\014\n\004data\030\002 \001(\014\"(\n\013ReadRequest\022\013\n" +
+      "\003key\030\001 \001(\005\022\014\n\004data\030\002 \001(\014\"9\n\010Response\022\014\n\004" +
+      "data\030\001 \001(\014\022\016\n\006errMsg\030\002 \001(\t\022\017\n\007success\030\003 " +
+      "\001(\010B+\n\'com.lzh.game.scene.core.jrfa.rpc." +
+      "entityP\001b\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -75,13 +68,7 @@ public final class Consistency {
     internal_static_ReadRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ReadRequest_descriptor,
-        new String[] { "Group", "Data", "ExtendInfo", });
-    internal_static_ReadRequest_ExtendInfoEntry_descriptor =
-      internal_static_ReadRequest_descriptor.getNestedTypes().get(0);
-    internal_static_ReadRequest_ExtendInfoEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_ReadRequest_ExtendInfoEntry_descriptor,
-        new String[] { "Key", "Value", });
+        new String[] { "Key", "Data", });
     internal_static_Response_descriptor =
       getDescriptor().getMessageTypes().get(2);
     internal_static_Response_fieldAccessorTable = new

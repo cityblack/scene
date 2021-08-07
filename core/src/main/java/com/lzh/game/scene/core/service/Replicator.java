@@ -1,7 +1,6 @@
 package com.lzh.game.scene.core.service;
 
 import com.lzh.game.scene.common.SceneInstance;
-import com.lzh.game.scene.core.jrfa.rpc.entity.Response;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -10,5 +9,5 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface Replicator {
 
-    CompletableFuture<Response> registerSceneInstance(SceneInstance sceneInstance);
+    CompletableFuture<Void> registerSceneInstance(SceneInstance sceneInstance);
 }

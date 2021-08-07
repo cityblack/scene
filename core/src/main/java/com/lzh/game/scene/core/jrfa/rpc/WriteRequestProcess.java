@@ -4,12 +4,10 @@ import com.alipay.remoting.AsyncContext;
 import com.alipay.remoting.BizContext;
 import com.alipay.remoting.rpc.protocol.AsyncUserProcessor;
 import com.alipay.sofa.jraft.Node;
-import com.google.protobuf.ByteString;
 import com.lzh.game.scene.core.jrfa.JRService;
 import com.lzh.game.scene.core.jrfa.rpc.entity.Response;
 import com.lzh.game.scene.core.jrfa.rpc.entity.WriteRequest;
 
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 public class WriteRequestProcess extends AsyncUserProcessor<WriteRequest> {
@@ -26,24 +24,25 @@ public class WriteRequestProcess extends AsyncUserProcessor<WriteRequest> {
     public void handleRequest(BizContext bizCtx, AsyncContext asyncCtx, WriteRequest request) {
 
         Node node = jrService.node();
-
+        Response.Builder response = Response.newBuilder();
         if (!node.isLeader()) {
-            asyncCtx.sendResponse(buildResponse("can't find leader!!", null));
-            return;
+            response.setErrMsg("can't find leader!!");
+            response.setSuccess(false);
+            asyncCtx.sendResponse(response);
+        } else {
+            CompletableFuture<Void> future = new CompletableFuture<>();
+            response.setSuccess(true);
+
+            jrService.leaderWriteInvoke(request, future);
+            future.exceptionally(throwable -> {
+                response.setErrMsg(throwable.getMessage());
+                response.setSuccess(false);
+                asyncCtx.sendResponse(response);
+                return null;
+            }).thenAccept(v -> asyncCtx.sendResponse(response));
         }
-        CompletableFuture<Response> future = new CompletableFuture<>();
-//        jrService.applyOperation(node, request, future);
-//        future.thenAccept(response -> asyncCtx.sendResponse())
     }
 
-    private Response buildResponse(String error, Object data) {
-        Response.Builder builder = Response.newBuilder();
-        builder.setErrMsg(error);
-        if (Objects.nonNull(data)) {
-            builder.setData(ByteString.copyFrom(jrService.serializer().encode(data)));
-        }
-        return builder.build();
-    }
 
     @Override
     public String interest() {
