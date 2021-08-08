@@ -9,18 +9,24 @@ import com.lzh.game.scene.common.SceneInstance;
 import com.lzh.game.scene.common.connect.codec.ProtostuffSerializer;
 import com.lzh.game.scene.common.connect.codec.Serializer;
 import com.lzh.game.scene.core.jrfa.JRService;
+import com.lzh.game.scene.core.service.SceneInstanceManage;
 import com.lzh.game.scene.core.service.SofaClusterServer;
+import com.lzh.game.scene.core.service.impl.SceneInstanceManageImpl;
+import com.lzh.game.scene.core.service.impl.process.SceneInstanceProcess;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 class CoreAppTest {
+
+    public final static Logger logger = LoggerFactory.getLogger(CoreAppTest.class);
 
     public List<SofaClusterServer> cluster() {
         ClusterServerConfig config = new ClusterServerConfig();
@@ -35,6 +41,24 @@ class CoreAppTest {
             SofaClusterServer<ClusterServerConfig> server = new SofaClusterServer<>(config);
             server.start();
             servers.add(server);
+            final SceneInstanceManage manage = new SceneInstanceManageImpl();
+            SceneInstanceProcess sceneInstanceProcess = new SceneInstanceProcess(manage);
+            server.getJrService().addRequestProcess(sceneInstanceProcess);
+
+            new Thread(() -> {
+                while (true) {
+                    CompletableFuture.supplyAsync(() -> {
+                        List<SceneInstance> list = manage.get("group");
+                        logger.info("当前节点:{} scene数量:{}", server.getJrService().node().getNodeId(), list.size());
+                        return null;
+                    });
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
         }
         return servers;
     }
@@ -56,11 +80,11 @@ class CoreAppTest {
                     sceneInstance.setUnique(String.valueOf(count.getAndIncrement()));
                     jrService
                             .replicator()
-                            .registerSceneInstance(sceneInstance)
-                    .exceptionally(throwable -> {
-                        throwable.printStackTrace();
-                        return null;
-                    });
+                            .registerSceneInstance(sceneInstance);
+//                    .exceptionally(throwable -> {
+//                        throwable.printStackTrace();
+//                        return null;
+//                    });
                 }
             }
             try {

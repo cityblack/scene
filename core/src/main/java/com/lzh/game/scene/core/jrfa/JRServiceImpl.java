@@ -13,7 +13,6 @@ import com.alipay.sofa.jraft.rpc.RpcResponseClosure;
 import com.alipay.sofa.jraft.rpc.impl.BoltRpcServer;
 import com.alipay.sofa.jraft.util.Endpoint;
 import com.google.protobuf.Message;
-import com.lzh.game.scene.common.SceneInstance;
 import com.lzh.game.scene.common.connect.codec.Serializer;
 import com.lzh.game.scene.core.ClusterServerConfig;
 import com.lzh.game.scene.core.exception.NoLeaderException;
@@ -23,9 +22,6 @@ import com.lzh.game.scene.core.jrfa.rpc.entity.Response;
 import com.lzh.game.scene.core.jrfa.rpc.entity.WriteRequest;
 import com.lzh.game.scene.core.service.Replicator;
 import com.lzh.game.scene.core.service.impl.AbstractExchangeProcess;
-import com.lzh.game.scene.core.service.impl.SceneInstanceManageImpl;
-import com.lzh.game.scene.core.service.impl.process.AbstractWriteProcess;
-import com.lzh.game.scene.core.service.impl.process.SceneInstanceProcess;
 
 import java.io.Serializable;
 import java.nio.ByteBuffer;
@@ -58,7 +54,6 @@ public class JRServiceImpl implements JRService {
     private int invokeOutTime;
 
     public JRServiceImpl(Serializer serializer) {
-//        this.rpcServer = rpcServer;
         this.serializer = serializer;
     }
 
@@ -95,11 +90,7 @@ public class JRServiceImpl implements JRService {
         this.node = node;
         this.invokeOutTime = config.getInvokeOutTime();
         this.rpcServer.registerUserProcessor(new WriteRequestProcess(this));
-        this.initWriteProcess();
-    }
 
-    private void initWriteProcess() {
-        SceneInstanceProcess process = new SceneInstanceProcess(SceneInstance.class, new SceneInstanceManageImpl());
     }
 
     @Override
@@ -152,6 +143,11 @@ public class JRServiceImpl implements JRService {
     @Override
     public RpcServer rpcServer() {
         return this.rpcServer;
+    }
+
+    @Override
+    public void addRequestProcess(AbstractExchangeProcess process) {
+        AbstractExchangeProcess.addProcess(process.getClass(), process);
     }
 
     @Override

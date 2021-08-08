@@ -12,10 +12,6 @@ import java.io.Serializable;
 public abstract class AbstractWriteProcess<T extends Serializable>
         extends AbstractExchangeProcess<T, Void> {
 
-    public AbstractWriteProcess(Class<T> clazz) {
-        super(clazz);
-    }
-
     @Override
     public Void onRequest(ReplicatorCmd cmd, T data) {
         doRequest(cmd, data);

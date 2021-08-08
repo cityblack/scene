@@ -2,7 +2,6 @@ package com.lzh.game.scene.core.jrfa;
 
 import com.alipay.sofa.jraft.Closure;
 import com.alipay.sofa.jraft.Status;
-import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
 import com.lzh.game.scene.common.connect.codec.Serializer;
 import com.lzh.game.scene.core.jrfa.rpc.entity.WriteRequest;
@@ -44,13 +43,14 @@ public class WriteClosure implements Closure {
             return;
         }
         AbstractExchangeProcess process = cmd.getProcess();
-        if (Objects.isNull(data)) {
-            Class<? extends Serializable> dataType = process.getRequestParamType();
-            if (Objects.nonNull(dataType)) {
-                data = serializer.decode(writeRequest.toByteArray(), dataType);
-            }
-        }
+
         try {
+            if (Objects.isNull(data)) {
+                Class<? extends Serializable> dataType = process.getRequestParamType();
+                if (Objects.nonNull(dataType)) {
+                    data = serializer.decode(writeRequest.getData().toByteArray(), dataType);
+                }
+            }
             process.onRequest(cmd, data);
         } catch (Exception e) {
             status.setError(-1, e.getMessage());

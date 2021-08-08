@@ -22,12 +22,15 @@ public class SceneInstanceManageImpl implements SceneInstanceManage {
     // lock
     private Map<String, ReadWriteLock> lock = new ConcurrentHashMap<>();
 
+    private ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+
     @Override
     public List<SceneInstance> get(String group) {
         Lock lock = getLock(group).readLock();
         lock.lock();
         try {
-            return new LinkedList<>(this.groupUnique.column(group).values());
+            return null;
+//            return new LinkedList<>(this.groupUnique.column(group).values());
         } finally {
             lock.unlock();
         }
@@ -79,6 +82,7 @@ public class SceneInstanceManageImpl implements SceneInstanceManage {
     }
 
     private ReadWriteLock getLock(String group) {
+//        return this.readWriteLock;
         return this.lock.computeIfAbsent(group, (k) -> new ReentrantReadWriteLock());
     }
 }

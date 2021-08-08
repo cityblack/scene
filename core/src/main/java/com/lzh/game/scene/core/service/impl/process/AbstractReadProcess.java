@@ -13,10 +13,6 @@ import java.io.Serializable;
 public abstract class AbstractReadProcess<R extends Serializable, P extends Serializable>
         extends AbstractExchangeProcess<R, P> {
 
-    public AbstractReadProcess(Class<R> clazz) {
-        super(clazz);
-    }
-
     @Override
     public P onRequest(ReplicatorCmd cmd, R data) {
         return null;

@@ -6,6 +6,7 @@ import com.lzh.game.scene.common.connect.codec.Serializer;
 import com.lzh.game.scene.core.ClusterServerConfig;
 import com.lzh.game.scene.core.jrfa.rpc.entity.WriteRequest;
 import com.lzh.game.scene.core.service.Replicator;
+import com.lzh.game.scene.core.service.impl.AbstractExchangeProcess;
 
 import java.io.Serializable;
 import java.util.concurrent.CompletableFuture;
@@ -32,4 +33,6 @@ public interface JRService {
     Replicator replicator();
 
     RpcServer rpcServer();
+
+    void addRequestProcess(AbstractExchangeProcess process);
 }

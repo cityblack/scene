@@ -28,6 +28,7 @@
         <sofa.bolt.version>1.6.3</sofa.bolt.version>
         <protobuf.version>3.8.0</protobuf.version>
         <guava.version>30.1.1-jre</guava.version>
+        <jmh.version>1.32</jmh.version>
     </properties>
     <dependencies>
         <!--<dependency>
@@ -66,6 +67,20 @@
             <version>${guava.version}</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.openjdk.jmh/jmh-core -->
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-core</artifactId>
+            <version>${jmh.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-generator-annprocess</artifactId>
+            <version>${jmh.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

@@ -11,8 +11,7 @@ public class SceneInstanceProcess extends AbstractWriteProcess<SceneInstance> {
 
     private SceneInstanceManage manage;
 
-    public SceneInstanceProcess(Class<SceneInstance> clazz, SceneInstanceManage manage) {
-        super(clazz);
+    public SceneInstanceProcess(SceneInstanceManage manage) {
         this.manage = manage;
     }
 
@@ -24,5 +23,10 @@ public class SceneInstanceProcess extends AbstractWriteProcess<SceneInstance> {
                 break;
             }
         }
+    }
+
+    @Override
+    public Class<SceneInstance> getRequestParamType() {
+        return SceneInstance.class;
     }
 }
