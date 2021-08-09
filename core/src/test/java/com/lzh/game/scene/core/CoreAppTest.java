@@ -188,4 +188,17 @@ class CoreAppTest {
             }
         }
     }
+
+    @Test
+    public void insert() {
+        SceneInstanceManage manage = new SceneInstanceManageImpl();
+        for (int i = 0; i < 500000; i++) {
+            SceneInstance instance = new SceneInstance();
+//        int count = ps.count.incrementAndGet();
+            instance.setMap(1);
+            instance.setUnique("3");
+            instance.setGroup("3");
+            manage.put("3", instance);
+        }
+    }
 }

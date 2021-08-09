@@ -19,18 +19,17 @@ public class SceneInstanceManageImpl implements SceneInstanceManage {
     private Table<String, Integer, List<SceneInstance>> groupMapKey = HashBasedTable.create();
     // group, unique, instance
     private Table<String, String, SceneInstance> groupUnique = HashBasedTable.create();
-    // lock
+    // 分段锁 空间换速度 测压情况看来比直接上锁在多group情况下性能快2倍
     private Map<String, ReadWriteLock> lock = new ConcurrentHashMap<>();
 
-    private ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+//    private ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
     @Override
     public List<SceneInstance> get(String group) {
         Lock lock = getLock(group).readLock();
         lock.lock();
         try {
-            return null;
-//            return new LinkedList<>(this.groupUnique.column(group).values());
+            return new LinkedList<>(this.groupUnique.column(group).values());
         } finally {
             lock.unlock();
         }
@@ -67,13 +66,15 @@ public class SceneInstanceManageImpl implements SceneInstanceManage {
         Lock lock = getLock(group).writeLock();
         lock.lock();
         try {
+            if (groupUnique.contains(group, instance.getUnique())) {
+                return false;
+            }
             List<SceneInstance> list = groupMapKey.get(group, instance.getMap());
             if (Objects.isNull(list)) {
                 list = new ArrayList<>();
                 groupMapKey.put(group, instance.getMap(), list);
             }
             list.add(instance);
-
             groupUnique.put(group, instance.getUnique(), instance);
         } finally {
             lock.unlock();

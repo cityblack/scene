@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @State(Scope.Thread)
 @Fork(1)
 @Warmup(iterations = 5, time = 5)
-@Measurement(iterations = 5, time = 10)
+@Measurement(iterations = 5, time = 30)
 public class SceneInstanceManageImplTest {
 
     @State(Scope.Group)
@@ -30,24 +30,28 @@ public class SceneInstanceManageImplTest {
 
     @Benchmark
     @Group("readWrite")
+    @GroupThreads(2)
     public void get(final PS ps) {
         ps.manage.get(group);
     }
 
     @Benchmark
     @Group("readWrite")
+    @GroupThreads(2)
     public void get2(final PS ps) {
         ps.manage.get("2");
     }
 
     @Benchmark
     @Group("readWrite")
+    @GroupThreads(2)
     public void get3(final PS ps) {
         ps.manage.get("3");
     }
 
     @Benchmark
     @Group("readWrite")
+    @GroupThreads(2)
     public void put(final PS ps) {
         SceneInstance instance = new SceneInstance();
 //        int count = ps.count.incrementAndGet();
@@ -59,6 +63,7 @@ public class SceneInstanceManageImplTest {
 
     @Benchmark
     @Group("readWrite")
+    @GroupThreads(2)
     public void put2(final PS ps) {
         SceneInstance instance = new SceneInstance();
 //        int count = ps.count.incrementAndGet();
@@ -70,6 +75,7 @@ public class SceneInstanceManageImplTest {
 
     @Benchmark
     @Group("readWrite")
+    @GroupThreads(2)
     public void put3(final PS ps) {
         SceneInstance instance = new SceneInstance();
 //        int count = ps.count.incrementAndGet();
