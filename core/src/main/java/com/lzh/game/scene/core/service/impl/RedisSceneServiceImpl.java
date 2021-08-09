@@ -3,17 +3,15 @@ package com.lzh.game.scene.core.service.impl;
 import com.lzh.game.scene.common.SceneChangeStatus;
 import com.lzh.game.scene.common.SceneInstance;
 import com.lzh.game.scene.common.connect.Response;
-import com.lzh.game.scene.common.connect.scene.SceneConnect;
 import com.lzh.game.scene.core.service.SceneInstanceManage;
-import com.lzh.game.scene.core.jrfa.Replicator;
 import com.lzh.game.scene.core.service.SceneService;
+import org.redisson.api.RedissonClient;
 
-public class CpSceneServiceImpl implements SceneService {
+public class RedisSceneServiceImpl implements SceneService {
+
+    private RedissonClient client;
 
     private SceneInstanceManage manage;
-
-    private Replicator replicator;
-
 
     @Override
     public void registerSceneInstance(Response response, String group, SceneInstance instance) {

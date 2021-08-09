@@ -2,15 +2,11 @@ package com.lzh.game.scene.common.connect.sofa;
 
 import com.alipay.remoting.AsyncContext;
 import com.alipay.remoting.BizContext;
-import com.alipay.remoting.rpc.RpcServer;
 import com.alipay.remoting.rpc.protocol.AsyncUserProcessor;
-import com.lzh.game.scene.common.ContextDefined;
+import com.lzh.game.scene.common.ContextConstant;
 import com.lzh.game.scene.common.connect.Request;
 import com.lzh.game.scene.common.connect.RequestContext;
 import com.lzh.game.scene.common.connect.Response;
-import com.lzh.game.scene.common.connect.server.ConnectServer;
-import com.lzh.game.scene.common.connect.server.MethodInvoke;
-import com.lzh.game.scene.common.connect.server.InvokeException;
 import com.lzh.game.scene.common.connect.server.RequestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +30,8 @@ public class SofaUserProcess extends AsyncUserProcessor<Request> {
 
         try {
             RequestContext requestContext = new RequestContext();
-            requestContext.setAttr(ContextDefined.SOFA_ASYNC_CONTEXT, asyncCtx);
-            requestContext.setAttr(ContextDefined.SOFA_CONNECT_REQUEST, bizCtx.getConnection());
+            requestContext.setAttr(ContextConstant.SOFA_ASYNC_CONTEXT, asyncCtx);
+            requestContext.setAttr(ContextConstant.SOFA_CONNECT_REQUEST, bizCtx.getConnection());
 
             request.setContext(requestContext);
 

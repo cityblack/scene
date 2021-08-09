@@ -1,6 +1,6 @@
 package com.lzh.game.scene.common;
 
-public class ContextDefined {
+public class ContextConstant {
 
     // sofa connect标识包装的connect 通过该标识从sofa找到对应的connect
     public static String SOURCE_CONNECT_RELATION = "com.lzh.game.scene.connect.id.source";
@@ -13,4 +13,7 @@ public class ContextDefined {
     public static String SOFA_ASYNC_CONTEXT = "com.lzh.game.sofa.async.context";
 
     public static String SOFA_CONNECT_REQUEST = "com.lzh.game.sofa.connect.context";
+
+    public static final String REDIS_MAP_KEY_PRE = "_map_key";
+
 }

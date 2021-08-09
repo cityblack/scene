@@ -1,4 +1,4 @@
-package com.lzh.game.scene.core.service;
+package com.lzh.game.scene.core.jrfa;
 
 import com.lzh.game.scene.common.SceneInstance;
 

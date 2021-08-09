@@ -1,6 +1,6 @@
 package com.lzh.game.scene.common.connect;
 
-import com.lzh.game.scene.common.ContextDefined;
+import com.lzh.game.scene.common.ContextConstant;
 import com.lzh.game.scene.common.NodeType;
 import com.lzh.game.scene.common.connect.scene.SceneConnect;
 import com.lzh.game.scene.common.connect.scene.SceneConnectManage;
@@ -79,7 +79,7 @@ public class DefaultConnectManage implements SceneConnectManage, ConnectManage {
         if (Objects.isNull(connect)) {
             return;
         }
-        String connectKey = connect.getAttr(ContextDefined.SCENE_CONNECT_KEY);
+        String connectKey = connect.getAttr(ContextConstant.SCENE_CONNECT_KEY);
         removeConnect(connectKey);
     }
 }

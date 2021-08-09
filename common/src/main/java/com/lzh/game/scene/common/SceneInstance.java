@@ -35,4 +35,13 @@ public class SceneInstance implements Serializable {
     public void setMap(int map) {
         this.map = map;
     }
+
+    @Override
+    public String toString() {
+        return "SceneInstance{" +
+                "group='" + group + '\'' +
+                ", unique='" + unique + '\'' +
+                ", map=" + map +
+                '}';
+    }
 }

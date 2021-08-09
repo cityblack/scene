@@ -3,7 +3,10 @@ package com.lzh.game.scene.core.service.impl;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import com.lzh.game.scene.common.SceneInstance;
+import com.lzh.game.scene.core.jrfa.JRService;
 import com.lzh.game.scene.core.service.SceneInstanceManage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -15,6 +18,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 // 应该都是要上锁 所以不拆分锁逻辑.
 public class SceneInstanceManageImpl implements SceneInstanceManage {
+
+    private static final Logger logger = LoggerFactory.getLogger(SceneInstanceManageImpl.class);
     // group, map, instance
     private Table<String, Integer, List<SceneInstance>> groupMapKey = HashBasedTable.create();
     // group, unique, instance
@@ -29,7 +34,7 @@ public class SceneInstanceManageImpl implements SceneInstanceManage {
         Lock lock = getLock(group).readLock();
         lock.lock();
         try {
-            return new LinkedList<>(this.groupUnique.column(group).values());
+            return new LinkedList<>(this.groupUnique.row(group).values());
         } finally {
             lock.unlock();
         }

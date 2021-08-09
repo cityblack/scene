@@ -1,7 +1,7 @@
-package com.lzh.game.scene.core.service.impl.process;
+package com.lzh.game.scene.core.jrfa.process;
 
-import com.lzh.game.scene.core.service.ReplicatorCmd;
-import com.lzh.game.scene.core.service.impl.AbstractExchangeProcess;
+import com.lzh.game.scene.core.jrfa.ReplicatorCmd;
+import com.lzh.game.scene.core.jrfa.AbstractExchangeProcess;
 
 import java.io.Serializable;
 

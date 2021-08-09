@@ -20,14 +20,14 @@ import com.lzh.game.scene.core.jrfa.rpc.ReplicatorImpl;
 import com.lzh.game.scene.core.jrfa.rpc.WriteRequestProcess;
 import com.lzh.game.scene.core.jrfa.rpc.entity.Response;
 import com.lzh.game.scene.core.jrfa.rpc.entity.WriteRequest;
-import com.lzh.game.scene.core.service.Replicator;
-import com.lzh.game.scene.core.service.impl.AbstractExchangeProcess;
 
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class JRServiceImpl implements JRService {
 
@@ -52,6 +52,8 @@ public class JRServiceImpl implements JRService {
     private Replicator replicator;
 
     private int invokeOutTime;
+
+    private Map<ReplicatorCmd, AbstractExchangeProcess> processes = new ConcurrentHashMap<>(8);
 
     public JRServiceImpl(Serializer serializer) {
         this.serializer = serializer;
@@ -146,8 +148,13 @@ public class JRServiceImpl implements JRService {
     }
 
     @Override
-    public void addRequestProcess(AbstractExchangeProcess process) {
-        AbstractExchangeProcess.addProcess(process.getClass(), process);
+    public AbstractExchangeProcess getProcess(ReplicatorCmd cmd) {
+        return processes.get(cmd);
+    }
+
+    @Override
+    public void addRequestProcess(ReplicatorCmd cmd, AbstractExchangeProcess process) {
+        this.processes.put(cmd, process);
     }
 
     @Override
@@ -160,7 +167,7 @@ public class JRServiceImpl implements JRService {
 
         Task task = new Task();
         task.setData(ByteBuffer.wrap(request.toByteArray()));
-        task.setDone(new WriteClosure(data, request, serializer) {
+        WriteClosure closure = new WriteClosure(data, request, serializer, this) {
             @Override
             public void run(Status status) {
                 super.run(status);
@@ -168,7 +175,8 @@ public class JRServiceImpl implements JRService {
                     future.completeExceptionally(new IllegalArgumentException(status.getErrorMsg()));
                 }
             }
-        });
+        };
+        task.setDone(closure);
         this.node.apply(task);
     }
 
@@ -186,7 +194,7 @@ public class JRServiceImpl implements JRService {
 
     protected void build() {
         if (Objects.isNull(this.stateMachine)) {
-            this.stateMachine = new WriteStateMachine(this.serializer);
+            this.stateMachine = new WriteStateMachine(this.serializer, this);
         }
         if (Objects.isNull(this.replicator)) {
             this.replicator = new ReplicatorImpl(this);

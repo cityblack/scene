@@ -1,17 +1,20 @@
 package com.lzh.game.scene.core.jrfa;
 
 import com.alipay.sofa.jraft.Closure;
+import com.alipay.sofa.jraft.Node;
 import com.alipay.sofa.jraft.Status;
 import com.google.protobuf.Message;
 import com.lzh.game.scene.common.connect.codec.Serializer;
 import com.lzh.game.scene.core.jrfa.rpc.entity.WriteRequest;
-import com.lzh.game.scene.core.service.ReplicatorCmd;
-import com.lzh.game.scene.core.service.impl.AbstractExchangeProcess;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.Objects;
 
 public class WriteClosure implements Closure {
+
+    public static final Logger logger = LoggerFactory.getLogger(WriteClosure.class);
     // 这个用于如果本地就是主节点 避免序反列化
     private Serializable data;
 
@@ -19,10 +22,13 @@ public class WriteClosure implements Closure {
 
     private Serializer serializer;
 
-    public WriteClosure(Serializable data, Message request, Serializer serializer) {
+    private JRService service;
+
+    public WriteClosure(Serializable data, Message request, Serializer serializer, JRService service) {
         this.data = data;
         this.request = request;
         this.serializer = serializer;
+        this.service = service;
     }
 
     public Object getData() {
@@ -42,8 +48,11 @@ public class WriteClosure implements Closure {
             status.setError(-1,"%s:%d", "CMD not register", key);
             return;
         }
-        AbstractExchangeProcess process = cmd.getProcess();
-
+        AbstractExchangeProcess process = this.service.getProcess(cmd);
+        if (Objects.isNull(process)) {
+            status.setError(-1, "CMD process not register");
+            return;
+        }
         try {
             if (Objects.isNull(data)) {
                 Class<? extends Serializable> dataType = process.getRequestParamType();

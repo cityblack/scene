@@ -9,10 +9,12 @@ import com.lzh.game.scene.common.SceneInstance;
 import com.lzh.game.scene.common.connect.codec.ProtostuffSerializer;
 import com.lzh.game.scene.common.connect.codec.Serializer;
 import com.lzh.game.scene.core.jrfa.JRService;
+import com.lzh.game.scene.core.jrfa.ReplicatorCmd;
+import com.lzh.game.scene.core.jrfa.process.SceneInstanceProcess;
+import com.lzh.game.scene.core.service.JRafClusterServer;
 import com.lzh.game.scene.core.service.SceneInstanceManage;
 import com.lzh.game.scene.core.service.SofaClusterServer;
 import com.lzh.game.scene.core.service.impl.SceneInstanceManageImpl;
-import com.lzh.game.scene.core.service.impl.process.SceneInstanceProcess;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,28 +30,33 @@ class CoreAppTest {
 
     public final static Logger logger = LoggerFactory.getLogger(CoreAppTest.class);
 
-    public List<SofaClusterServer> cluster() {
+    public List<JRafClusterServer> cluster() {
         ClusterServerConfig config = new ClusterServerConfig();
         config.getCluster().add("localhost:8081");
         config.getCluster().add("localhost:8082");
         config.getCluster().add("localhost:8083");
-        List<SofaClusterServer> servers = new ArrayList<>();
+        List<JRafClusterServer> servers = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
             config.setPort(8081 + i);
             config.setConsistLogUri("/Users/jsonp/Documents/logs/scene/" + config.getPort());
             config.setMetaUri("/Users/jsonp/Documents/mate/" + config.getPort());
-            SofaClusterServer<ClusterServerConfig> server = new SofaClusterServer<>(config);
+            JRafClusterServer<ClusterServerConfig> server = new JRafClusterServer<>(config);
             server.start();
             servers.add(server);
-            final SceneInstanceManage manage = new SceneInstanceManageImpl();
+            final SceneInstanceManageImpl manage = new SceneInstanceManageImpl();
             SceneInstanceProcess sceneInstanceProcess = new SceneInstanceProcess(manage);
-            server.getJrService().addRequestProcess(sceneInstanceProcess);
-
+            server.getJrService().addRequestProcess(ReplicatorCmd.REGISTER_SCENE, sceneInstanceProcess);
             new Thread(() -> {
                 while (true) {
                     CompletableFuture.supplyAsync(() -> {
                         List<SceneInstance> list = manage.get("group");
-                        logger.info("当前节点:{} scene数量:{}", server.getJrService().node().getNodeId(), list.size());
+                        if (!list.isEmpty()) {
+                            logger.info("当前节点:{} leader:{} scene数量:{}"
+                                    , server.getJrService().node().getNodeId()
+                                    , server.getJrService().node().isLeader()
+                                    , list.size());
+
+                        }
                         return null;
                     });
                     try {
@@ -65,10 +72,10 @@ class CoreAppTest {
 
     @Test
     public void start() {
-        AtomicInteger count = new AtomicInteger(1);
-        List<SofaClusterServer> servers = cluster();
+//        AtomicInteger count = new AtomicInteger(1);
+        List<JRafClusterServer> servers = cluster();
         while (true) {
-            for (SofaClusterServer server: servers) {
+            for (JRafClusterServer server: servers) {
                 JRService jrService = server.getJrService();
                 if (jrService.node().getLeaderId() == null) {
                     continue;
@@ -77,7 +84,8 @@ class CoreAppTest {
                     SceneInstance sceneInstance = new SceneInstance();
                     sceneInstance.setGroup("group");
                     sceneInstance.setMap(1);
-                    sceneInstance.setUnique(String.valueOf(count.getAndIncrement()));
+                    sceneInstance.setUnique("1");
+//                    logger.info("当前节点:{} 发送写入请求", jrService.node().getNodeId());
                     jrService
                             .replicator()
                             .registerSceneInstance(sceneInstance);
@@ -143,28 +151,13 @@ class CoreAppTest {
                             Task task = new Task();
                             task.setData(ByteBuffer.wrap(serializer.encode(5)));
                             task.setDone(new TestClosure(5, id));
-//                            task.setExpectedTerm(TimeUnit.SECONDS.toMillis(5));
                             node.apply(task);
                         }
-//                        System.out.println("leader" + node.getLeaderId());
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
             }).start();
-            /*Task task = new Task();
-            task.setData(ByteBuffer.wrap(serializer.encode(5)));
-            task.setDone(new Closure() {
-                @Override
-                public void run(Status status) {
-                    System.out.println(status.getCode());
-                    System.out.println(status.getErrorMsg());
-                }
-            });
-            task.setExpectedTerm(TimeUnit.SECONDS.toMillis(5));
-            node.apply(task);
-            service.getRpcServer();*/
-//            nodeManager.add(node);
         }
 
         latch.await();
@@ -184,7 +177,7 @@ class CoreAppTest {
         @Override
         public void run(Status status) {
             if (status.isOk()) {
-//                System.out.println("node:" + peerId.toString() + " -> "+ object);
+                logger.info("当前节点:{}", peerId.toString());
             }
         }
     }

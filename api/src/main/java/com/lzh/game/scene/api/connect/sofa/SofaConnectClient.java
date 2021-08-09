@@ -7,7 +7,7 @@ import com.alipay.remoting.rpc.RpcClient;
 import com.lzh.game.scene.api.config.ApiConfig;
 import com.lzh.game.scene.api.config.Member;
 import com.lzh.game.scene.api.connect.ConnectClient;
-import com.lzh.game.scene.common.ContextDefined;
+import com.lzh.game.scene.common.ContextConstant;
 import com.lzh.game.scene.common.NodeType;
 import com.lzh.game.scene.common.connect.*;
 import com.lzh.game.scene.common.connect.scene.SceneConnect;
@@ -116,7 +116,7 @@ public class SofaConnectClient extends AbstractBootstrap implements ConnectClien
 
         @Override
         public void onEvent(String remoteAddr, Connection conn) {
-            String key = (String) conn.getAttribute(ContextDefined.SOURCE_CONNECT_RELATION);
+            String key = (String) conn.getAttribute(ContextConstant.SOURCE_CONNECT_RELATION);
             getConnectManage().removeSceneConnect(key);
             logger.info("Close connect [{}-{}]!!", conn.getUrl(), key);
         }

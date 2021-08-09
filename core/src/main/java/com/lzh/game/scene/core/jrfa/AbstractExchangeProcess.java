@@ -1,6 +1,4 @@
-package com.lzh.game.scene.core.service.impl;
-
-import com.lzh.game.scene.core.service.ReplicatorCmd;
+package com.lzh.game.scene.core.jrfa;
 
 import java.io.Serializable;
 import java.util.Map;

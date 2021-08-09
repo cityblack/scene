@@ -4,10 +4,7 @@ import com.alipay.remoting.Connection;
 import com.alipay.remoting.ConnectionEventProcessor;
 import com.alipay.remoting.ConnectionEventType;
 import com.alipay.remoting.rpc.RpcServer;
-import com.lzh.game.scene.common.ContextDefined;
-import com.lzh.game.scene.common.connect.AbstractBootstrap;
-import com.lzh.game.scene.common.connect.ConnectFactory;
-import com.lzh.game.scene.common.connect.scene.SceneConnectManage;
+import com.lzh.game.scene.common.ContextConstant;
 import com.lzh.game.scene.common.connect.server.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +39,7 @@ public class SofaServer<T extends ServerConfig>
 
         @Override
         public void onEvent(String remoteAddr, Connection conn) {
-            String key = (String) conn.getAttribute(ContextDefined.SOURCE_CONNECT_RELATION);
+            String key = (String) conn.getAttribute(ContextConstant.SOURCE_CONNECT_RELATION);
             if (Objects.nonNull(key)) {
                 getConnectManage().removeSceneConnect(key);
             } else {

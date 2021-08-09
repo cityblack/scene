@@ -5,12 +5,13 @@ import com.alipay.sofa.jraft.Node;
 import com.lzh.game.scene.common.connect.codec.Serializer;
 import com.lzh.game.scene.core.ClusterServerConfig;
 import com.lzh.game.scene.core.jrfa.rpc.entity.WriteRequest;
-import com.lzh.game.scene.core.service.Replicator;
-import com.lzh.game.scene.core.service.impl.AbstractExchangeProcess;
 
 import java.io.Serializable;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * https://www.sofastack.tech/projects/sofa-jraft/overview/
+ */
 public interface JRService {
 
     <T extends ClusterServerConfig> void start(T config);
@@ -34,5 +35,7 @@ public interface JRService {
 
     RpcServer rpcServer();
 
-    void addRequestProcess(AbstractExchangeProcess process);
+    void addRequestProcess(ReplicatorCmd cmd, AbstractExchangeProcess process);
+
+    AbstractExchangeProcess getProcess(ReplicatorCmd cmd);
 }

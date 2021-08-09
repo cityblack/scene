@@ -4,8 +4,8 @@ import com.google.protobuf.ByteString;
 import com.lzh.game.scene.common.SceneInstance;
 import com.lzh.game.scene.core.jrfa.JRService;
 import com.lzh.game.scene.core.jrfa.rpc.entity.WriteRequest;
-import com.lzh.game.scene.core.service.Replicator;
-import com.lzh.game.scene.core.service.ReplicatorCmd;
+import com.lzh.game.scene.core.jrfa.Replicator;
+import com.lzh.game.scene.core.jrfa.ReplicatorCmd;
 
 import java.io.Serializable;
 import java.util.concurrent.CompletableFuture;
