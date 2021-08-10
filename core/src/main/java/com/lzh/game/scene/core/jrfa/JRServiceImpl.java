@@ -21,9 +21,15 @@ import com.lzh.game.scene.core.jrfa.rpc.WriteRequestProcess;
 import com.lzh.game.scene.core.jrfa.rpc.entity.Response;
 import com.lzh.game.scene.core.jrfa.rpc.entity.WriteRequest;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -68,10 +74,12 @@ public class JRServiceImpl implements JRService {
             throw new IllegalArgumentException("JRaft config error!!");
         }
         this.build();
+        this.convertPath(config);
 
         NodeOptions options = new NodeOptions();
         options.setLogUri(config.getConsistLogUri());
         options.setRaftMetaUri(config.getMetaUri());
+        options.setSnapshotUri(config.getSnapshotUri());
         options.setFsm(stateMachine);
         options.setInitialConf(conf);
 
@@ -153,6 +161,11 @@ public class JRServiceImpl implements JRService {
     }
 
     @Override
+    public void shutdown() {
+
+    }
+
+    @Override
     public void addRequestProcess(ReplicatorCmd cmd, AbstractExchangeProcess process) {
         this.processes.put(cmd, process);
     }
@@ -173,6 +186,8 @@ public class JRServiceImpl implements JRService {
                 super.run(status);
                 if (!status.isOk()) {
                     future.completeExceptionally(new IllegalArgumentException(status.getErrorMsg()));
+                } else {
+                    future.complete(null);
                 }
             }
         };
@@ -199,5 +214,34 @@ public class JRServiceImpl implements JRService {
         if (Objects.isNull(this.replicator)) {
             this.replicator = new ReplicatorImpl(this);
         }
+    }
+
+    private String makeDir(String configPath) {
+        String prev = "classpath:";
+        if (configPath.toLowerCase(Locale.ROOT).startsWith(prev)) {
+            String parent = this.getClass().getResource("/").getPath();
+            String path = configPath.replaceFirst(prev, "");
+            Path file = Paths.get(parent + File.separator + path);
+            return markDir(file);
+        } else {
+            return markDir(Paths.get(configPath));
+        }
+    }
+
+    private String markDir(Path path) {
+        if (Files.exists(path)) {
+            return path.toUri().getPath();
+        }
+        try {
+            return Files.createDirectories(path).toUri().getPath();
+        } catch (IOException e) {
+            throw new RuntimeException();
+        }
+    }
+
+    private <T extends ClusterServerConfig>void convertPath(T config) {
+        config.setConsistLogUri(makeDir(config.getConsistLogUri()));
+        config.setMetaUri(makeDir(config.getMetaUri()));
+        config.setSnapshotUri(makeDir(config.getSnapshotUri()));
     }
 }

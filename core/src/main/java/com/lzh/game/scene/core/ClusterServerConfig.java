@@ -13,6 +13,8 @@ public class ClusterServerConfig extends ServerConfig {
 
     private String consistLogUri;
 
+    private String snapshotUri;
+
     private int invokeOutTime = 5000;
 
     private List<String> cluster = new ArrayList<>();
@@ -55,5 +57,13 @@ public class ClusterServerConfig extends ServerConfig {
 
     public void setInvokeOutTime(int invokeOutTime) {
         this.invokeOutTime = invokeOutTime;
+    }
+
+    public String getSnapshotUri() {
+        return snapshotUri;
+    }
+
+    public void setSnapshotUri(String snapshotUri) {
+        this.snapshotUri = snapshotUri;
     }
 }

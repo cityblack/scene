@@ -38,4 +38,6 @@ public interface JRService {
     void addRequestProcess(ReplicatorCmd cmd, AbstractExchangeProcess process);
 
     AbstractExchangeProcess getProcess(ReplicatorCmd cmd);
+
+    void shutdown();
 }

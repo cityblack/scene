@@ -24,12 +24,10 @@ public class FutureClosure<P, T extends Response> implements RpcResponseClosure<
         }
         if (!status.isOk()) {
             future.completeExceptionally(new FutureResponseException(status.getErrorMsg()));
-        } else if (response.getSuccess()) {
+        } else if (!response.getSuccess()) {
             future.completeExceptionally(new FutureResponseException(response.getErrMsg()));
         } else {
-
-//            byte[] data = response.getData();
-//            future.complete();
+            future.complete(null);
         }
     }
 

@@ -13,18 +13,19 @@ import com.lzh.game.scene.core.jrfa.ReplicatorCmd;
 import com.lzh.game.scene.core.jrfa.process.SceneInstanceProcess;
 import com.lzh.game.scene.core.service.JRafClusterServer;
 import com.lzh.game.scene.core.service.SceneInstanceManage;
-import com.lzh.game.scene.core.service.SofaClusterServer;
 import com.lzh.game.scene.core.service.impl.SceneInstanceManageImpl;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.net.URI;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicInteger;
 
 class CoreAppTest {
 
@@ -36,10 +37,12 @@ class CoreAppTest {
         config.getCluster().add("localhost:8082");
         config.getCluster().add("localhost:8083");
         List<JRafClusterServer> servers = new ArrayList<>();
+
         for (int i = 0; i < 3; i++) {
             config.setPort(8081 + i);
-            config.setConsistLogUri("/Users/jsonp/Documents/logs/scene/" + config.getPort());
-            config.setMetaUri("/Users/jsonp/Documents/mate/" + config.getPort());
+            config.setConsistLogUri("classpath:logs" + File.separator + config.getPort());
+            config.setMetaUri("classpath:scene" + File.separator + config.getPort());
+            config.setSnapshotUri("classpath:snapshot" + File.separator + config.getPort());
             JRafClusterServer<ClusterServerConfig> server = new JRafClusterServer<>(config);
             server.start();
             servers.add(server);
@@ -85,14 +88,13 @@ class CoreAppTest {
                     sceneInstance.setGroup("group");
                     sceneInstance.setMap(1);
                     sceneInstance.setUnique("1");
-//                    logger.info("当前节点:{} 发送写入请求", jrService.node().getNodeId());
                     jrService
                             .replicator()
-                            .registerSceneInstance(sceneInstance);
-//                    .exceptionally(throwable -> {
-//                        throwable.printStackTrace();
-//                        return null;
-//                    });
+                            .registerSceneInstance(sceneInstance)
+                    .exceptionally(throwable -> {
+                        throwable.printStackTrace();
+                        return null;
+                    });
                 }
             }
             try {

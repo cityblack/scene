@@ -1,7 +1,6 @@
 package com.lzh.game.scene.core.jrfa;
 
 import com.alipay.sofa.jraft.Closure;
-import com.alipay.sofa.jraft.Node;
 import com.alipay.sofa.jraft.Status;
 import com.google.protobuf.Message;
 import com.lzh.game.scene.common.connect.codec.Serializer;
