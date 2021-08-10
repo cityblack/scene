@@ -125,13 +125,13 @@ public class SofaConnectClient extends AbstractBootstrap implements ConnectClien
 
     @Override
     public CompletableFuture<Response> sendMessage(Request request) {
-        Connect connect = this.loadBalance.choose(getConnectManage().getAllConnect());
+        Connect connect = this.loadBalance.choose(getConnectManage().getAllConnect(), request);
         return connect.sendMessage(request);
     }
 
     @Override
     public void sendOneWay(Request request) {
-        Connect connect = this.loadBalance.choose(getConnectManage().getAllConnect());
+        Connect connect = this.loadBalance.choose(getConnectManage().getAllConnect(), request);
         connect.sendOneWay(request);
     }
 

@@ -26,7 +26,6 @@ class AppTest {
         ConnectClient client = new SofaConnectClient(config);
         client.startup();
 
-
         AsyncSceneApi api = new AsyncSceneApiImpl(client);
         SceneInstance instance = new SceneInstance();
         instance.setGroup("10086");
