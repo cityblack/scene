@@ -7,17 +7,31 @@ import com.lzh.game.scene.common.connect.scene.SceneConnect;
 import com.lzh.game.scene.core.service.SceneInstanceManage;
 import com.lzh.game.scene.core.jrfa.Replicator;
 import com.lzh.game.scene.core.service.SceneService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CpSceneServiceImpl implements SceneService {
+
+    private static final Logger logger = LoggerFactory.getLogger(CpSceneServiceImpl.class);
 
     private SceneInstanceManage manage;
 
     private Replicator replicator;
 
+    public CpSceneServiceImpl(SceneInstanceManage manage, Replicator replicator) {
+        this.manage = manage;
+        this.replicator = replicator;
+    }
 
     @Override
     public void registerSceneInstance(Response response, String group, SceneInstance instance) {
-
+        logger.info("Apply register scene instance. group:{} map:{}", group, instance.getMap());
+        replicator
+                .registerSceneInstance(instance)
+                .exceptionally(throwable -> {
+            response.setError(throwable.getMessage());
+            return null;
+        });
     }
 
     @Override

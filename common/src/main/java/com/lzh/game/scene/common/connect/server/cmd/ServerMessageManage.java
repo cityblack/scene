@@ -1,4 +1,7 @@
-package com.lzh.game.scene.common.connect.server;
+package com.lzh.game.scene.common.connect.server.cmd;
+
+import com.lzh.game.scene.common.connect.server.InvokeManage;
+import com.lzh.game.scene.common.connect.server.MethodInvoke;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

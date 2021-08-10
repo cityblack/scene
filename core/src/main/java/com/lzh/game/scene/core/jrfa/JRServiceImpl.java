@@ -100,7 +100,6 @@ public class JRServiceImpl implements JRService {
         this.node = node;
         this.invokeOutTime = config.getInvokeOutTime();
         this.rpcServer.registerUserProcessor(new WriteRequestProcess(this));
-
     }
 
     @Override

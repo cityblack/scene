@@ -6,13 +6,20 @@ import com.alipay.sofa.jraft.entity.PeerId;
 import com.alipay.sofa.jraft.entity.Task;
 import com.alipay.sofa.jraft.option.NodeOptions;
 import com.lzh.game.scene.common.SceneInstance;
+import com.lzh.game.scene.common.connect.Response;
 import com.lzh.game.scene.common.connect.codec.ProtostuffSerializer;
 import com.lzh.game.scene.common.connect.codec.Serializer;
+import com.lzh.game.scene.common.connect.server.MethodInvokeFactory;
+import com.lzh.game.scene.common.connect.server.SimpleInvokeFactory;
+import com.lzh.game.scene.common.connect.server.cmd.Action;
+import com.lzh.game.scene.common.connect.server.cmd.Cmd;
 import com.lzh.game.scene.core.jrfa.JRService;
 import com.lzh.game.scene.core.jrfa.ReplicatorCmd;
 import com.lzh.game.scene.core.jrfa.process.SceneInstanceProcess;
 import com.lzh.game.scene.core.service.JRafClusterServer;
 import com.lzh.game.scene.core.service.SceneInstanceManage;
+import com.lzh.game.scene.core.service.SceneService;
+import com.lzh.game.scene.core.service.impl.CpSceneServiceImpl;
 import com.lzh.game.scene.core.service.impl.SceneInstanceManageImpl;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -23,6 +30,7 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
@@ -180,6 +188,52 @@ class CoreAppTest {
             instance.setUnique("3");
             instance.setGroup("3");
             manage.put("3", instance);
+        }
+    }
+
+    @Test
+    public void demo() throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1);
+        ClusterServerConfig config = new ClusterServerConfig();
+        config.getCluster().add("localhost:8081");
+        config.getCluster().add("localhost:8082");
+        config.getCluster().add("localhost:8083");
+
+        for (int i = 0; i < 3; i++) {
+            config.setPort(8081 + i);
+            config.setConsistLogUri("classpath:logs" + File.separator + config.getPort());
+            config.setMetaUri("classpath:scene" + File.separator + config.getPort());
+            config.setSnapshotUri("classpath:snapshot" + File.separator + config.getPort());
+            JRafClusterServer<ClusterServerConfig> server = new JRafClusterServer<>(config);
+            server.init();
+
+            SceneService service = new CpSceneServiceImpl(new SceneInstanceManageImpl(), server.getJrService().replicator());
+            Demo demo = new Demo(service);
+
+            MethodInvokeFactory methodInvokeFactory = new SimpleInvokeFactory(server.getRequestHelper(), Arrays.asList(demo));
+            server.setMethodInvokeFactory(methodInvokeFactory);
+
+            final SceneInstanceManageImpl manage = new SceneInstanceManageImpl();
+            SceneInstanceProcess sceneInstanceProcess = new SceneInstanceProcess(manage);
+            server.getJrService().addRequestProcess(ReplicatorCmd.REGISTER_SCENE, sceneInstanceProcess);
+
+            server.start();
+        }
+        latch.await();
+    }
+
+    @Action(1000)
+    public static class Demo {
+
+        private SceneService service;
+
+        public Demo(SceneService service) {
+            this.service = service;
+        }
+
+        @Cmd(1)
+        public void registerInstance(Response response, SceneInstance instance) {
+            service.registerSceneInstance(response, instance.getGroup(), instance);
         }
     }
 }

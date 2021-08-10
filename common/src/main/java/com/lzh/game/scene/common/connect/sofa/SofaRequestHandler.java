@@ -7,6 +7,7 @@ import com.lzh.game.scene.common.connect.server.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 
 public class SofaRequestHandler implements RequestHandler {
@@ -15,13 +16,18 @@ public class SofaRequestHandler implements RequestHandler {
 
     private InvokeManage invokeManage;
 
-    public SofaRequestHandler(InvokeManage invokeManage) {
+    private RequestHelper requestHelper;
+
+    public SofaRequestHandler(InvokeManage invokeManage, RequestHelper helper) {
         this.invokeManage = invokeManage;
+        this.requestHelper = helper;
     }
 
     @Override
     public Response dispatch(Request request) {
         Response response = new Response();
+        response.setContext(request.getContext());
+        request.getContext().setResponse(response);
 
         MethodInvoke invoke = invokeManage.findInvoke(request.getId());
         if (Objects.isNull(invoke)) {
@@ -30,20 +36,20 @@ public class SofaRequestHandler implements RequestHandler {
         }
         try {
             doInvoke(request, response, invoke);
-        } catch (InvokeException e) {
+        } catch (Exception e) {
             logger.error("Request error!", e);
             response.setError(e.getMessage());
         }
         return response;
     }
 
-    private void doInvoke(Request request, Response response, MethodInvoke invoke) throws InvokeException {
+    private void doInvoke(Request request, Response response, MethodInvoke invoke) throws InvokeException, InvocationTargetException, IllegalAccessException {
         Class<?>[] clazz = invoke.params();
         if (clazz.length == 0) {
             Object o = invoke.invoke();
             setParam(response, o);
         } else {
-            Object[] params = convertParam(clazz, request);
+            Object[] params = requestHelper.paramConvert(request, invoke);
             Object o = invoke.invoke(params);
             setParam(response, o);
         }
@@ -55,17 +61,5 @@ public class SofaRequestHandler implements RequestHandler {
         }
     }
 
-    private Object[] convertParam(Class<?>[] paramType, Request request) {
-        Object[] params = new Object[paramType.length];
-        for (int i = 0; i < params.length; i++) {
-            Class<?> type = paramType[i];
-            // todo 之后再单独抽出
-            if (type.isAssignableFrom(SceneConnect.class)) {
 
-            } else {
-                params[i] = request.getParam();
-            }
-        }
-        return params;
-    }
 }

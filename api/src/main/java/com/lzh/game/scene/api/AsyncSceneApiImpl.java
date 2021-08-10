@@ -1,7 +1,10 @@
 package com.lzh.game.scene.api;
 
+import com.lzh.game.scene.api.connect.ConnectClient;
+import com.lzh.game.scene.api.connect.sofa.SofaConnectClient;
 import com.lzh.game.scene.common.SceneChangeStatus;
 import com.lzh.game.scene.common.SceneInstance;
+import com.lzh.game.scene.common.connect.Request;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -9,9 +12,15 @@ import java.util.function.Consumer;
 
 public class AsyncSceneApiImpl implements AsyncSceneApi {
 
+    private ConnectClient client;
+
+    public AsyncSceneApiImpl(ConnectClient client) {
+        this.client = client;
+    }
+
     @Override
-    public CompletableFuture<SceneInstance> createScene(String group, int map, int weight) {
-        return null;
+    public void createScene(String group, int map, int weight) {
+
     }
 
     @Override
@@ -35,8 +44,11 @@ public class AsyncSceneApiImpl implements AsyncSceneApi {
     }
 
     @Override
-    public CompletableFuture<SceneInstance> registerSceneInstance(String group, SceneInstance instance) {
-        return null;
+    public void registerSceneInstance(String group, SceneInstance instance) {
+        Request request = new Request();
+        request.setId(1001);
+        request.setParam(instance);
+        client.sendOneWay(request);
     }
 
     @Override

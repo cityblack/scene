@@ -11,8 +11,7 @@ import com.alipay.remoting.rpc.protocol.RpcResponseCommand;
 import com.lzh.game.scene.common.connect.Request;
 import com.lzh.game.scene.common.connect.Response;
 import com.lzh.game.scene.common.connect.codec.Serializer;
-import com.lzh.game.scene.common.connect.server.CmdClassManage;
-import com.lzh.game.scene.common.connect.server.ConnectServer;
+import com.lzh.game.scene.common.connect.server.cmd.CmdClassManage;
 
 import java.util.Objects;
 

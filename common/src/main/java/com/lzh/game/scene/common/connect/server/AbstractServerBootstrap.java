@@ -4,6 +4,7 @@ import com.alipay.remoting.rpc.RpcServer;
 import com.lzh.game.scene.common.connect.AbstractBootstrap;
 import com.lzh.game.scene.common.connect.ConnectFactory;
 import com.lzh.game.scene.common.connect.scene.SceneConnectManage;
+import com.lzh.game.scene.common.connect.server.cmd.CmdClassManage;
 import com.lzh.game.scene.common.connect.sofa.SofaServerConnectFactory;
 
 import java.util.Objects;
@@ -67,15 +68,15 @@ public abstract class AbstractServerBootstrap<T extends ServerConfig>
     }
 
     @Override
-    public void start() {
-        if (start) {
-            return;
-        }
+    protected void doInit() {
         if (Objects.isNull(config)) {
             throw new IllegalArgumentException("Server config is null!!");
         }
-        this.start = true;
-        this.build();
         this.rpcServer = init(config());
+    }
+
+    @Override
+    protected void doStart() {
+
     }
 }

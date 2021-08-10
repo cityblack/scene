@@ -19,7 +19,7 @@ public interface AsyncSceneApi {
      * @param map -- 游戏地图
      * @param weight -- 权重, 该标识主要分辨场景是否是热点场景(人多)，尽量会避免热点场景在一起
      */
-    CompletableFuture<SceneInstance> createScene(String group, int map, int weight);
+    void createScene(String group, int map, int weight);
 
     /**
      * 向场景管理中心订阅场景改变事件
@@ -55,7 +55,7 @@ public interface AsyncSceneApi {
      * @param group
      * @param instance
      */
-    CompletableFuture<SceneInstance> registerSceneInstance(String group, SceneInstance instance);
+    void registerSceneInstance(String group, SceneInstance instance);
 
     /**
      * 移除场景实例

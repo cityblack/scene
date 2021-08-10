@@ -2,20 +2,20 @@ package com.lzh.game.scene.common.connect;
 
 import com.lzh.game.scene.common.connect.codec.ProtostuffSerializer;
 import com.lzh.game.scene.common.connect.codec.Serializer;
-import com.lzh.game.scene.common.connect.server.CmdClassManage;
-import com.lzh.game.scene.common.connect.server.InvokeManage;
-import com.lzh.game.scene.common.connect.server.RequestHandler;
-import com.lzh.game.scene.common.connect.server.ServerMessageManage;
+import com.lzh.game.scene.common.connect.server.*;
+import com.lzh.game.scene.common.connect.server.cmd.CmdClassManage;
+import com.lzh.game.scene.common.connect.server.cmd.ServerMessageManage;
 import com.lzh.game.scene.common.connect.sofa.SofaRequestHandler;
 import com.lzh.game.scene.common.connect.sofa.SofaRpcSerializationRegister;
 import com.lzh.game.scene.common.connect.sofa.SofaUserProcess;
 
+import java.util.Collections;
 import java.util.Objects;
 
 /**
  * 双工通信 抽出服务端和客户端相同的
  */
-public abstract class AbstractBootstrap {
+public abstract class AbstractBootstrap implements Bootstrap {
 
     // 序列化注册
     static {
@@ -25,6 +25,8 @@ public abstract class AbstractBootstrap {
     private ConnectFactory connectFactory;
 
     private SofaUserProcess sofaUserProcess;
+
+    private RequestHelper requestHelper;
 
     private RequestHandler requestHandler;
 
@@ -36,11 +38,15 @@ public abstract class AbstractBootstrap {
 
     private Serializer serializer;
 
+    private MethodInvokeFactory methodInvokeFactory;
+    /**
+     * Build Default bean
+     */
     protected void build() {
         if (Objects.isNull(connectFactory)) {
             this.connectFactory = getDefaultFactory();
             if (Objects.isNull(connectFactory)) {
-                throw new IllegalArgumentException("ConnectFactory is null");
+                throw new NullPointerException("ConnectFactory is null");
             }
         }
         if (Objects.isNull(invokeManage) || Objects.isNull(classManage)) {
@@ -48,8 +54,11 @@ public abstract class AbstractBootstrap {
             this.invokeManage = messageManage;
             this.classManage = messageManage;
         }
+        if (Objects.isNull(requestHelper)) {
+            this.requestHelper = new RequestHelperImpl();
+        }
         if (Objects.isNull(requestHandler)) {
-            this.requestHandler = new SofaRequestHandler(this.invokeManage);
+            this.requestHandler = new SofaRequestHandler(this.invokeManage, this.requestHelper);
         }
         if (Objects.isNull(sofaUserProcess)) {
             this.sofaUserProcess = new SofaUserProcess(this.requestHandler);
@@ -59,6 +68,9 @@ public abstract class AbstractBootstrap {
         }
         if (Objects.isNull(connectManage)) {
             this.connectManage = new DefaultConnectManage();
+        }
+        if (Objects.isNull(methodInvokeFactory)) {
+            this.methodInvokeFactory = new SimpleInvokeFactory(this.requestHelper, Collections.emptyList());
         }
         SofaRpcSerializationRegister.setSerialization(getSerializer());
         SofaRpcSerializationRegister.setClassManage(getClassManage());
@@ -119,6 +131,37 @@ public abstract class AbstractBootstrap {
     public void setConnectFactory(ConnectFactory connectFactory) {
         this.connectFactory = connectFactory;
     }
+
+    public RequestHelper getRequestHelper() {
+        return requestHelper;
+    }
+
+    public void setRequestHelper(RequestHelper requestHelper) {
+        this.requestHelper = requestHelper;
+    }
+
+    public MethodInvokeFactory getMethodInvokeFactory() {
+        return methodInvokeFactory;
+    }
+
+    public void setMethodInvokeFactory(MethodInvokeFactory methodInvokeFactory) {
+        this.methodInvokeFactory = methodInvokeFactory;
+    }
+
+    public void init() {
+        this.build();
+        this.doInit();
+    }
+
+    @Override
+    public void start() {
+        this.methodInvokeFactory.loadMethodInvoke(this.invokeManage);
+        this.doStart();
+    }
+
+    protected abstract void doInit();
+
+    protected abstract void doStart();
 
     protected abstract ConnectFactory getDefaultFactory();
 }

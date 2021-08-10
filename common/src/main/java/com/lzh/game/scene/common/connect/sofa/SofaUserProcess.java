@@ -44,6 +44,7 @@ public class SofaUserProcess extends AsyncUserProcessor<Request> {
             }
 
             if (Objects.nonNull(response.getParam()) || Objects.nonNull(response.getError())) {
+                logger.error("Request error:", response.getError());
                 asyncCtx.sendResponse(response);
             }
 

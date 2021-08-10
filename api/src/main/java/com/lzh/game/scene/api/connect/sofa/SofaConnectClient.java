@@ -6,6 +6,7 @@ import com.alipay.remoting.ConnectionEventType;
 import com.alipay.remoting.rpc.RpcClient;
 import com.lzh.game.scene.api.config.ApiConfig;
 import com.lzh.game.scene.api.config.Member;
+import com.lzh.game.scene.api.connect.ClientLoadBalance;
 import com.lzh.game.scene.api.connect.ConnectClient;
 import com.lzh.game.scene.common.ContextConstant;
 import com.lzh.game.scene.common.NodeType;
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * SOFA BLOT已经做好了各种网络机制，所以不再过度封装
@@ -32,12 +34,16 @@ public class SofaConnectClient extends AbstractBootstrap implements ConnectClien
 
     private ConnectionEventProcessor closeEvent = new ConnectCloseEvent();
 
+    private LoadBalance loadBalance;
+
     public SofaConnectClient(ApiConfig config) {
         this.config = config;
     }
 
     private void init(ApiConfig config) {
-        this.build();
+        if (Objects.isNull(this.loadBalance)) {
+            this.loadBalance = new ClientLoadBalance();
+        }
         rpcClient.addConnectionEventProcessor(ConnectionEventType.CLOSE, closeEvent);
         rpcClient.registerUserProcessor(getSofaUserProcess());
 
@@ -62,8 +68,18 @@ public class SofaConnectClient extends AbstractBootstrap implements ConnectClien
     }
 
     @Override
-    public void start() {
+    protected void doInit() {
         this.init(this.config);
+    }
+
+    @Override
+    protected void doStart() {
+
+    }
+
+    @Override
+    public void shutdown() {
+
     }
 
     @Override
@@ -105,6 +121,18 @@ public class SofaConnectClient extends AbstractBootstrap implements ConnectClien
     @Override
     public SceneConnect getConnect(String host, int port, NodeType type) {
         return getConnect(connectManage().toAddress(host, port), type);
+    }
+
+    @Override
+    public CompletableFuture<Response> sendMessage(Request request) {
+        Connect connect = this.loadBalance.choose(getConnectManage().getAllConnect());
+        return connect.sendMessage(request);
+    }
+
+    @Override
+    public void sendOneWay(Request request) {
+        Connect connect = this.loadBalance.choose(getConnectManage().getAllConnect());
+        connect.sendOneWay(request);
     }
 
     @Override
