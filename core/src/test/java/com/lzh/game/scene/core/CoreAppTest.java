@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 
 class CoreAppTest {
 
@@ -75,7 +76,7 @@ class CoreAppTest {
 
     @Test
     public void start() {
-//        AtomicInteger count = new AtomicInteger(1);
+        AtomicInteger count = new AtomicInteger(1);
         List<JRafClusterServer> servers = cluster();
         while (true) {
             for (JRafClusterServer server: servers) {
@@ -83,40 +84,25 @@ class CoreAppTest {
                 if (jrService.node().getLeaderId() == null) {
                     continue;
                 }
-                if (!jrService.isLeader()) {
-                    SceneInstance sceneInstance = new SceneInstance();
-                    sceneInstance.setGroup("group");
-                    sceneInstance.setMap(1);
-                    sceneInstance.setUnique("1");
-                    jrService
-                            .replicator()
-                            .registerSceneInstance(sceneInstance)
-                    .exceptionally(throwable -> {
-                        throwable.printStackTrace();
-                        return null;
-                    });
-                }
+                logger.info("当前节点:{}申请写入实例", server.getJrService().node().getNodeId().getPeerId());
+                SceneInstance sceneInstance = new SceneInstance();
+                sceneInstance.setGroup("group");
+                sceneInstance.setMap(1);
+                sceneInstance.setUnique(String.valueOf(count.getAndIncrement()));
+                jrService
+                        .replicator()
+                        .registerSceneInstance(sceneInstance)
+                        .exceptionally(throwable -> {
+                            throwable.printStackTrace();
+                            return null;
+                        });
             }
             try {
-                Thread.sleep(3000);
+                Thread.sleep(5000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-    }
-
-    @Test
-    public void map() {
-        CompletableFuture<Integer> future = new CompletableFuture<>();
-        future.exceptionally(throwable -> {
-            System.out.println("??");
-            return 1;
-        }).thenAccept(k -> {
-            System.out.println("??x");
-        });
-        future.complete(1);
-//        future.completeExceptionally(new RuntimeException());
-
     }
 
     @Test
