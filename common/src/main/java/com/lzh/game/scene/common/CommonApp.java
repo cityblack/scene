@@ -12,7 +12,7 @@ public class CommonApp {
         ServerConfig config = new ServerConfig();
         config.setPort(8181);
         ConnectServer<ServerConfig> server = new SofaServer(config);
-        server.start();
+        server.startup();
         CmdClassManage classManage = server.classManage();
         classManage.registerClass(10086, String.class);
         InvokeManage invokeManage = server.invokeManage();

@@ -17,6 +17,13 @@ import java.util.Objects;
  */
 public abstract class AbstractBootstrap implements Bootstrap {
 
+    private final static int NOT_INIT = 0;
+
+    private final static int INIT = 1;
+
+    private final static int STARTED = 2;
+
+    private volatile int status = NOT_INIT;
     // 序列化注册
     static {
         SofaRpcSerializationRegister.registerCustomSerializer();
@@ -151,12 +158,20 @@ public abstract class AbstractBootstrap implements Bootstrap {
     public void init() {
         this.build();
         this.doInit();
+        this.status = INIT;
     }
 
     @Override
     public void start() {
+        if (this.status == STARTED) {
+            return;
+        }
+        if (this.status != INIT) {
+            throw new RuntimeException("Bootstrap not init..");
+        }
         this.methodInvokeFactory.loadMethodInvoke(this.invokeManage);
         this.doStart();
+        this.status = STARTED;
     }
 
     protected abstract void doInit();
