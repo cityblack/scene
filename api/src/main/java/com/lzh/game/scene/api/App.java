@@ -27,6 +27,6 @@ public class App {
         instance.setUnique("group-1-1");
         api.subscribe(group, SceneChangeStatus.CHANGE, System.out::println);
         api.registerSceneInstance(group, instance);
-
+        api.getAllSceneInstances(group).thenAccept(list -> System.out.println(list));
     }
 }

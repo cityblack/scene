@@ -9,8 +9,7 @@ import com.lzh.game.scene.common.proto.NodeInfoRequest;
 
 import java.util.concurrent.CompletableFuture;
 
-import static com.lzh.game.scene.common.RequestSpace.NODE_SPACE;
-import static com.lzh.game.scene.common.RequestSpace.cmd;
+import static com.lzh.game.scene.common.RequestSpace.*;
 
 public class ConnectClientServer {
 
