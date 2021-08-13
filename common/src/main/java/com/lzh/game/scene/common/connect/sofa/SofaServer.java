@@ -5,6 +5,7 @@ import com.alipay.remoting.ConnectionEventProcessor;
 import com.alipay.remoting.ConnectionEventType;
 import com.alipay.remoting.rpc.RpcServer;
 import com.lzh.game.scene.common.ContextConstant;
+import com.lzh.game.scene.common.connect.BootstrapConfig;
 import com.lzh.game.scene.common.connect.server.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +18,7 @@ public class SofaServer<T extends ServerConfig>
     private static final Logger logger = LoggerFactory.getLogger(SofaServer.class);
 
     public SofaServer(T config) {
-        setConfig(config);
+        super(config);
     }
 
     @Override

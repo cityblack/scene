@@ -56,8 +56,8 @@ public class SofaClientConnectFactory implements ConnectFactory {
         }
 
         @Override
-        public CompletableFuture<Response> sendMessage(Request request) {
-            CompletableFuture<Response> future = new CompletableFuture<>();
+        public <T>CompletableFuture<Response<T>> sendMessage(Request request) {
+            CompletableFuture<Response<T>> future = new CompletableFuture<>();
             try {
                 rpcClient.invokeWithCallback(connection, request, new InvokeCallback() {
 

@@ -14,7 +14,7 @@ import java.util.Objects;
 /**
  * 双工通信 抽出服务端和客户端相同的
  */
-public abstract class AbstractBootstrap implements Bootstrap {
+public abstract class AbstractBootstrap<T extends BootstrapConfig> implements Bootstrap<T> {
 
     private final static int NOT_INIT = 0;
 
@@ -26,6 +26,12 @@ public abstract class AbstractBootstrap implements Bootstrap {
     // 序列化注册
     static {
         SofaRpcSerializationRegister.registerCustomSerializer();
+    }
+
+    private T config;
+
+    public AbstractBootstrap(T config) {
+        this.config = config;
     }
 
     private ConnectFactory connectFactory;
@@ -142,7 +148,17 @@ public abstract class AbstractBootstrap implements Bootstrap {
         this.methodInvokeFactory = methodInvokeFactory;
     }
 
+    @Override
+    public T getConfig() {
+        return config;
+    }
+
+    public void setConfig(T config) {
+        this.config = config;
+    }
+
     public void init() {
+        this.config.check();
         this.build();
         this.doInit();
         this.status = INIT;

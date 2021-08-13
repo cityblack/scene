@@ -24,11 +24,10 @@ import java.util.concurrent.CompletableFuture;
 /**
  * SOFA BLOT已经做好了各种网络机制，所以不再过度封装
  */
-public class SofaConnectClient extends AbstractBootstrap implements ConnectClient {
+public class SofaConnectClient extends AbstractBootstrap<ApiConfig>
+        implements ConnectClient {
 
     private final Logger logger = LoggerFactory.getLogger(SofaConnectClient.class);
-
-    private ApiConfig config;
 
     private RpcClient rpcClient = SofaRpcClient.getInstance().client();
 
@@ -37,7 +36,7 @@ public class SofaConnectClient extends AbstractBootstrap implements ConnectClien
     private LoadBalance loadBalance;
 
     public SofaConnectClient(ApiConfig config) {
-        this.config = config;
+        super(config);
     }
 
     private void init(ApiConfig config) {
@@ -63,13 +62,8 @@ public class SofaConnectClient extends AbstractBootstrap implements ConnectClien
     }
 
     @Override
-    public ApiConfig config() {
-        return this.config;
-    }
-
-    @Override
     protected void doInit() {
-        this.init(this.config);
+        this.init(getConfig());
     }
 
     @Override
@@ -124,7 +118,7 @@ public class SofaConnectClient extends AbstractBootstrap implements ConnectClien
     }
 
     @Override
-    public CompletableFuture<Response> sendMessage(Request request) {
+    public <T>CompletableFuture<Response<T>> sendMessage(Request request) {
         Connect connect = this.loadBalance.choose(getConnectManage().getAllConnect(), request);
         return connect.sendMessage(request);
     }
@@ -137,7 +131,7 @@ public class SofaConnectClient extends AbstractBootstrap implements ConnectClien
 
     @Override
     protected ConnectFactory getDefaultFactory() {
-        return new SofaClientConnectFactory(rpcClient, config.getRequestOutTime());
+        return new SofaClientConnectFactory(rpcClient, getConfig().getRequestOutTime());
     }
 
     private class ConnectCloseEvent implements ConnectionEventProcessor {

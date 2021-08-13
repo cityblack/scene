@@ -1,6 +1,8 @@
 package com.lzh.game.scene.common.connect.server;
 
-public interface Bootstrap {
+import com.lzh.game.scene.common.connect.BootstrapConfig;
+
+public interface Bootstrap<T extends BootstrapConfig> {
 
     void init();
 
@@ -12,4 +14,6 @@ public interface Bootstrap {
         this.init();
         this.start();
     }
+
+    T getConfig();
 }

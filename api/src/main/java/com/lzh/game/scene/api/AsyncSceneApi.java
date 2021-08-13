@@ -62,5 +62,5 @@ public interface AsyncSceneApi {
      * @param group
      * @param instance
      */
-    CompletableFuture<Boolean> removeSceneInstance(String group, SceneInstance instance);
+    void removeSceneInstance(String group, SceneInstance instance);
 }

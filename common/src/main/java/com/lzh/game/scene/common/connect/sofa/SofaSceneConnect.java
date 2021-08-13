@@ -31,7 +31,7 @@ public class SofaSceneConnect implements SceneConnect {
     }
 
     @Override
-    public CompletableFuture<Response> sendMessage(Request request) {
+    public <T>CompletableFuture<Response<T>> sendMessage(Request request) {
         return connect.sendMessage(request);
     }
 

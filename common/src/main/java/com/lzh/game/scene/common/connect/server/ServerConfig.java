@@ -1,6 +1,8 @@
 package com.lzh.game.scene.common.connect.server;
 
-public class ServerConfig {
+import com.lzh.game.scene.common.connect.BootstrapConfig;
+
+public class ServerConfig implements BootstrapConfig {
 
     private int port;
 
@@ -10,5 +12,10 @@ public class ServerConfig {
 
     public void setPort(int port) {
         this.port = port;
+    }
+
+    @Override
+    public void check() {
+
     }
 }

@@ -2,6 +2,7 @@ package com.lzh.game.scene.api.connect;
 
 import com.lzh.game.scene.api.config.ApiConfig;
 import com.lzh.game.scene.common.NodeType;
+import com.lzh.game.scene.common.connect.BootstrapConfig;
 import com.lzh.game.scene.common.connect.ConnectManage;
 import com.lzh.game.scene.common.connect.Request;
 import com.lzh.game.scene.common.connect.Response;
@@ -15,10 +16,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * 连接管理器，所有的链接，心跳，亚健康处理都由其管理
  */
-public interface ConnectClient extends Bootstrap {
-
-    ApiConfig config();
-
+public interface ConnectClient extends Bootstrap<ApiConfig> {
     /**
      * 只创建不持有
      * @param address
@@ -43,7 +41,7 @@ public interface ConnectClient extends Bootstrap {
 
     SceneConnect getConnect(String host, int port, NodeType type);
 
-    CompletableFuture<Response> sendMessage(Request request);
+    <T>CompletableFuture<Response<T>> sendMessage(Request request);
 
     void sendOneWay(Request request);
 }

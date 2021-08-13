@@ -14,7 +14,7 @@ public interface Connect {
      * @param request
      * @return
      */
-    CompletableFuture<Response> sendMessage(Request request);
+    <T>CompletableFuture<Response<T>> sendMessage(Request request);
 
     long reflectCount();
 

@@ -56,7 +56,7 @@ class AppTest {
         client.startup();
         Connect connect = client.getConnect("127.0.0.1", 8081, NodeType.SCENE_MANAGE_NODE);
         Request request = Request.of(10086, "hello world");
-        CompletableFuture<Response> response = connect.sendMessage(request);
+        CompletableFuture<Response<Object>> response = connect.sendMessage(request);
         response.thenAccept(resp -> System.out.println(resp.getParam())).exceptionally(throwable -> {
             throwable.printStackTrace();
             return null;

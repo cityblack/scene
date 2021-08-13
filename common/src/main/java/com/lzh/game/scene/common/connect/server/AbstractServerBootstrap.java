@@ -2,6 +2,7 @@ package com.lzh.game.scene.common.connect.server;
 
 import com.alipay.remoting.rpc.RpcServer;
 import com.lzh.game.scene.common.connect.AbstractBootstrap;
+import com.lzh.game.scene.common.connect.BootstrapConfig;
 import com.lzh.game.scene.common.connect.ConnectFactory;
 import com.lzh.game.scene.common.connect.scene.SceneConnectManage;
 import com.lzh.game.scene.common.connect.sofa.SofaServerConnectFactory;
@@ -9,20 +10,17 @@ import com.lzh.game.scene.common.connect.sofa.SofaServerConnectFactory;
 import java.util.Objects;
 
 public abstract class AbstractServerBootstrap<T extends ServerConfig>
-        extends AbstractBootstrap implements ConnectServer<T> {
-
-    private T config;
+        extends AbstractBootstrap<T> implements ConnectServer<T> {
 
     private RpcServer rpcServer;
 
-    @Override
-    public T config() {
-        return config;
+    public AbstractServerBootstrap(T config) {
+        super(config);
     }
 
     @Override
     public int port() {
-        return config.getPort();
+        return getConfig().getPort();
     }
 
     @Override
@@ -48,12 +46,6 @@ public abstract class AbstractServerBootstrap<T extends ServerConfig>
         this.rpcServer = rpcServer;
     }
 
-    public void setConfig(T config) {
-        this.config = config;
-    }
-
-    protected abstract RpcServer init(T config);
-
     @Override
     protected ConnectFactory getDefaultFactory() {
         return new SofaServerConnectFactory(this);
@@ -61,14 +53,17 @@ public abstract class AbstractServerBootstrap<T extends ServerConfig>
 
     @Override
     protected void doInit() {
-        if (Objects.isNull(config)) {
+        if (Objects.isNull(getConfig())) {
             throw new IllegalArgumentException("Server config is null!!");
         }
-        this.rpcServer = init(config());
+        this.rpcServer = init(getConfig());
     }
 
     @Override
     protected void doStart() {
         this.rpcServer.startup();
     }
+
+    protected abstract RpcServer init(T config);
+
 }

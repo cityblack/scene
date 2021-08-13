@@ -2,17 +2,17 @@ package com.lzh.game.scene.common.connect;
 
 import java.util.Objects;
 
-public class Response {
+public class Response<T> {
 
     private byte status;
 
     private String error;
 
-    private Object param;
+    private T param;
 
     private String paramClassName;
 
-    private Class<?> paramClass;
+    private Class<T> paramClass;
     // === 非传递属性
     private transient RequestContext context;
 
@@ -24,11 +24,11 @@ public class Response {
         this.error = error;
     }
 
-    public Object getParam() {
+    public T getParam() {
         return param;
     }
 
-    public void setParam(Object param) {
+    public void setParam(T param) {
         this.param = param;
     }
 
@@ -52,7 +52,7 @@ public class Response {
         return paramClass;
     }
 
-    public void setParamClass(Class<?> paramClass) {
+    public void setParamClass(Class<T> paramClass) {
         this.paramClass = paramClass;
     }
 
@@ -64,14 +64,14 @@ public class Response {
         this.status = status;
     }
 
-    public static Response of() {
+    public static <T>Response<T> of() {
         return new Response();
     }
 
-    public void setParamWithType(Object o) {
+    public void setParamWithType(T o) {
         this.param = o;
         if (Objects.nonNull(this.param)) {
-            this.paramClass = this.param.getClass();
+            this.paramClass = (Class<T>) this.param.getClass();
             this.paramClassName = this.param.getClass().getName();
         }
     }
