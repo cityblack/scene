@@ -35,9 +35,9 @@ public class SofaClientConnectFactory implements ConnectFactory {
             Connect connect = new SofaClientConnect(connection, address);
             return connect;
         } catch (RemotingException e) {
-            e.printStackTrace();
+            logger.error("Create connect error:", e);
+            throw new RuntimeException("Create connect error:", e);
         }
-        return null;
     }
 
     private class SofaClientConnect extends AbstractSofaConnect {
