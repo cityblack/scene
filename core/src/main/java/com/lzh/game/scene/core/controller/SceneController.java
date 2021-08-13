@@ -13,6 +13,10 @@ public class SceneController {
 
     private SceneService sceneService;
 
+    public void setSceneService(SceneService sceneService) {
+        this.sceneService = sceneService;
+    }
+
     @Cmd(1)
     public void register(Response response, SceneInstance instance) {
         sceneService.registerSceneInstance(response, instance.getGroup(), instance);
