@@ -11,33 +11,29 @@ import com.alipay.remoting.rpc.protocol.RpcResponseCommand;
 import com.lzh.game.scene.common.connect.Request;
 import com.lzh.game.scene.common.connect.Response;
 import com.lzh.game.scene.common.connect.codec.Serializer;
-import com.lzh.game.scene.common.connect.server.cmd.CmdClassManage;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+
+import static com.lzh.game.scene.common.ContextConstant.*;
 
 /**
  * 节约带宽，按SOFA自身协议 把请求CMD和对应的class信息写到信息头里面
- * 信息的BODY直接写参数进去
- * request header -> int 标识请求唯一, 一般压缩之后小于4bit
- * <p>
- * response header -> 返回分两种, 一种是正确的值, 一种是错误信息. 用1位字节标识是否正确响应
  */
 public class SofaRpcSerializer extends DefaultCustomSerializer {
 
-    private static final byte RIGHT_RESPONSE = 0x0;
-
-    private static final byte ERROR_RESPONSE = 0x1;
-
     private Serializer serializer;
 
-    private CmdClassManage classManage;
+    private Map<Integer, String> typeKey = new HashMap<>();
+
+    private Map<String, Class<?>> keyClass = new HashMap<>();
 
     public SofaRpcSerializer() {
     }
 
-    public SofaRpcSerializer(Serializer serializer, CmdClassManage classManage) {
+    public SofaRpcSerializer(Serializer serializer) {
         this.serializer = serializer;
-        this.classManage = classManage;
     }
 
     @Override
@@ -46,9 +42,13 @@ public class SofaRpcSerializer extends DefaultCustomSerializer {
             RpcResponseCommand command = (RpcResponseCommand) response;
             Object o = command.getResponseObject();
             if (o instanceof Response) {
+                Map<Byte, String> head = new HashMap<>(4);
                 Response r = (Response) o;
-                byte sign = Objects.isNull(r.getError()) ? RIGHT_RESPONSE : ERROR_RESPONSE;
-                command.setHeader(new byte[] { sign });
+                byte status = r.getStatus();
+                head.put(EXCHANGE_RESPONSE_STATUS, String.valueOf(status));
+                head.put(EXCHANGE_TYPE, r.getParamClassName());
+                head.put(ERROR_RESPONSE_MSG_KEY, r.getError());
+                command.setHeader(serializer.encodeMap(head));
                 return true;
             }
         }
@@ -59,12 +59,8 @@ public class SofaRpcSerializer extends DefaultCustomSerializer {
     public <T extends ResponseCommand> boolean deserializeHeader(T response, InvokeContext invokeContext) throws DeserializationException {
         if (response instanceof RpcResponseCommand) {
             RpcResponseCommand command = (RpcResponseCommand) response;
-            byte[] values = command.getHeader();
-            if (values.length < 0) {
-                command.setResponseHeader(ERROR_RESPONSE);
-            } else {
-                command.setResponseHeader(values[0]);
-            }
+            Map<Byte, String> head = serializer.decodeMap(command.getHeader());
+            command.setResponseHeader(head);
             return true;
         }
         return super.deserializeHeader(response, invokeContext);
@@ -74,32 +70,29 @@ public class SofaRpcSerializer extends DefaultCustomSerializer {
     public <T extends ResponseCommand> boolean deserializeContent(T response, InvokeContext invokeContext) throws DeserializationException {
         if (response instanceof RpcResponseCommand) {
             RpcResponseCommand command = (RpcResponseCommand) response;
-            Object o = command.getResponseObject();
+            Map<Byte, String> head = (Map<Byte, String>) command.getResponseHeader();
+            Response resp = Response.of();
+            byte status = Byte.parseByte(head.get(EXCHANGE_RESPONSE_STATUS));
+            String msg = head.get(ERROR_RESPONSE_MSG_KEY);
+            resp.setStatus(status);
+            resp.setError(msg);
+            command.setResponseObject(resp);
 
-            if (o instanceof Response) {
-                Response r = (Response) o;
-                byte sign = (byte) command.getResponseHeader();
-                if (sign == RIGHT_RESPONSE) {
-
-                }
+            byte[] content = command.getContent();
+            if (content.length <= 0) {
                 return true;
             }
+            if (status != RIGHT_RESPONSE) {
+                return true;
+            }
+            String typeKey = head.get(EXCHANGE_TYPE);
+            Class<?> type = getParamClass(typeKey);
+            resp.setParam(serializer.decode(command.getContent(), type));
+            resp.setParamClass(type);
+            resp.setParamClassName(typeKey);
+            return true;
         }
         return super.deserializeContent(response, invokeContext);
-    }
-
-    @Override
-    public <T extends RequestCommand> boolean serializeHeader(T request, InvokeContext invokeContext) throws SerializationException {
-        if (request instanceof RpcRequestCommand) {
-            RpcRequestCommand command = (RpcRequestCommand) request;
-            Object o = command.getRequestObject();
-            if (o instanceof Request) {
-                Request r = (Request) o;
-                int cmd = r.getId();
-                command.setHeader(serializer.encode(cmd));
-            }
-        }
-        return super.serializeHeader(request, invokeContext);
     }
 
     @Override
@@ -115,6 +108,24 @@ public class SofaRpcSerializer extends DefaultCustomSerializer {
             }
         }
         return super.serializeContent(response);
+    }
+
+    @Override
+    public <T extends RequestCommand> boolean serializeHeader(T request, InvokeContext invokeContext) throws SerializationException {
+        if (request instanceof RpcRequestCommand) {
+            RpcRequestCommand command = (RpcRequestCommand) request;
+            Object o = command.getRequestObject();
+            if (o instanceof Request) {
+                Request r = (Request) o;
+                Map<Byte, String> header = new HashMap<>(4);
+                header.put(EXCHANGE_CMD, String.valueOf(r.getId()));
+                if (Objects.nonNull(r.getParam())) {
+                    header.put(EXCHANGE_TYPE, getTypeKey(r));
+                }
+                command.setHeader(serializer.encodeMap(header));
+            }
+        }
+        return super.serializeHeader(request, invokeContext);
     }
 
     @Override
@@ -137,7 +148,8 @@ public class SofaRpcSerializer extends DefaultCustomSerializer {
         if (request instanceof RpcRequestCommand) {
             RpcRequestCommand command = (RpcRequestCommand) request;
             byte[] header = command.getHeader();
-            command.setRequestHeader(serializer.decode(header, Integer.class));
+            Map<Byte, String> head = serializer.decodeMap(header);
+            command.setRequestHeader(head);
             return true;
         }
         return super.deserializeHeader(request);
@@ -147,9 +159,16 @@ public class SofaRpcSerializer extends DefaultCustomSerializer {
     public <T extends RequestCommand> boolean deserializeContent(T request) throws DeserializationException {
         if (request instanceof RpcRequestCommand) {
             RpcRequestCommand command = (RpcRequestCommand) request;
-            int cmd = (int) command.getRequestHeader();
+            Map<Byte, String> head = (Map<Byte, String>) command.getRequestHeader();
+            int cmd = Integer.parseInt(head.get(EXCHANGE_CMD));
+            String typeKey = head.get(EXCHANGE_TYPE);
+
             Request build = Request.of(cmd);
-            Class<?> clazz = classManage.findClass(cmd);
+            build.setType(request.getType());
+            build.setParamClassName(typeKey);
+            build.setParamClass(getParamClass(typeKey));
+
+            Class<?> clazz = build.getParamClass();
             if (Objects.nonNull(clazz)) {
                 byte[] data = command.getContent();
                 Object value = serializer.decode(data, clazz);
@@ -165,7 +184,39 @@ public class SofaRpcSerializer extends DefaultCustomSerializer {
         this.serializer = serializer;
     }
 
-    public void setClassManage(CmdClassManage classManage) {
-        this.classManage = classManage;
+    private String getTypeKey(Request request) {
+        int cmd = request.getId();
+        String key = this.typeKey.get(cmd);
+        if (Objects.isNull(key)) {
+            synchronized (this.typeKey) {
+                key = this.typeKey.get(cmd);
+                if (Objects.isNull(key)) {
+                    key = request.getParamClassName();
+                    this.typeKey.put(cmd, key);
+                }
+            }
+        }
+        return key;
+    }
+
+    private Class<?> getParamClass(String key) {
+        if (Objects.isNull(key)) {
+            return null;
+        }
+        Class<?> type = this.keyClass.get(key);
+        if (Objects.isNull(type)) {
+            synchronized (this.keyClass) {
+                type = this.keyClass.get(key);
+                if (Objects.isNull(type)) {
+                    try {
+                        type = Class.forName(key);
+                    } catch (ClassNotFoundException e) {
+                        type = null;
+                    }
+                }
+                this.keyClass.put(key, type);
+            }
+        }
+        return type;
     }
 }

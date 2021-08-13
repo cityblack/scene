@@ -5,8 +5,15 @@ public class Request {
     private int id;
 
     private Object param;
+    // 请求类型 请勿额外设置
+    private byte type;
 
-    private RequestContext context;
+    private String paramClassName;
+
+    private Class<?> paramClass;
+
+    // ======
+    private transient RequestContext context;
 
     public int getId() {
         return id;
@@ -32,9 +39,42 @@ public class Request {
         this.context = context;
     }
 
+    public byte getType() {
+        return type;
+    }
+
+    public void setType(byte type) {
+        this.type = type;
+    }
+
+    public String getParamClassName() {
+        return paramClassName;
+    }
+
+    public void setParamClassName(String paramClassName) {
+        this.paramClassName = paramClassName;
+    }
+
+    public Class<?> getParamClass() {
+        return paramClass;
+    }
+
+    public void setParamClass(Class<?> paramClass) {
+        this.paramClass = paramClass;
+    }
+
+    public static Request of(int id, Object param) {
+        Request request = new Request();
+        request.id = id;
+        request.param = param;
+        request.paramClass = param.getClass();
+        request.paramClassName = param.getClass().getName();
+        return request;
+    }
+
     public static Request of(int id) {
         Request request = new Request();
-        request.setId(id);
+        request.id = id;
         return request;
     }
 }

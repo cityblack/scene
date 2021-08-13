@@ -2,7 +2,6 @@ package com.lzh.game.scene.common.connect.server;
 
 import com.lzh.game.scene.common.connect.server.cmd.Action;
 import com.lzh.game.scene.common.connect.server.cmd.Cmd;
-import com.lzh.game.scene.common.connect.server.cmd.CmdClassManage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,16 +42,6 @@ public class SimpleInvokeFactory implements MethodInvokeFactory {
                     Cmd cmd = method.getAnnotation(Cmd.class);
                     int cmdValue = value + cmd.value();
                     int index = parseMethodRequestParamIndex(innerParam, method);
-                    // CmdClass非必须
-                    if (manage instanceof CmdClassManage) {
-                        CmdClassManage classManage = (CmdClassManage) manage;
-                        if (classManage.existClass(cmdValue)) {
-                            throw new RuntimeException(String.format("[%d] not unique.", cmdValue));
-                        }
-                        Class<?> ext = index >= 0 ? method.getParameterTypes()[index] : null;
-                        classManage.registerClass(cmdValue, ext);
-                        logger.info("Loaded {} cmd param type, mapping {}", cmdValue, ext);
-                    }
                     MethodInvoke invoke = new MethodInvokeEndpoint(v, method, index);
                     manage.registerInvoke(cmdValue, invoke);
                     logger.info("Loaded {} cmd method!!", cmdValue);

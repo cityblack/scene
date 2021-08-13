@@ -16,4 +16,16 @@ public class ContextConstant {
 
     public static final String REDIS_MAP_KEY_PRE = "_map_key";
 
+    // 正确状态响应码
+    public static final byte RIGHT_RESPONSE = 0x0;
+    // ====== client - server 交互状态标识位 ==============
+    public static final Byte EXCHANGE_CMD = 0x00;
+    // 请求/应答参数类型
+    public static final Byte EXCHANGE_TYPE = 0x01;
+    // 应答标识
+    public static final Byte EXCHANGE_RESPONSE_STATUS = 0x02;
+    // 应答错误信息标识
+    public static final Byte ERROR_RESPONSE_MSG_KEY = 0x03;
+    // ======= end =============
+
 }

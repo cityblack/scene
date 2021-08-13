@@ -4,7 +4,6 @@ import com.alipay.remoting.rpc.RpcServer;
 import com.lzh.game.scene.common.connect.AbstractBootstrap;
 import com.lzh.game.scene.common.connect.ConnectFactory;
 import com.lzh.game.scene.common.connect.scene.SceneConnectManage;
-import com.lzh.game.scene.common.connect.server.cmd.CmdClassManage;
 import com.lzh.game.scene.common.connect.sofa.SofaServerConnectFactory;
 
 import java.util.Objects;
@@ -15,8 +14,6 @@ public abstract class AbstractServerBootstrap<T extends ServerConfig>
     private T config;
 
     private RpcServer rpcServer;
-
-    private volatile boolean start;
 
     @Override
     public T config() {
@@ -36,11 +33,6 @@ public abstract class AbstractServerBootstrap<T extends ServerConfig>
     @Override
     public RequestHandler requestHandler() {
         return getRequestHandler();
-    }
-
-    @Override
-    public CmdClassManage classManage() {
-        return getClassManage();
     }
 
     @Override
@@ -77,6 +69,6 @@ public abstract class AbstractServerBootstrap<T extends ServerConfig>
 
     @Override
     protected void doStart() {
-
+        this.rpcServer.startup();
     }
 }

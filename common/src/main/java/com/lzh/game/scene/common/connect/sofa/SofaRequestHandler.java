@@ -25,7 +25,7 @@ public class SofaRequestHandler implements RequestHandler {
 
     @Override
     public Response dispatch(Request request) {
-        Response response = new Response();
+        Response response = Response.of();
         response.setContext(request.getContext());
         request.getContext().setResponse(response);
 
@@ -57,7 +57,7 @@ public class SofaRequestHandler implements RequestHandler {
 
     private void setParam(Response response, Object o) {
         if (!(o instanceof Void)) {
-            response.setParam(o);
+            response.setParamWithType(o);
         }
     }
 

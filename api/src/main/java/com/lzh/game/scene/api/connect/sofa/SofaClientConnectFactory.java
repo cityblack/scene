@@ -63,14 +63,18 @@ public class SofaClientConnectFactory implements ConnectFactory {
 
                     @Override
                     public void onResponse(Object result) {
-                        if (future.isCancelled()) {
-                            return;
+                        try {
+                            if (future.isCancelled()) {
+                                return;
+                            }
+                            if (future.isDone()) {
+                                logger.error("Response message but future is done!");
+                                return;
+                            }
+                            future.complete((Response) result);
+                        } catch (Exception e) {
+                            future.completeExceptionally(e);
                         }
-                        if (future.isDone()) {
-                            logger.error("Response message but future is done!");
-                            return;
-                        }
-                        future.complete((Response) result);
                     }
 
                     @Override

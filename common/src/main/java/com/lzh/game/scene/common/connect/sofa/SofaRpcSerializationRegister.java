@@ -4,7 +4,6 @@ import com.alipay.remoting.CustomSerializerManager;
 import com.lzh.game.scene.common.connect.Request;
 import com.lzh.game.scene.common.connect.Response;
 import com.lzh.game.scene.common.connect.codec.Serializer;
-import com.lzh.game.scene.common.connect.server.cmd.CmdClassManage;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -37,9 +36,5 @@ public final class SofaRpcSerializationRegister {
 
     public static void setSerialization(Serializer serializer) {
         RPC_SERIALIZATION.setSerializer(serializer);
-    }
-
-    public static void setClassManage(CmdClassManage classManage) {
-        RPC_SERIALIZATION.setClassManage(classManage);
     }
 }

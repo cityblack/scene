@@ -3,7 +3,6 @@ package com.lzh.game.scene.common.connect;
 import com.lzh.game.scene.common.connect.codec.ProtostuffSerializer;
 import com.lzh.game.scene.common.connect.codec.Serializer;
 import com.lzh.game.scene.common.connect.server.*;
-import com.lzh.game.scene.common.connect.server.cmd.CmdClassManage;
 import com.lzh.game.scene.common.connect.server.cmd.ServerMessageManage;
 import com.lzh.game.scene.common.connect.sofa.SofaRequestHandler;
 import com.lzh.game.scene.common.connect.sofa.SofaRpcSerializationRegister;
@@ -39,8 +38,6 @@ public abstract class AbstractBootstrap implements Bootstrap {
 
     private DefaultConnectManage connectManage;
 
-    private CmdClassManage classManage;
-
     private InvokeManage invokeManage;
 
     private Serializer serializer;
@@ -56,10 +53,9 @@ public abstract class AbstractBootstrap implements Bootstrap {
                 throw new NullPointerException("ConnectFactory is null");
             }
         }
-        if (Objects.isNull(invokeManage) || Objects.isNull(classManage)) {
+        if (Objects.isNull(invokeManage)) {
             ServerMessageManage messageManage = new ServerMessageManage();
             this.invokeManage = messageManage;
-            this.classManage = messageManage;
         }
         if (Objects.isNull(requestHelper)) {
             this.requestHelper = new RequestHelperImpl();
@@ -80,7 +76,6 @@ public abstract class AbstractBootstrap implements Bootstrap {
             this.methodInvokeFactory = new SimpleInvokeFactory(this.requestHelper, Collections.emptyList());
         }
         SofaRpcSerializationRegister.setSerialization(getSerializer());
-        SofaRpcSerializationRegister.setClassManage(getClassManage());
     }
 
     public ConnectFactory getConnectFactory() {
@@ -109,14 +104,6 @@ public abstract class AbstractBootstrap implements Bootstrap {
 
     public void setConnectManage(DefaultConnectManage connectManage) {
         this.connectManage = connectManage;
-    }
-
-    public CmdClassManage getClassManage() {
-        return classManage;
-    }
-
-    public void setClassManage(CmdClassManage classManage) {
-        this.classManage = classManage;
     }
 
     public InvokeManage getInvokeManage() {

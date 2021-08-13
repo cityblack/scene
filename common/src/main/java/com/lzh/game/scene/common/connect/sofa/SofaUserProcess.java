@@ -29,6 +29,9 @@ public class SofaUserProcess extends AsyncUserProcessor<Request> {
     public void handleRequest(BizContext bizCtx, AsyncContext asyncCtx, Request request) {
 
         try {
+            if (isTimeout(bizCtx, asyncCtx, Response.of())) {
+                return;
+            }
             RequestContext requestContext = new RequestContext();
             requestContext.setAttr(ContextConstant.SOFA_ASYNC_CONTEXT, asyncCtx);
             requestContext.setAttr(ContextConstant.SOFA_CONNECT_REQUEST, bizCtx.getConnection());
@@ -36,21 +39,17 @@ public class SofaUserProcess extends AsyncUserProcessor<Request> {
             request.setContext(requestContext);
 
             Response response = handler.dispatch(request);
-
-            if (bizCtx.isRequestTimeout()) {
-                response.setError("Request timeout!!");
-                asyncCtx.sendResponse(response);
+            if (isTimeout(bizCtx, asyncCtx, response)) {
                 return;
             }
-
-            if (Objects.nonNull(response.getParam()) || Objects.nonNull(response.getError())) {
+            byte status = response.getStatus();
+            if (status != ContextConstant.RIGHT_RESPONSE) {
                 logger.error("Request error:", response.getError());
-                asyncCtx.sendResponse(response);
             }
-
+            asyncCtx.sendResponse(response);
         } catch (Exception e) {
             logger.error("Request error!!", e);
-            Response response = new Response();
+            Response response = Response.of();
             response.setError(e.getMessage());
             asyncCtx.sendResponse(response);
         }
@@ -65,5 +64,14 @@ public class SofaUserProcess extends AsyncUserProcessor<Request> {
     public ExecutorSelector getExecutorSelector() {
         // todo 将jfra的线程和工作线程分开
         return super.getExecutorSelector();
+    }
+
+    private boolean isTimeout(BizContext bizCtx, AsyncContext asyncCtx, Response response) {
+        if (bizCtx.isRequestTimeout()) {
+            response.setError("Request timeout!!");
+            asyncCtx.sendResponse(response);
+            return true;
+        }
+        return false;
     }
 }

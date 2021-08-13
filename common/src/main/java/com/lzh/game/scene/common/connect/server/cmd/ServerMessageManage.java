@@ -6,27 +6,9 @@ import com.lzh.game.scene.common.connect.server.MethodInvoke;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ServerMessageManage implements CmdClassManage, InvokeManage {
-
-    // 可能会动态加载
-    private Map<Integer, Class<?>> clazz = new ConcurrentHashMap<>();
+public class ServerMessageManage implements InvokeManage {
 
     private Map<Integer, MethodInvoke> invokes = new ConcurrentHashMap<>();
-
-    @Override
-    public Class<?> findClass(int cmd) {
-        return this.clazz.get(cmd);
-    }
-
-    @Override
-    public void registerClass(int cmd, Class<?> clazz) {
-        this.clazz.put(cmd, clazz);
-    }
-
-    @Override
-    public boolean existClass(int cmd) {
-        return this.clazz.containsKey(cmd);
-    }
 
     @Override
     public MethodInvoke findInvoke(int cmd) {

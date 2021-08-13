@@ -1,12 +1,20 @@
 package com.lzh.game.scene.common.connect;
 
+import java.util.Objects;
+
 public class Response {
+
+    private byte status;
 
     private String error;
 
     private Object param;
 
-    private RequestContext context;
+    private String paramClassName;
+
+    private Class<?> paramClass;
+    // === 非传递属性
+    private transient RequestContext context;
 
     public String getError() {
         return error;
@@ -32,9 +40,39 @@ public class Response {
         this.context = context;
     }
 
-    public static Response of(Object param) {
-        Response response = new Response();
-        response.setParam(param);
-        return response;
+    public String getParamClassName() {
+        return paramClassName;
+    }
+
+    public void setParamClassName(String paramClassName) {
+        this.paramClassName = paramClassName;
+    }
+
+    public Class<?> getParamClass() {
+        return paramClass;
+    }
+
+    public void setParamClass(Class<?> paramClass) {
+        this.paramClass = paramClass;
+    }
+
+    public byte getStatus() {
+        return status;
+    }
+
+    public void setStatus(byte status) {
+        this.status = status;
+    }
+
+    public static Response of() {
+        return new Response();
+    }
+
+    public void setParamWithType(Object o) {
+        this.param = o;
+        if (Objects.nonNull(this.param)) {
+            this.paramClass = this.param.getClass();
+            this.paramClassName = this.param.getClass().getName();
+        }
     }
 }
