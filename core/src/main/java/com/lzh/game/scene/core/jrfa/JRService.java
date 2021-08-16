@@ -31,8 +31,6 @@ public interface JRService {
 
     <R extends WriteRequest>void leaderWriteInvoke(R request, CompletableFuture<Void> future);
 
-    Replicator replicator();
-
     RpcServer rpcServer();
 
     void addRequestProcess(ReplicatorCmd cmd, AbstractExchangeProcess process);

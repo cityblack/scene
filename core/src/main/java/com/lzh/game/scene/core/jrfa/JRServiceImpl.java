@@ -54,8 +54,6 @@ public class JRServiceImpl implements JRService {
 
     private ClientService clientService;
 
-    private Replicator replicator;
-
     private int invokeOutTime;
 
     private Map<ReplicatorCmd, AbstractExchangeProcess> processes = new ConcurrentHashMap<>(8);
@@ -144,11 +142,6 @@ public class JRServiceImpl implements JRService {
     }
 
     @Override
-    public Replicator replicator() {
-        return this.replicator;
-    }
-
-    @Override
     public RpcServer rpcServer() {
         return this.rpcServer;
     }
@@ -201,16 +194,9 @@ public class JRServiceImpl implements JRService {
         this.stateMachine = stateMachine;
     }
 
-    public void setReplicator(Replicator replicator) {
-        this.replicator = replicator;
-    }
-
     protected void build() {
         if (Objects.isNull(this.stateMachine)) {
             this.stateMachine = new WriteStateMachine(this.serializer, this);
-        }
-        if (Objects.isNull(this.replicator)) {
-            this.replicator = new ReplicatorImpl(this);
         }
     }
 
