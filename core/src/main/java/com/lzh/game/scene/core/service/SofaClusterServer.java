@@ -21,7 +21,7 @@ public abstract class SofaClusterServer<T extends ClusterServerConfig> extends A
     private static final Logger logger = LoggerFactory.getLogger(SofaClusterServer.class);
 
     public SofaClusterServer(T config) {
-        setConfig(config);
+        super(config);
     }
 
     @Override

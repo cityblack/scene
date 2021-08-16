@@ -3,6 +3,7 @@ package com.lzh.game.scene.core.service.impl;
 import com.lzh.game.scene.common.SceneChangeStatus;
 import com.lzh.game.scene.common.SceneInstance;
 import com.lzh.game.scene.common.connect.Response;
+import com.lzh.game.scene.common.connect.scene.SceneConnect;
 import com.lzh.game.scene.core.service.SceneInstanceManage;
 import com.lzh.game.scene.core.service.SceneService;
 import org.redisson.api.RedissonClient;
@@ -34,12 +35,7 @@ public class RedisSceneServiceImpl implements SceneService {
     }
 
     @Override
-    public void subscribe(Response response, String group, SceneChangeStatus status) {
-
-    }
-
-    @Override
-    public void subscribe(Response response, String group, SceneChangeStatus status, int map) {
+    public void subscribe(SceneConnect connect, String group, SceneChangeStatus status, int map) {
 
     }
 

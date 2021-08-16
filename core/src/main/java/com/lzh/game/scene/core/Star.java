@@ -35,7 +35,7 @@ public class Star {
         JRafClusterServer<ClusterServerConfig> server = new JRafClusterServer<>(config);
         server.init();
 
-        SceneService service = new CpSceneServiceImpl(new SceneInstanceManageImpl(), server.getJrService().replicator());
+        SceneService service = new CpSceneServiceImpl(new SceneInstanceManageImpl(), server);
         SceneController sceneController = new SceneController();
         sceneController.setSceneService(service);
 

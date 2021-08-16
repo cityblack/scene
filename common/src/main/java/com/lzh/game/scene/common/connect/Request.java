@@ -1,5 +1,7 @@
 package com.lzh.game.scene.common.connect;
 
+import java.util.Objects;
+
 public class Request {
 
     private int id;
@@ -63,12 +65,18 @@ public class Request {
         this.paramClass = paramClass;
     }
 
+    public void setParamWithType(Object param) {
+        this.param = param;
+        if (Objects.nonNull(param)) {
+            this.paramClass = param.getClass();
+            this.paramClassName = param.getClass().getName();
+        }
+    }
+
     public static Request of(int id, Object param) {
         Request request = new Request();
         request.id = id;
-        request.param = param;
-        request.paramClass = param.getClass();
-        request.paramClassName = param.getClass().getName();
+        request.setParamWithType(param);
         return request;
     }
 

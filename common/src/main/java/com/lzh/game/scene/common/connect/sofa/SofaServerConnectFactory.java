@@ -2,7 +2,6 @@ package com.lzh.game.scene.common.connect.sofa;
 
 import com.alipay.remoting.Connection;
 import com.alipay.remoting.exception.RemotingException;
-import com.alipay.remoting.rpc.RpcServer;
 import com.lzh.game.scene.common.connect.*;
 import com.lzh.game.scene.common.connect.server.AbstractServerBootstrap;
 import org.slf4j.Logger;

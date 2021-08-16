@@ -64,7 +64,7 @@ public class Response<T> {
         this.status = status;
     }
 
-    public static <T>Response<T> of() {
+    public static <T> Response<T> of() {
         return new Response();
     }
 

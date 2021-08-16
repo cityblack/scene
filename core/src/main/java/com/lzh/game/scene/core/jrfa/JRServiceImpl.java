@@ -16,7 +16,6 @@ import com.google.protobuf.Message;
 import com.lzh.game.scene.common.connect.codec.Serializer;
 import com.lzh.game.scene.core.ClusterServerConfig;
 import com.lzh.game.scene.core.exception.NoLeaderException;
-import com.lzh.game.scene.core.jrfa.rpc.ReplicatorImpl;
 import com.lzh.game.scene.core.jrfa.rpc.WriteRequestProcess;
 import com.lzh.game.scene.core.jrfa.rpc.entity.Response;
 import com.lzh.game.scene.core.jrfa.rpc.entity.WriteRequest;

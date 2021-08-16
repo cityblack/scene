@@ -1,11 +1,14 @@
 package com.lzh.game.scene.api;
 
+import com.lzh.game.scene.common.ContextConstant;
 import com.lzh.game.scene.common.SceneChangeStatus;
 import com.lzh.game.scene.common.SceneInstance;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
+
+import static com.lzh.game.scene.common.ContextConstant.ALL_MAP_LISTEN_KEY;
 
 /**
  *
@@ -26,7 +29,9 @@ public interface AsyncSceneApi {
      * @param group
      * @param status 需要注册的事件类型
      */
-    void subscribe(String group, SceneChangeStatus status, Consumer<SceneInstance> instance);
+    default void subscribe(String group, SceneChangeStatus status, Consumer<SceneInstance> instance) {
+        this.subscribe(group, status, ALL_MAP_LISTEN_KEY, instance);
+    }
 
     /**
      * 向场景管理中心订阅场景改变事件 指定map
@@ -48,7 +53,9 @@ public interface AsyncSceneApi {
     /**
      * 获取所有场景信息
      */
-    CompletableFuture<List<SceneInstance>> getAllSceneInstances(String group);
+    default CompletableFuture<List<SceneInstance>> getAllSceneInstances(String group) {
+        return this.getSceneInstances(group, ALL_MAP_LISTEN_KEY);
+    }
 
     /**
      * 注册场景实例

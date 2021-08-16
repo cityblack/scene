@@ -2,7 +2,6 @@ package com.lzh.game.scene.common.connect.sofa;
 
 import com.lzh.game.scene.common.connect.Request;
 import com.lzh.game.scene.common.connect.Response;
-import com.lzh.game.scene.common.connect.scene.SceneConnect;
 import com.lzh.game.scene.common.connect.server.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

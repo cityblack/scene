@@ -1,8 +1,12 @@
 package com.lzh.game.scene.common.proto;
 
-public class MapSceneRequest {
+import com.lzh.game.scene.common.SceneChangeStatus;
+
+public class SubscribeSceneRequest {
 
     private String group;
+
+    private SceneChangeStatus status;
 
     private int map;
 
@@ -12,6 +16,14 @@ public class MapSceneRequest {
 
     public void setGroup(String group) {
         this.group = group;
+    }
+
+    public SceneChangeStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(SceneChangeStatus status) {
+        this.status = status;
     }
 
     public int getMap() {

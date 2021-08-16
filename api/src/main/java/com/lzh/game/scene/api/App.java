@@ -4,8 +4,17 @@ import com.lzh.game.scene.api.config.ApiConfig;
 import com.lzh.game.scene.api.config.Member;
 import com.lzh.game.scene.api.connect.ConnectClient;
 import com.lzh.game.scene.api.connect.sofa.SofaConnectClient;
+import com.lzh.game.scene.api.option.ListenController;
+import com.lzh.game.scene.api.server.SceneService;
+import com.lzh.game.scene.api.server.SceneServiceImpl;
 import com.lzh.game.scene.common.SceneChangeStatus;
 import com.lzh.game.scene.common.SceneInstance;
+import com.lzh.game.scene.common.connect.server.MethodInvokeFactory;
+import com.lzh.game.scene.common.connect.server.SimpleInvokeFactory;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.IntStream;
 
 public class App {
 
@@ -17,9 +26,18 @@ public class App {
         member.setHost("127.0.0.1");
         member.setPort(8081);
         config.addMember(member);
-        ConnectClient client = new SofaConnectClient(config);
-        client.startup();
-        AsyncSceneApi api = new AsyncSceneApiImpl(client);
+
+        SceneService sceneService = new SceneServiceImpl();
+        ListenController controller = new ListenController();
+        controller.setSceneService(sceneService);
+
+        SofaConnectClient client = new SofaConnectClient(config);
+        client.init();
+        MethodInvokeFactory factory = new SimpleInvokeFactory(client.getRequestHelper(), Arrays.asList(controller));
+        client.setMethodInvokeFactory(factory);
+        client.start();
+
+        final AsyncSceneApi api = new AsyncSceneApiImpl(client, sceneService);
         String group = "group";
         SceneInstance instance = new SceneInstance();
         instance.setGroup(group);
@@ -27,6 +45,13 @@ public class App {
         instance.setUnique("group-1-1");
         api.subscribe(group, SceneChangeStatus.CHANGE, System.out::println);
         api.registerSceneInstance(group, instance);
-        api.getAllSceneInstances(group).thenAccept(list -> System.out.println(list));
+        IntStream.range(0, 20).forEach(e -> {
+            try {
+                Thread.sleep(2000);
+                api.getAllSceneInstances(group).thenAccept(list -> System.out.println(list));
+            } catch (InterruptedException interruptedException) {
+                interruptedException.printStackTrace();
+            }
+        });
     }
 }

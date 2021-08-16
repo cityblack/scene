@@ -11,8 +11,6 @@ import com.lzh.game.scene.common.connect.server.RequestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
-
 public class SofaUserProcess extends AsyncUserProcessor<Request> {
 
     private static final Logger logger = LoggerFactory.getLogger(SofaUserProcess.class);

@@ -28,4 +28,5 @@ public class ContextConstant {
     public static final Byte ERROR_RESPONSE_MSG_KEY = 0x03;
     // ======= end =============
 
+    public static final int ALL_MAP_LISTEN_KEY = -1;
 }

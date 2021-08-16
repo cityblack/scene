@@ -2,7 +2,6 @@ package com.lzh.game.scene.api.connect;
 
 import com.lzh.game.scene.api.config.ApiConfig;
 import com.lzh.game.scene.common.NodeType;
-import com.lzh.game.scene.common.connect.BootstrapConfig;
 import com.lzh.game.scene.common.connect.ConnectManage;
 import com.lzh.game.scene.common.connect.Request;
 import com.lzh.game.scene.common.connect.Response;

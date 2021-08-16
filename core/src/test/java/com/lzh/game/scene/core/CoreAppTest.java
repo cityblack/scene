@@ -87,13 +87,7 @@ class CoreAppTest {
                 sceneInstance.setGroup("group");
                 sceneInstance.setMap(1);
                 sceneInstance.setUnique(String.valueOf(count.getAndIncrement()));
-                jrService
-                        .replicator()
-                        .registerSceneInstance(sceneInstance)
-                        .exceptionally(throwable -> {
-                            throwable.printStackTrace();
-                            return null;
-                        });
+
             }
             try {
                 Thread.sleep(5000);

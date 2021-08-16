@@ -1,10 +1,5 @@
 package com.lzh.game.scene.common.connect.server;
 
-import com.lzh.game.scene.common.connect.Connect;
-import com.lzh.game.scene.common.connect.Request;
-import com.lzh.game.scene.common.connect.Response;
-import com.lzh.game.scene.common.connect.sofa.SofaSceneConnect;
-
 import java.lang.reflect.InvocationTargetException;
 
 /**

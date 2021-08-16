@@ -1,12 +1,12 @@
 package com.lzh.game.scene.core.service;
 
+import com.lzh.game.scene.common.ContextConstant;
 import com.lzh.game.scene.common.SceneChangeStatus;
 import com.lzh.game.scene.common.SceneInstance;
-import com.lzh.game.scene.common.connect.Request;
 import com.lzh.game.scene.common.connect.Response;
 import com.lzh.game.scene.common.connect.scene.SceneConnect;
 
-import java.util.List;
+import static com.lzh.game.scene.common.ContextConstant.ALL_MAP_LISTEN_KEY;
 
 public interface SceneService {
 
@@ -29,7 +29,9 @@ public interface SceneService {
      * @param group
      * @return
      */
-    void getAllSceneInstances(Response response, String group);
+    default void getAllSceneInstances(Response response, String group) {
+        this.getSceneInstances(response, group, ALL_MAP_LISTEN_KEY);
+    }
 
     /**
      * 获取所有场景 -- 指定地图
@@ -44,7 +46,9 @@ public interface SceneService {
      * @param group
      * @param status 需要注册的事件类型
      */
-    void subscribe(Response response, String group, SceneChangeStatus status);
+    default void subscribe(SceneConnect connect, String group, SceneChangeStatus status) {
+        this.subscribe(connect, group, status, ALL_MAP_LISTEN_KEY);
+    }
 
     /**
      * 向场景管理中心订阅场景改变事件 指定map
@@ -53,7 +57,7 @@ public interface SceneService {
      * @param map
      * @return
      */
-    void subscribe(Response response, String group, SceneChangeStatus status, int map);
+    void subscribe(SceneConnect connect, String group, SceneChangeStatus status, int map);
 
     /**
      * 向中心注册保持地图实例数量, 当地图实例不足的时候(宕机, 失联)将自动向场景节点请求创建地图
