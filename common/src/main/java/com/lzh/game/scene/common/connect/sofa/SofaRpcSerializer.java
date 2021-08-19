@@ -49,7 +49,7 @@ public class SofaRpcSerializer extends DefaultCustomSerializer {
                 head.put(EXCHANGE_RESPONSE_STATUS, String.valueOf(status));
                 head.put(EXCHANGE_TYPE, r.getParamClassName());
                 head.put(ERROR_RESPONSE_MSG_KEY, r.getError());
-                command.setHeader(serializer.encodeMap(head));
+                command.setHeader(serializer.encode(head));
                 return true;
             }
         }
@@ -60,7 +60,7 @@ public class SofaRpcSerializer extends DefaultCustomSerializer {
     public <T extends ResponseCommand> boolean deserializeHeader(T response, InvokeContext invokeContext) throws DeserializationException {
         if (response instanceof RpcResponseCommand) {
             RpcResponseCommand command = (RpcResponseCommand) response;
-            Map<Byte, String> head = serializer.decodeMap(command.getHeader());
+            Map<Byte, String> head = serializer.decode(command.getHeader(), HashMap.class);
             command.setResponseHeader(head);
             return true;
         }
@@ -80,7 +80,7 @@ public class SofaRpcSerializer extends DefaultCustomSerializer {
             command.setResponseObject(resp);
 
             byte[] content = command.getContent();
-            if (content.length <= 0) {
+            if (Objects.isNull(content) || content.length <= 0) {
                 return true;
             }
             if (status != RIGHT_RESPONSE) {
@@ -125,7 +125,7 @@ public class SofaRpcSerializer extends DefaultCustomSerializer {
                 if (Objects.nonNull(r.getParam())) {
                     header.put(EXCHANGE_TYPE, getTypeKey(r));
                 }
-                command.setHeader(serializer.encodeMap(header));
+                command.setHeader(serializer.encode(header));
             }
         }
         return super.serializeHeader(request, invokeContext);
@@ -151,7 +151,7 @@ public class SofaRpcSerializer extends DefaultCustomSerializer {
         if (request instanceof RpcRequestCommand) {
             RpcRequestCommand command = (RpcRequestCommand) request;
             byte[] header = command.getHeader();
-            Map<Byte, String> head = serializer.decodeMap(header);
+            Map<Byte, String> head = serializer.decode(header, HashMap.class);
             command.setRequestHeader(head);
             return true;
         }

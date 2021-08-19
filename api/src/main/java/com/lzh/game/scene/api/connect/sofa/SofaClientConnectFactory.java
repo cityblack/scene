@@ -74,7 +74,7 @@ public class SofaClientConnectFactory implements ConnectFactory {
                                 logger.error("Response message but future is done!");
                                 return;
                             }
-                            future.complete((Response) result);
+                            future.complete((Response<T>) result);
                         } catch (Exception e) {
                             future.completeExceptionally(e);
                         }

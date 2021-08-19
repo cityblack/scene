@@ -5,6 +5,8 @@ import io.protostuff.ProtostuffIOUtil;
 import io.protostuff.Schema;
 import io.protostuff.runtime.RuntimeSchema;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public class ProtostuffSerializer implements Serializer {
@@ -12,6 +14,11 @@ public class ProtostuffSerializer implements Serializer {
     @Override
     public byte[] encode(Object object) {
         Class<?> clazz = object.getClass();
+        if (isWrapperType(clazz)) {
+            Wrapper wrapper = new Wrapper();
+            wrapper.data = object;
+            return encode(wrapper);
+        }
         Schema schema = RuntimeSchema.getSchema(clazz);
         LinkedBuffer buffer = LinkedBuffer.allocate(LinkedBuffer.DEFAULT_BUFFER_SIZE);
         try {
@@ -23,26 +30,21 @@ public class ProtostuffSerializer implements Serializer {
 
     @Override
     public <T> T decode(byte[] data, Class<T> clazz) {
+        if (isWrapperType(clazz)) {
+            return (T) decode(data, Wrapper.class).data;
+        }
         Schema<T> schema = RuntimeSchema.getSchema(clazz);
         T message = schema.newMessage();
         ProtostuffIOUtil.mergeFrom(data, message, schema);
         return message;
     }
 
-    @Override
-    public <K, V> byte[] encodeMap(Map<K, V> o) {
-        Wrapper<K, V> wrapper = new Wrapper<>();
-        wrapper.data = o;
-        return this.encode(wrapper);
+    class Wrapper<T> {
+        T data;
     }
 
-    @Override
-    public <K, V> Map<K, V> decodeMap(byte[] data) {
-        Wrapper<K, V> wrapper = this.decode(data, Wrapper.class);
-        return wrapper.data;
-    }
-
-    class Wrapper<K, V> {
-        Map<K, V> data;
+    private boolean isWrapperType(Class<?> clazz) {
+        return clazz.isArray() || Map.class.isAssignableFrom(clazz)
+                || Collection.class.isAssignableFrom(clazz);
     }
 }

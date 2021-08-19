@@ -1,20 +1,16 @@
 package com.lzh.game.scene.api.connect.sofa;
 
-import com.alipay.remoting.Connection;
-import com.alipay.remoting.ConnectionEventProcessor;
 import com.alipay.remoting.ConnectionEventType;
 import com.alipay.remoting.rpc.RpcClient;
 import com.lzh.game.scene.api.config.ApiConfig;
 import com.lzh.game.scene.api.config.Member;
 import com.lzh.game.scene.api.connect.ClientLoadBalance;
 import com.lzh.game.scene.api.connect.ConnectClient;
-import com.lzh.game.scene.common.ContextConstant;
 import com.lzh.game.scene.common.NodeType;
 import com.lzh.game.scene.common.connect.*;
 import com.lzh.game.scene.common.connect.scene.SceneConnect;
 import com.lzh.game.scene.common.connect.scene.SceneConnectManage;
 import com.lzh.game.scene.common.connect.sofa.SofaConnectCloseEvent;
-import com.lzh.game.scene.common.connect.sofa.SofaConnectConnectedEvent;
 import com.lzh.game.scene.common.connect.sofa.SofaSceneConnect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

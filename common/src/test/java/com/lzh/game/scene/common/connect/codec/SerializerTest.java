@@ -1,18 +1,15 @@
 package com.lzh.game.scene.common.connect.codec;
 
+import com.lzh.game.scene.common.SceneInstance;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 class SerializerTest {
 
     private Serializer serializer = new ProtostuffSerializer();
-
 
     @Test
     void serializeMap() throws IOException {
@@ -20,9 +17,9 @@ class SerializerTest {
         map.put((byte) 0x01, "1");
         map.put((byte) 0x02, "2");
         map.put((byte) 0x03, "2");
-        byte[] bytes = serializer.encodeMap(map);
+        byte[] bytes = serializer.encode(map);
         System.out.println(bytes.length);
-        Map<Byte, String> deMap = serializer.decodeMap(bytes);
+        Map<Byte, String> deMap = serializer.decode(bytes, HashMap.class);
         System.out.println(deMap);
         /*Wrapper<Byte, String> wrapper = new Wrapper();
         Map<Byte, String> map = new HashMap<>();
@@ -64,12 +61,22 @@ class SerializerTest {
 
     @Test
     void encodeList() throws IOException {
-        List<String> list = Arrays.asList("lzh");
+        SceneInstance instance = new SceneInstance();
+        instance.setMap(1);
+        instance.setUnique("x");
+        instance.setGroup("xxx");
+        List<SceneInstance> list = new ArrayList<>();
+        list.add(instance);
+        byte[] bytes = serializer.encode(list);
+        System.out.println(bytes.length);
+        List<SceneInstance> deList = serializer.decode(bytes, ArrayList.class);
+        System.out.println(deList);
+        /*List<String> list = Arrays.asList("lzh");
         byte[] bytes = serializer.encode(list);
         System.out.println(bytes.length);
         System.out.println(list.getClass().getName());
         List<String> s = serializer.decode(bytes, list.getClass());
-        System.out.println(s);
+        System.out.println(s);*/
     }
 
     @Test
