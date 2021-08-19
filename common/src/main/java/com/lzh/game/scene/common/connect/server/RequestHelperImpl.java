@@ -3,12 +3,13 @@ package com.lzh.game.scene.common.connect.server;
 import com.lzh.game.scene.common.connect.Connect;
 import com.lzh.game.scene.common.connect.Request;
 import com.lzh.game.scene.common.connect.Response;
+import com.lzh.game.scene.common.connect.scene.SceneConnect;
 import com.lzh.game.scene.common.connect.sofa.SofaSceneConnect;
 
 public class RequestHelperImpl implements RequestHelper {
 
     private Class<?>[] inner = new Class[]{ Request.class, Response.class
-            , SofaSceneConnect.class, Connect.class };
+            , SofaSceneConnect.class, Connect.class, SceneConnect.class };
 
     @Override
     public Class<?>[] innerParam() {

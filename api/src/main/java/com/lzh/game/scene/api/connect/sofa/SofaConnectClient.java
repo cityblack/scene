@@ -68,7 +68,10 @@ public class SofaConnectClient extends AbstractBootstrap<ApiConfig>
 
     @Override
     protected void doStart() {
-
+        if (this.rpcClient.isStarted()) {
+            return;
+        }
+        this.rpcClient.startup();
     }
 
     @Override

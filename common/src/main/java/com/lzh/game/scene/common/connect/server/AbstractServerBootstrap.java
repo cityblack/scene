@@ -61,6 +61,9 @@ public abstract class AbstractServerBootstrap<T extends ServerConfig>
 
     @Override
     protected void doStart() {
+        if (this.rpcServer.isStarted()) {
+            return;
+        }
         this.rpcServer.startup();
     }
 

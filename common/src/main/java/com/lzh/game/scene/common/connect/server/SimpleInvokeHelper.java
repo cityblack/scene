@@ -7,44 +7,40 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
-public class SimpleInvokeFactory implements MethodInvokeFactory {
+public class SimpleInvokeHelper implements MethodInvokeHelper {
 
-    private static final Logger logger = LoggerFactory.getLogger(SimpleInvokeFactory.class);
+    private static final Logger logger = LoggerFactory.getLogger(SimpleInvokeHelper.class);
 
     private RequestHelper helper;
 
-    private Collection<Object> actionsBean;
-
-    public SimpleInvokeFactory(RequestHelper helper, Collection<Object> actionsBean) {
+    public SimpleInvokeHelper(RequestHelper helper) {
         this.helper = helper;
-        this.actionsBean = actionsBean;
     }
 
     @Override
-    public void loadMethodInvoke(InvokeManage manage) {
-
-        synchronized (SimpleInvokeFactory.class) {
+    public void addMethodInvoke(InvokeManage manage, List<Object> targets) {
+        synchronized (SimpleInvokeHelper.class) {
             final Set<Class<?>> innerParam = getInnerParamType(helper);
-            actionsBean.forEach((v) -> {
+            targets.forEach((v) -> {
                 Class<?> clazz = v.getClass();
                 Action action = clazz.getAnnotation(Action.class);
                 if (Objects.isNull(action)) {
-                    throw new IllegalArgumentException("Target bean is not @action");
+                    throw new IllegalArgumentException("Target " + clazz.getName() + " bean is not @Action");
                 }
                 int value = action.value();
                 Method[] methods = clazz.getDeclaredMethods();
                 for (Method method: methods) {
                     Cmd cmd = method.getAnnotation(Cmd.class);
+                    if (Objects.isNull(cmd)) {
+                        continue;
+                    }
                     int cmdValue = value + cmd.value();
                     int index = parseMethodRequestParamIndex(innerParam, method);
                     MethodInvoke invoke = new MethodInvokeEndpoint(v, method, index);
                     manage.registerInvoke(cmdValue, invoke);
-                    logger.info("Loaded {} cmd method!!", cmdValue);
+                    logger.info("Loaded {} cmd mapping {}#{}", cmdValue, clazz.getName(), method.getName());
                 }
             });
         }

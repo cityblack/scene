@@ -9,6 +9,7 @@ import com.lzh.game.scene.common.connect.sofa.SofaRpcSerializationRegister;
 import com.lzh.game.scene.common.connect.sofa.SofaUserProcess;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -48,7 +49,7 @@ public abstract class AbstractBootstrap<T extends BootstrapConfig> implements Bo
 
     private Serializer serializer;
 
-    private MethodInvokeFactory methodInvokeFactory;
+    private MethodInvokeHelper methodInvokeHelper;
     /**
      * Build Default bean
      */
@@ -78,8 +79,8 @@ public abstract class AbstractBootstrap<T extends BootstrapConfig> implements Bo
         if (Objects.isNull(connectManage)) {
             this.connectManage = new DefaultConnectManage();
         }
-        if (Objects.isNull(methodInvokeFactory)) {
-            this.methodInvokeFactory = new SimpleInvokeFactory(this.requestHelper, Collections.emptyList());
+        if (Objects.isNull(methodInvokeHelper)) {
+            this.methodInvokeHelper = new SimpleInvokeHelper(this.requestHelper);
         }
         SofaRpcSerializationRegister.setSerialization(getSerializer());
     }
@@ -140,12 +141,12 @@ public abstract class AbstractBootstrap<T extends BootstrapConfig> implements Bo
         this.requestHelper = requestHelper;
     }
 
-    public MethodInvokeFactory getMethodInvokeFactory() {
-        return methodInvokeFactory;
+    public MethodInvokeHelper getMethodInvokeFactory() {
+        return methodInvokeHelper;
     }
 
-    public void setMethodInvokeFactory(MethodInvokeFactory methodInvokeFactory) {
-        this.methodInvokeFactory = methodInvokeFactory;
+    public void setMethodInvokeFactory(MethodInvokeHelper methodInvokeHelper) {
+        this.methodInvokeHelper = methodInvokeHelper;
     }
 
     @Override
@@ -155,6 +156,10 @@ public abstract class AbstractBootstrap<T extends BootstrapConfig> implements Bo
 
     public void setConfig(T config) {
         this.config = config;
+    }
+
+    public void addCmdTarget(List<Object> targets) {
+        this.methodInvokeHelper.addMethodInvoke(this.invokeManage, targets);
     }
 
     public void init() {
@@ -172,7 +177,6 @@ public abstract class AbstractBootstrap<T extends BootstrapConfig> implements Bo
         if (this.status != INIT) {
             throw new RuntimeException("Bootstrap not init..");
         }
-        this.methodInvokeFactory.loadMethodInvoke(this.invokeManage);
         this.doStart();
         this.status = STARTED;
     }

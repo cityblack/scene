@@ -52,7 +52,7 @@ public class SerializerStressTest {
 
     private byte[] encodeMap(Map<Byte, String> map) throws IOException {
         // 1024 避免扩容影响
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream(1024);
+        UnsafeByteArrayOutputStream outputStream = new UnsafeByteArrayOutputStream(1024);
         for (Map.Entry<Byte, String> entry : map.entrySet()) {
             byte[] key = new byte[]{ entry.getKey() };
             byte[] v = entry.getValue().getBytes();

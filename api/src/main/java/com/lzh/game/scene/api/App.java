@@ -2,17 +2,15 @@ package com.lzh.game.scene.api;
 
 import com.lzh.game.scene.api.config.ApiConfig;
 import com.lzh.game.scene.api.config.Member;
-import com.lzh.game.scene.api.connect.ConnectClient;
 import com.lzh.game.scene.api.connect.sofa.SofaConnectClient;
 import com.lzh.game.scene.api.option.ListenController;
 import com.lzh.game.scene.api.server.SceneService;
 import com.lzh.game.scene.api.server.SceneServiceImpl;
 import com.lzh.game.scene.common.SceneChangeStatus;
 import com.lzh.game.scene.common.SceneInstance;
-import com.lzh.game.scene.common.connect.server.MethodInvokeFactory;
-import com.lzh.game.scene.common.connect.server.SimpleInvokeFactory;
+import com.lzh.game.scene.common.connect.server.MethodInvokeHelper;
+import com.lzh.game.scene.common.connect.server.SimpleInvokeHelper;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 
@@ -33,8 +31,7 @@ public class App {
 
         SofaConnectClient client = new SofaConnectClient(config);
         client.init();
-        MethodInvokeFactory factory = new SimpleInvokeFactory(client.getRequestHelper(), Arrays.asList(controller));
-        client.setMethodInvokeFactory(factory);
+        client.addCmdTarget(Arrays.asList(controller));
         client.start();
 
         final AsyncSceneApi api = new AsyncSceneApiImpl(client, sceneService);

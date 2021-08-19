@@ -72,7 +72,7 @@ public class Response<T> {
         this.param = o;
         if (Objects.nonNull(this.param)) {
             this.paramClass = (Class<T>) this.param.getClass();
-            this.paramClassName = this.param.getClass().getName();
+            this.paramClassName = this.paramClass.getName();
         }
     }
 }

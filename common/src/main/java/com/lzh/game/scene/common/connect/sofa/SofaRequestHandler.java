@@ -30,6 +30,7 @@ public class SofaRequestHandler implements RequestHandler {
 
         MethodInvoke invoke = invokeManage.findInvoke(request.getId());
         if (Objects.isNull(invoke)) {
+            logger.error("Illegal request, Not defined cmd {}", request.getId());
             response.setError("Illegal request, Not defined cmd " + request.getId());
             return response;
         }
@@ -55,10 +56,8 @@ public class SofaRequestHandler implements RequestHandler {
     }
 
     private void setParam(Response response, Object o) {
-        if (!(o instanceof Void)) {
+        if (Objects.nonNull(o)) {
             response.setParamWithType(o);
         }
     }
-
-
 }
