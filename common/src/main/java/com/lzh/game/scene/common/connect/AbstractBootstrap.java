@@ -70,14 +70,14 @@ public abstract class AbstractBootstrap<T extends BootstrapConfig> implements Bo
         if (Objects.isNull(requestHandler)) {
             this.requestHandler = new SofaRequestHandler(this.invokeManage, this.requestHelper);
         }
-        if (Objects.isNull(sofaUserProcess)) {
-            this.sofaUserProcess = new SofaUserProcess(this.requestHandler);
-        }
         if (Objects.isNull(serializer)) {
             this.serializer = new ProtostuffSerializer();
         }
         if (Objects.isNull(connectManage)) {
             this.connectManage = new DefaultConnectManage();
+        }
+        if (Objects.isNull(sofaUserProcess)) {
+            this.sofaUserProcess = new SofaUserProcess(this.requestHandler, this.connectManage);
         }
         if (Objects.isNull(methodInvokeHelper)) {
             this.methodInvokeHelper = new SimpleInvokeHelper(this.requestHelper);

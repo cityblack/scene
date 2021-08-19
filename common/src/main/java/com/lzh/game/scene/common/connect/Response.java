@@ -75,4 +75,9 @@ public class Response<T> {
             this.paramClassName = this.paramClass.getName();
         }
     }
+
+    public void setErrorInfo(byte status, String error) {
+        this.status = status;
+        this.error = error;
+    }
 }

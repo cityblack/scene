@@ -1,6 +1,5 @@
 package com.lzh.game.scene.common.connect;
 
-import com.lzh.game.scene.common.ContextConstant;
 import com.lzh.game.scene.common.NodeType;
 import com.lzh.game.scene.common.connect.scene.SceneConnect;
 import com.lzh.game.scene.common.connect.scene.SceneConnectManage;
@@ -9,7 +8,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- *
+ * 一个Connect可能对应多个SceneConnect
+ * 上锁考虑
  */
 public class DefaultConnectManage implements SceneConnectManage, ConnectManage {
 
@@ -19,6 +19,8 @@ public class DefaultConnectManage implements SceneConnectManage, ConnectManage {
     private Map<NodeType, List<SceneConnect>> nodeConnect = new ConcurrentHashMap<>();
     // key -> Connect#key 通信的connect
     private Map<String, Connect> connects = new ConcurrentHashMap<>();
+
+    private final static String SCENE_CONNECT = "scene_connect_relation";
 
     @Override
     public Connect getConnect(String key) {
@@ -42,7 +44,16 @@ public class DefaultConnectManage implements SceneConnectManage, ConnectManage {
 
     @Override
     public void removeConnect(String key) {
-        this.connects.remove(key);
+        Connect connect = this.connects.remove(key);
+        if (Objects.nonNull(connect)) {
+            Set<String> sceneKeys = connect.getAttr(SCENE_CONNECT);
+            if (Objects.isNull(sceneKeys) || sceneKeys.isEmpty()) {
+                return;
+            }
+            for (String scene : sceneKeys) {
+                removeSceneConnect(scene);
+            }
+        }
     }
 
     @Override
@@ -59,6 +70,7 @@ public class DefaultConnectManage implements SceneConnectManage, ConnectManage {
     public void putSceneConnect(String key, SceneConnect connect) {
         this.sceneConnects.put(key, connect);
         Connect fact = connect.bridge();
+        this.addRelation(fact, key);
         this.putConnect(fact.key(), fact);
         NodeType type = connect.type();
         if (!this.nodeConnect.containsKey(type)) {
@@ -66,6 +78,15 @@ public class DefaultConnectManage implements SceneConnectManage, ConnectManage {
         }
         List<SceneConnect> list = this.nodeConnect.get(type);
         list.add(connect);
+    }
+
+    private void addRelation(Connect connect, String key) {
+        Set<String> relations = connect.getAttr(SCENE_CONNECT);
+        if (Objects.isNull(relations)) {
+            relations = new HashSet<>();
+            connect.setAttr(SCENE_CONNECT, relations);
+        }
+        relations.add(key);
     }
 
     @Override
@@ -76,10 +97,12 @@ public class DefaultConnectManage implements SceneConnectManage, ConnectManage {
     @Override
     public void removeSceneConnect(String key) {
         SceneConnect connect = this.sceneConnects.remove(key);
-        if (Objects.isNull(connect)) {
-            return;
+        if (Objects.nonNull(connect)) {
+            NodeType type = connect.type();
+            List<SceneConnect> list = nodeConnect.get(type);
+            if (Objects.nonNull(list) && !list.isEmpty()) {
+                list.remove(connect);
+            }
         }
-        String connectKey = connect.getAttr(ContextConstant.SCENE_CONNECT_KEY);
-        removeConnect(connectKey);
     }
 }

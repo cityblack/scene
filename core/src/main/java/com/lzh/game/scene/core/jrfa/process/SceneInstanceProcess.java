@@ -1,6 +1,7 @@
 package com.lzh.game.scene.core.jrfa.process;
 
 import com.lzh.game.scene.common.SceneInstance;
+import com.lzh.game.scene.core.jrfa.JRService;
 import com.lzh.game.scene.core.jrfa.ReplicatorCmd;
 import com.lzh.game.scene.core.service.SceneInstanceManage;
 import org.slf4j.Logger;
@@ -21,6 +22,7 @@ public class SceneInstanceProcess extends AbstractWriteProcess<SceneInstance> {
 
     @Override
     public void doRequest(ReplicatorCmd cmd, SceneInstance data) {
+        logger.debug("Process get cmd:{}", cmd);
         switch (cmd) {
             case REGISTER_SCENE: {
                 manage.put(data.getGroup(), data);

@@ -6,6 +6,7 @@ import com.alipay.remoting.exception.DeserializationException;
 import com.alipay.remoting.exception.SerializationException;
 import com.alipay.remoting.rpc.RequestCommand;
 import com.alipay.remoting.rpc.ResponseCommand;
+import com.alipay.remoting.rpc.RpcCommandType;
 import com.alipay.remoting.rpc.protocol.RpcRequestCommand;
 import com.alipay.remoting.rpc.protocol.RpcResponseCommand;
 import com.lzh.game.scene.common.connect.Request;
@@ -101,9 +102,11 @@ public class SofaRpcSerializer extends DefaultCustomSerializer {
             RpcResponseCommand command = (RpcResponseCommand) response;
             Object o = command.getResponseObject();
             if (o instanceof Response) {
-                Response r = (Response) o;
+                Response<?> r = (Response<?>) o;
                 Object value = r.getParam();
-                command.setContent(serializer.encode(value));
+                if (Objects.nonNull(value)) {
+                    command.setContent(serializer.encode(value));
+                }
                 return true;
             }
         }
@@ -162,11 +165,11 @@ public class SofaRpcSerializer extends DefaultCustomSerializer {
             Map<Byte, String> head = (Map<Byte, String>) command.getRequestHeader();
             int cmd = Integer.parseInt(head.get(EXCHANGE_CMD));
             String typeKey = head.get(EXCHANGE_TYPE);
-
             Request build = Request.of(cmd);
             build.setType(request.getType());
             build.setParamClassName(typeKey);
             build.setParamClass(getParamClass(typeKey));
+            build.setOneWay(command.getType() == RpcCommandType.REQUEST_ONEWAY);
 
             Class<?> clazz = build.getParamClass();
             if (Objects.nonNull(clazz)) {

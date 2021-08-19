@@ -5,6 +5,8 @@ import com.lzh.game.scene.common.connect.Connect;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+import static com.lzh.game.scene.common.ContextConstant.SOURCE_CONNECT_RELATION;
+
 public abstract class AbstractSofaConnect implements Connect {
 
     protected AtomicLong CONNECT_COUNT = new AtomicLong();
@@ -16,6 +18,7 @@ public abstract class AbstractSofaConnect implements Connect {
     public AbstractSofaConnect(Connection connection, String address) {
         this.connection = connection;
         this.address = address;
+        this.connection.setAttribute(SOURCE_CONNECT_RELATION, key());
     }
 
     @Override

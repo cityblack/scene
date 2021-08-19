@@ -5,5 +5,5 @@ import com.lzh.game.scene.common.connect.Response;
 
 public interface RequestHandler {
 
-    Response dispatch(Request request);
+    Response<?> dispatch(Request request);
 }

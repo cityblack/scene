@@ -17,6 +17,8 @@ public class Request {
     // ======
     private transient RequestContext context;
 
+    private transient boolean oneWay;
+
     public int getId() {
         return id;
     }
@@ -63,6 +65,14 @@ public class Request {
 
     public void setParamClass(Class<?> paramClass) {
         this.paramClass = paramClass;
+    }
+
+    public boolean isOneWay() {
+        return oneWay;
+    }
+
+    public void setOneWay(boolean oneWay) {
+        this.oneWay = oneWay;
     }
 
     public void setParamWithType(Object param) {

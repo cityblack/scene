@@ -35,13 +35,12 @@ public class Star {
         JRafClusterServer<ClusterServerConfig> server = new JRafClusterServer<>(config);
         server.init();
 
-        SceneService service = new CpSceneServiceImpl(new SceneInstanceManageImpl(), server);
+        final SceneInstanceManageImpl manage = new SceneInstanceManageImpl();
+        SceneService service = new CpSceneServiceImpl(manage, server);
         SceneController sceneController = new SceneController();
         sceneController.setSceneService(service);
 
         server.addCmdTarget(Arrays.asList(sceneController));
-
-        final SceneInstanceManageImpl manage = new SceneInstanceManageImpl();
         SceneInstanceProcess sceneInstanceProcess = new SceneInstanceProcess(manage);
         server.getJrService().addRequestProcess(ReplicatorCmd.REGISTER_SCENE, sceneInstanceProcess);
 

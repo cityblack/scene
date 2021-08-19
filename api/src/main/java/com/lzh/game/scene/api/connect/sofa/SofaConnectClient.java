@@ -13,6 +13,8 @@ import com.lzh.game.scene.common.NodeType;
 import com.lzh.game.scene.common.connect.*;
 import com.lzh.game.scene.common.connect.scene.SceneConnect;
 import com.lzh.game.scene.common.connect.scene.SceneConnectManage;
+import com.lzh.game.scene.common.connect.sofa.SofaConnectCloseEvent;
+import com.lzh.game.scene.common.connect.sofa.SofaConnectConnectedEvent;
 import com.lzh.game.scene.common.connect.sofa.SofaSceneConnect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,9 +31,7 @@ public class SofaConnectClient extends AbstractBootstrap<ApiConfig>
 
     private final Logger logger = LoggerFactory.getLogger(SofaConnectClient.class);
 
-    private RpcClient rpcClient = SofaRpcClient.getInstance().client();
-
-    private ConnectionEventProcessor closeEvent = new ConnectCloseEvent();
+    private RpcClient rpcClient;
 
     private LoadBalance loadBalance;
 
@@ -40,24 +40,21 @@ public class SofaConnectClient extends AbstractBootstrap<ApiConfig>
     }
 
     private void init(ApiConfig config) {
+        RpcClient client = new RpcClient();
+        this.rpcClient = client;
         if (Objects.isNull(this.loadBalance)) {
             this.loadBalance = new ClientLoadBalance();
         }
-        rpcClient.addConnectionEventProcessor(ConnectionEventType.CLOSE, closeEvent);
+        rpcClient.addConnectionEventProcessor(ConnectionEventType.CLOSE, new SofaConnectCloseEvent(getConnectManage()));
         rpcClient.registerUserProcessor(getSofaUserProcess());
-
-        List<Member> members = config.getCluster();
-        for (Member member : members) {
-            getConnect(member.getHost(), member.getPort(), NodeType.SCENE_NODE);
-        }
     }
 
     private Connect create(String address) {
         Connect connect = connectManage().getConnect(address);
         if (Objects.isNull(connect)) {
             connect = getConnectFactory().createConnect(address);
+            logger.info("Create connect client [{}]!!", address);
         }
-        logger.info("Create connect client [{}]!!", address);
         return connect;
     }
 
@@ -72,6 +69,7 @@ public class SofaConnectClient extends AbstractBootstrap<ApiConfig>
             return;
         }
         this.rpcClient.startup();
+        this.connectCluster(this.getConfig().getCluster());
     }
 
     @Override
@@ -134,16 +132,16 @@ public class SofaConnectClient extends AbstractBootstrap<ApiConfig>
 
     @Override
     protected ConnectFactory getDefaultFactory() {
-        return new SofaClientConnectFactory(rpcClient, getConfig().getRequestOutTime());
+        return new SofaClientConnectFactory(this, getConfig().getRequestOutTime());
     }
 
-    private class ConnectCloseEvent implements ConnectionEventProcessor {
+    public RpcClient getRpcClient() {
+        return rpcClient;
+    }
 
-        @Override
-        public void onEvent(String remoteAddr, Connection conn) {
-            String key = (String) conn.getAttribute(ContextConstant.SOURCE_CONNECT_RELATION);
-            getConnectManage().removeSceneConnect(key);
-            logger.info("Close connect [{}-{}]!!", conn.getUrl(), key);
+    private void connectCluster(List<Member> members) {
+        for (Member member : members) {
+            getConnect(member.getHost(), member.getPort(), NodeType.SCENE_NODE);
         }
     }
 }

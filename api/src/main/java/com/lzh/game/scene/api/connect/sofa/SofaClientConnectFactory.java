@@ -8,6 +8,7 @@ import com.lzh.game.scene.common.connect.Connect;
 import com.lzh.game.scene.common.connect.ConnectFactory;
 import com.lzh.game.scene.common.connect.Request;
 import com.lzh.game.scene.common.connect.Response;
+import com.lzh.game.scene.common.connect.server.AbstractServerBootstrap;
 import com.lzh.game.scene.common.connect.sofa.AbstractSofaConnect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,23 +16,25 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
+import static com.lzh.game.scene.common.ContextConstant.SOURCE_CONNECT_RELATION;
+
 public class SofaClientConnectFactory implements ConnectFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(SofaClientConnectFactory.class);
 
-    private RpcClient rpcClient;
+    private SofaConnectClient client;
 
     private int requestOutTime;
 
-    public SofaClientConnectFactory(RpcClient rpcClient, int requestOutTime) {
-        this.rpcClient = rpcClient;
+    public SofaClientConnectFactory(SofaConnectClient client, int requestOutTime) {
+        this.client = client;
         this.requestOutTime = requestOutTime;
     }
 
     @Override
-    public Connect createConnect(String address, Object param) {
+    public Connect createConnect(String address, Object... param) {
         try {
-            Connection connection = rpcClient.createStandaloneConnection(address, 5000);
+            Connection connection = client.getRpcClient().createStandaloneConnection(address, 5000);
             Connect connect = new SofaClientConnect(connection, address);
             return connect;
         } catch (RemotingException e) {
@@ -49,7 +52,7 @@ public class SofaClientConnectFactory implements ConnectFactory {
         @Override
         public void sendOneWay(Request request) {
             try {
-                rpcClient.oneway(connection, request);
+                client.getRpcClient().oneway(connection, request);
             } catch (RemotingException e) {
                 logger.error("Request error!!", e);
             }
@@ -59,7 +62,7 @@ public class SofaClientConnectFactory implements ConnectFactory {
         public <T>CompletableFuture<Response<T>> sendMessage(Request request) {
             CompletableFuture<Response<T>> future = new CompletableFuture<>();
             try {
-                rpcClient.invokeWithCallback(connection, request, new InvokeCallback() {
+                client.getRpcClient().invokeWithCallback(connection, request, new InvokeCallback() {
 
                     @Override
                     public void onResponse(Object result) {
@@ -83,6 +86,7 @@ public class SofaClientConnectFactory implements ConnectFactory {
                             return;
                         }
                         future.completeExceptionally(e);
+                        logger.error("Response error:", e);
                     }
 
                     @Override

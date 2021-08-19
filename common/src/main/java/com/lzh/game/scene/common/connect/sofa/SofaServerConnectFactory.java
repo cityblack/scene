@@ -13,18 +13,19 @@ public class SofaServerConnectFactory implements ConnectFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(SofaServerConnectFactory.class);
 
-    private AbstractServerBootstrap bootstrap;
+    private AbstractServerBootstrap<?> bootstrap;
 
-    public SofaServerConnectFactory(AbstractServerBootstrap bootstrap) {
+    public SofaServerConnectFactory(AbstractServerBootstrap<?> bootstrap) {
         this.bootstrap = bootstrap;
     }
 
     @Override
-    public Connect createConnect(String address, Object param) {
-        if (param instanceof Connection) {
-            return new SofaConnect((Connection) param, address);
+    public Connect createConnect(String address, Object... param) {
+
+        if (param[0] instanceof Connection) {
+            return new SofaConnect((Connection) param[0], address);
         }
-        return null;
+        throw new IllegalArgumentException("Create server connect error. param isn't Connect type");
     }
 
     private class SofaConnect extends AbstractSofaConnect {
@@ -43,7 +44,7 @@ public class SofaServerConnectFactory implements ConnectFactory {
         }
 
         @Override
-        public CompletableFuture<Response> sendMessage(Request request) {
+        public <T>CompletableFuture<Response<T>> sendMessage(Request request) {
             throw new IllegalArgumentException("Server can't use future!!");
         }
     }

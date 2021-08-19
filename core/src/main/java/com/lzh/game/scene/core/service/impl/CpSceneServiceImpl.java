@@ -5,6 +5,7 @@ import com.google.protobuf.ByteString;
 import com.lzh.game.scene.common.ContextConstant;
 import com.lzh.game.scene.common.SceneChangeStatus;
 import com.lzh.game.scene.common.SceneInstance;
+import com.lzh.game.scene.common.connect.Connect;
 import com.lzh.game.scene.common.connect.Response;
 import com.lzh.game.scene.common.connect.scene.SceneConnect;
 import com.lzh.game.scene.common.event.SceneInstanceEvent;
@@ -18,6 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class CpSceneServiceImpl implements SceneService {
@@ -35,37 +38,31 @@ public class CpSceneServiceImpl implements SceneService {
     }
 
     @Override
-    public void registerSceneInstance(Response response, String group, SceneInstance instance) {
+    public void registerSceneInstance(String group, SceneInstance instance) {
         logger.info("Apply register scene instance. group:{} map:{}", group, instance.getMap());
-        commitTask(ReplicatorCmd.REGISTER_SCENE, instance)
-                .exceptionally(throwable -> {
-                    response.setError(throwable.getMessage());
-            return null;
-        });
+        commitTask(ReplicatorCmd.REGISTER_SCENE, instance);
     }
 
     @Override
-    public void removeSceneInstance(Response response, String group, SceneInstance instance) {
+    public void removeSceneInstance(String group, SceneInstance instance) {
 
     }
 
     @Override
-    public void getSceneInstances(Response response, String group, int map) {
+    public List<SceneInstance> getSceneInstances(String group, int map) {
         if (map == ContextConstant.ALL_MAP_LISTEN_KEY) {
-            response.setParamWithType(this.manage.get(group));
-            return;
+            return this.manage.get(group);
         }
-        response.setParamWithType(this.manage.get(group, map));
-    }
-
-
-    @Override
-    public void subscribe(SceneConnect connect, String group, SceneChangeStatus status, int map) {
-
+        return this.manage.get(group, map);
     }
 
     @Override
-    public void keepMapInstances(Response response, String group, int map, int numLimit) {
+    public void subscribe(Connect connect, String group, SceneChangeStatus status, int map) {
+
+    }
+
+    @Override
+    public void keepMapInstances(String group, int map, int numLimit) {
 
     }
 

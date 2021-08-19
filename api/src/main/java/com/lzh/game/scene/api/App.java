@@ -40,12 +40,17 @@ public class App {
         instance.setGroup(group);
         instance.setMap(1);
         instance.setUnique("group-1-1");
-        api.subscribe(group, SceneChangeStatus.CHANGE, System.out::println);
+//        api.subscribe(group, SceneChangeStatus.CHANGE, System.out::println);
         api.registerSceneInstance(group, instance);
         IntStream.range(0, 20).forEach(e -> {
             try {
                 Thread.sleep(2000);
-                api.getAllSceneInstances(group).thenAccept(list -> System.out.println(list));
+                api.getAllSceneInstances(group)
+                        .thenAccept(list -> System.out.println("场景数据:" + list))
+                        .exceptionally(throwable -> {
+                            throwable.printStackTrace();
+                            return null;
+                        });
             } catch (InterruptedException interruptedException) {
                 interruptedException.printStackTrace();
             }

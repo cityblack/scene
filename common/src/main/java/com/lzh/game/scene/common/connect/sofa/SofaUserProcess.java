@@ -2,14 +2,19 @@ package com.lzh.game.scene.common.connect.sofa;
 
 import com.alipay.remoting.AsyncContext;
 import com.alipay.remoting.BizContext;
+import com.alipay.remoting.Connection;
 import com.alipay.remoting.rpc.protocol.AsyncUserProcessor;
 import com.lzh.game.scene.common.ContextConstant;
+import com.lzh.game.scene.common.connect.ConnectManage;
 import com.lzh.game.scene.common.connect.Request;
 import com.lzh.game.scene.common.connect.RequestContext;
 import com.lzh.game.scene.common.connect.Response;
 import com.lzh.game.scene.common.connect.server.RequestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static com.lzh.game.scene.common.ContextConstant.ERROR_COMMON_RESPONSE;
+import static com.lzh.game.scene.common.ContextConstant.SOURCE_CONNECT_RELATION;
 
 public class SofaUserProcess extends AsyncUserProcessor<Request> {
 
@@ -19,37 +24,45 @@ public class SofaUserProcess extends AsyncUserProcessor<Request> {
 
     private RequestHandler handler;
 
-    public SofaUserProcess(RequestHandler requestHandler) {
+    private ConnectManage connectManage;
+
+    public SofaUserProcess(RequestHandler requestHandler, ConnectManage connectManage) {
         this.handler = requestHandler;
+        this.connectManage = connectManage;
     }
 
     @Override
     public void handleRequest(BizContext bizCtx, AsyncContext asyncCtx, Request request) {
-
         try {
-            if (isTimeout(bizCtx, asyncCtx, Response.of())) {
+            if (isTimeout(request, bizCtx, asyncCtx, Response.of())) {
                 return;
             }
+            Connection connection = bizCtx.getConnection();
             RequestContext requestContext = new RequestContext();
             requestContext.setAttr(ContextConstant.SOFA_ASYNC_CONTEXT, asyncCtx);
-            requestContext.setAttr(ContextConstant.SOFA_CONNECT_REQUEST, bizCtx.getConnection());
-
+            requestContext.setAttr(ContextConstant.SOFA_CONNECT_REQUEST, connection);
+            String key = (String) connection.getAttribute(SOURCE_CONNECT_RELATION);
+            requestContext.setConnect(connectManage.getConnect(key));
             request.setContext(requestContext);
 
-            Response response = handler.dispatch(request);
-            if (isTimeout(bizCtx, asyncCtx, response)) {
+            Response<?> response = handler.dispatch(request);
+            if (isTimeout(request, bizCtx, asyncCtx, response)) {
                 return;
             }
             byte status = response.getStatus();
             if (status != ContextConstant.RIGHT_RESPONSE) {
                 logger.error("Request error:", response.getError());
             }
-            asyncCtx.sendResponse(response);
+            if (!request.isOneWay()) {
+                asyncCtx.sendResponse(response);
+            }
         } catch (Exception e) {
             logger.error("Request error!!", e);
-            Response response = Response.of();
-            response.setError(e.getMessage());
-            asyncCtx.sendResponse(response);
+            if (!request.isOneWay()) {
+                Response<?> response = Response.of();
+                response.setErrorInfo(ERROR_COMMON_RESPONSE, e.getMessage());
+                asyncCtx.sendResponse(response);
+            }
         }
     }
 
@@ -64,9 +77,12 @@ public class SofaUserProcess extends AsyncUserProcessor<Request> {
         return super.getExecutorSelector();
     }
 
-    private boolean isTimeout(BizContext bizCtx, AsyncContext asyncCtx, Response response) {
+    private boolean isTimeout(Request request, BizContext bizCtx, AsyncContext asyncCtx, Response<?> response) {
+        if (request.isOneWay()) {
+            return false;
+        }
         if (bizCtx.isRequestTimeout()) {
-            response.setError("Request timeout!!");
+            response.setErrorInfo(ERROR_COMMON_RESPONSE, "Request timeout!!");
             asyncCtx.sendResponse(response);
             return true;
         }

@@ -5,9 +5,5 @@ package com.lzh.game.scene.common.connect;
  */
 public interface ConnectFactory {
 
-    Connect createConnect(String address, Object param);
-
-    default Connect createConnect(String address) {
-        return createConnect(address, null);
-    }
+    Connect createConnect(String address, Object... param);
 }
