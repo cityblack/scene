@@ -15,10 +15,17 @@ public abstract class AbstractSofaConnect implements Connect {
 
     protected String address;
 
+    protected String host;
+
+    private int port;
+
     public AbstractSofaConnect(Connection connection, String address) {
         this.connection = connection;
         this.address = address;
         this.connection.setAttribute(SOURCE_CONNECT_RELATION, key());
+        String[] values = address.split(":");
+        this.host = values[0];
+        this.port = Integer.parseInt(values[1]);
     }
 
     @Override
@@ -41,4 +48,13 @@ public abstract class AbstractSofaConnect implements Connect {
         return address;
     }
 
+    @Override
+    public String host() {
+        return this.host;
+    }
+
+    @Override
+    public int port() {
+        return this.port;
+    }
 }

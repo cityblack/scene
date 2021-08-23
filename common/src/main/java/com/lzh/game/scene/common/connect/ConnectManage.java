@@ -16,5 +16,5 @@ public interface ConnectManage {
         return host + ":" + port;
     }
 
-    void removeConnect(String key);
+    Connect removeConnect(String key);
 }

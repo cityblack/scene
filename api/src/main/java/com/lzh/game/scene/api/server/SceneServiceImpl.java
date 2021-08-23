@@ -16,8 +16,10 @@ public class SceneServiceImpl implements SceneService {
 
     @Override
     public void onSceneChange(String group, SceneInstance instance, SceneChangeStatus status) {
-        Listen listen = listens.computeIfAbsent(group, (k) -> new Listen());
-        listen.notifyObserve(instance, status);
+        Listen listen = listens.get(group);
+        if (Objects.nonNull(listen)) {
+            listen.notifyObserve(instance, status);
+        }
     }
 
     @Override

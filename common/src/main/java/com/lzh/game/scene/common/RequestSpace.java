@@ -10,6 +10,7 @@ public interface RequestSpace {
     int LISTEN_INSTANCE_SPACE = 2000;
 
     int NODE_SPACE = 3000;
+    int NODE_REGISTER = 1;
 
 
     static int cmd(int space, int target) {

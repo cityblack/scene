@@ -43,17 +43,18 @@ public class DefaultConnectManage implements SceneConnectManage, ConnectManage {
     }
 
     @Override
-    public void removeConnect(String key) {
+    public Connect removeConnect(String key) {
         Connect connect = this.connects.remove(key);
         if (Objects.nonNull(connect)) {
             Set<String> sceneKeys = connect.getAttr(SCENE_CONNECT);
             if (Objects.isNull(sceneKeys) || sceneKeys.isEmpty()) {
-                return;
+                return connect;
             }
             for (String scene : sceneKeys) {
                 removeSceneConnect(scene);
             }
         }
+        return connect;
     }
 
     @Override

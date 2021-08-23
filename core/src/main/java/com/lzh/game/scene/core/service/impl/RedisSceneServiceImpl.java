@@ -15,7 +15,6 @@ public class RedisSceneServiceImpl implements SceneService {
 
     private SceneInstanceManage manage;
 
-
     @Override
     public void registerSceneInstance(String group, SceneInstance instance) {
 

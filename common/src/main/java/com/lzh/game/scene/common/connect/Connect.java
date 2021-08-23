@@ -27,4 +27,8 @@ public interface Connect {
      * @return
      */
     String key();
+
+    String host();
+
+    int port();
 }

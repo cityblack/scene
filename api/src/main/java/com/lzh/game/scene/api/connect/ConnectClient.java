@@ -43,4 +43,6 @@ public interface ConnectClient extends Bootstrap<ApiConfig> {
     <T>CompletableFuture<Response<T>> sendMessage(Request request);
 
     void sendOneWay(Request request);
+
+    NodeType nodeType();
 }

@@ -61,10 +61,9 @@ public class SofaConnectClient extends AbstractBootstrap<ApiConfig>
 
     @Override
     protected void doStart() {
-        if (this.rpcClient.isStarted()) {
-            return;
+        if (!this.rpcClient.isStarted()) {
+            this.rpcClient.startup();
         }
-        this.rpcClient.startup();
         this.connectCluster(this.getConfig().getCluster());
     }
 
@@ -124,6 +123,11 @@ public class SofaConnectClient extends AbstractBootstrap<ApiConfig>
     public void sendOneWay(Request request) {
         Connect connect = this.loadBalance.choose(getConnectManage().getAllConnect(), request);
         connect.sendOneWay(request);
+    }
+
+    @Override
+    public NodeType nodeType() {
+        return NodeType.values()[getConfig().getNodeType()];
     }
 
     @Override

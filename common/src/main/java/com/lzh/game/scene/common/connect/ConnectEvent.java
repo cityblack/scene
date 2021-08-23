@@ -1,6 +1,4 @@
-package com.lzh.game.scene.api.server;
-
-import com.lzh.game.scene.common.connect.Connect;
+package com.lzh.game.scene.common.connect;
 
 public class ConnectEvent {
 

@@ -8,7 +8,6 @@ import com.lzh.game.scene.common.connect.sofa.SofaRequestHandler;
 import com.lzh.game.scene.common.connect.sofa.SofaRpcSerializationRegister;
 import com.lzh.game.scene.common.connect.sofa.SofaUserProcess;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
