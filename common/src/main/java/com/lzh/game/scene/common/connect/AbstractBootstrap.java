@@ -2,6 +2,7 @@ package com.lzh.game.scene.common.connect;
 
 import com.lzh.game.scene.common.connect.codec.ProtostuffSerializer;
 import com.lzh.game.scene.common.connect.codec.Serializer;
+import com.lzh.game.scene.common.connect.scene.SceneConnect;
 import com.lzh.game.scene.common.connect.server.*;
 import com.lzh.game.scene.common.connect.server.cmd.ServerMessageManage;
 import com.lzh.game.scene.common.connect.sofa.SofaRequestHandler;
@@ -42,7 +43,7 @@ public abstract class AbstractBootstrap<T extends BootstrapConfig> implements Bo
 
     private RequestHandler requestHandler;
 
-    private DefaultConnectManage connectManage;
+    private ConnectManage<SceneConnect> connectManage;
 
     private InvokeManage invokeManage;
 
@@ -73,7 +74,7 @@ public abstract class AbstractBootstrap<T extends BootstrapConfig> implements Bo
             this.serializer = new ProtostuffSerializer();
         }
         if (Objects.isNull(connectManage)) {
-            this.connectManage = new DefaultConnectManage();
+            this.connectManage = new SceneConnectManage();
         }
         if (Objects.isNull(sofaUserProcess)) {
             this.sofaUserProcess = new SofaUserProcess(this.requestHandler, this.connectManage);
@@ -104,11 +105,11 @@ public abstract class AbstractBootstrap<T extends BootstrapConfig> implements Bo
         this.requestHandler = requestHandler;
     }
 
-    public DefaultConnectManage getConnectManage() {
+    public ConnectManage<SceneConnect> getConnectManage() {
         return connectManage;
     }
 
-    public void setConnectManage(DefaultConnectManage connectManage) {
+    public void setConnectManage(SceneConnectManage connectManage) {
         this.connectManage = connectManage;
     }
 
@@ -159,6 +160,11 @@ public abstract class AbstractBootstrap<T extends BootstrapConfig> implements Bo
 
     public void addCmdTarget(List<Object> targets) {
         this.methodInvokeHelper.addMethodInvoke(this.invokeManage, targets);
+    }
+
+    @Override
+    public void shutdown() {
+        this.connectManage.shutdown();
     }
 
     public void init() {

@@ -9,8 +9,8 @@ import com.lzh.game.scene.api.connect.ConnectClient;
 import com.lzh.game.scene.common.NodeType;
 import com.lzh.game.scene.common.connect.*;
 import com.lzh.game.scene.common.connect.scene.SceneConnect;
-import com.lzh.game.scene.common.connect.scene.SceneConnectManage;
 import com.lzh.game.scene.common.connect.sofa.SofaConnectCloseEvent;
+import com.lzh.game.scene.common.connect.sofa.SofaConnectConnectedEvent;
 import com.lzh.game.scene.common.connect.sofa.SofaSceneConnect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,16 +41,14 @@ public class SofaConnectClient extends AbstractBootstrap<ApiConfig>
         if (Objects.isNull(this.loadBalance)) {
             this.loadBalance = new ClientLoadBalance();
         }
+        rpcClient.addConnectionEventProcessor(ConnectionEventType.CONNECT, new SofaConnectConnectedEvent(getConnectFactory()));
         rpcClient.addConnectionEventProcessor(ConnectionEventType.CLOSE, new SofaConnectCloseEvent(getConnectManage()));
         rpcClient.registerUserProcessor(getSofaUserProcess());
     }
 
     private Connect create(String address) {
-        Connect connect = connectManage().getConnect(address);
-        if (Objects.isNull(connect)) {
-            connect = getConnectFactory().createConnect(address);
-            logger.info("Create connect client [{}]!!", address);
-        }
+        Connect connect = getConnectFactory().createConnect(address);
+        logger.info("Create connect client [{}]!!", address);
         return connect;
     }
 
@@ -68,11 +66,6 @@ public class SofaConnectClient extends AbstractBootstrap<ApiConfig>
     }
 
     @Override
-    public void shutdown() {
-
-    }
-
-    @Override
     public SceneConnect createConnect(String address, NodeType type) {
         Connect connect = create(address);
         String key = SceneConnect.TO_UNIQUE.apply(address, type);
@@ -87,11 +80,6 @@ public class SofaConnectClient extends AbstractBootstrap<ApiConfig>
     }
 
     @Override
-    public SceneConnectManage sceneConnectManage() {
-        return getConnectManage();
-    }
-
-    @Override
     public ConnectManage connectManage() {
         return getConnectManage();
     }
@@ -99,12 +87,12 @@ public class SofaConnectClient extends AbstractBootstrap<ApiConfig>
     @Override
     public SceneConnect getConnect(String address, NodeType type) {
         String key = SceneConnect.TO_UNIQUE.apply(address, type);
-        SceneConnect connect = getConnectManage().getSceneConnect(key);
+        SceneConnect connect = getConnectManage().getConnect(key);
         if (Objects.nonNull(connect)) {
             return connect;
         }
         connect = createConnect(address, type);
-        getConnectManage().putSceneConnect(key, connect);
+        getConnectManage().putConnect(key, connect);
         return connect;
     }
 

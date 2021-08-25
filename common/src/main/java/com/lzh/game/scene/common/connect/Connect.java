@@ -1,11 +1,12 @@
 package com.lzh.game.scene.common.connect;
 
+import java.io.Closeable;
 import java.util.concurrent.CompletableFuture;
 
 /**
  * 服务端和客户端都持有
  */
-public interface Connect {
+public interface Connect extends Closeable {
 
     void sendOneWay(Request request);
 

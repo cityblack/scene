@@ -1,34 +1,26 @@
 package com.lzh.game.scene.common.connect;
 
-import com.lzh.game.scene.common.NodeType;
 import com.lzh.game.scene.common.connect.scene.SceneConnect;
-import com.lzh.game.scene.common.connect.scene.SceneConnectManage;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 一个Connect可能对应多个SceneConnect
  * 上锁考虑
  */
-public class DefaultConnectManage implements SceneConnectManage, ConnectManage {
+public class SceneConnectManage implements ConnectManage<SceneConnect> {
 
-    // key -> SceneConnect#key 包装的connect
-    private Map<String, SceneConnect> sceneConnects = new ConcurrentHashMap<>();
-
-    private Map<NodeType, List<SceneConnect>> nodeConnect = new ConcurrentHashMap<>();
     // key -> Connect#key 通信的connect
-    private Map<String, Connect> connects = new ConcurrentHashMap<>();
-
-    private final static String SCENE_CONNECT = "scene_connect_relation";
+    private Map<String, SceneConnect> connects = new ConcurrentHashMap<>();
 
     @Override
-    public Connect getConnect(String key) {
+    public SceneConnect getConnect(String key) {
         return connects.get(key);
     }
 
     @Override
-    public Collection<Connect> getAllConnect() {
+    public Collection<SceneConnect> getAllConnect() {
         return connects.values();
     }
 
@@ -38,6 +30,21 @@ public class DefaultConnectManage implements SceneConnectManage, ConnectManage {
     }
 
     @Override
+    public SceneConnect putConnect(String key, SceneConnect connect) {
+        return this.connects.put(key, connect);
+    }
+
+    @Override
+    public SceneConnect removeConnect(String key) {
+        return this.removeConnect(key);
+    }
+
+    @Override
+    public boolean contain(String key) {
+        return this.connects.containsKey(key);
+    }
+
+    /*@Override
     public Connect putConnect(String key, Connect connect) {
         return this.connects.put(key, connect);
     }
@@ -55,9 +62,9 @@ public class DefaultConnectManage implements SceneConnectManage, ConnectManage {
             }
         }
         return connect;
-    }
+    }*/
 
-    @Override
+    /*@Override
     public List<SceneConnect> getByNode(NodeType type) {
         return new ArrayList<>(this.nodeConnect.get(type));
     }
@@ -105,5 +112,5 @@ public class DefaultConnectManage implements SceneConnectManage, ConnectManage {
                 list.remove(connect);
             }
         }
-    }
+    }*/
 }

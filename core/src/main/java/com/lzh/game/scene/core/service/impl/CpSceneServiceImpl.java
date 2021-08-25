@@ -44,7 +44,7 @@ public class CpSceneServiceImpl implements SceneService {
     }
 
     @Override
-    public void removeSceneInstance(String group, SceneInstance instance) {
+    public void removeSceneInstance(String group, String unique) {
 
     }
 

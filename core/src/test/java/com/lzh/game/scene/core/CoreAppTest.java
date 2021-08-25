@@ -43,7 +43,7 @@ class CoreAppTest {
             config.setMetaUri("classpath:scene" + File.separator + config.getPort());
             config.setSnapshotUri("classpath:snapshot" + File.separator + config.getPort());
             JRafClusterServer<ClusterServerConfig> server = new JRafClusterServer<>(config);
-            server.start();
+            server.startup();
             servers.add(server);
             final SceneInstanceManageImpl manage = new SceneInstanceManageImpl();
             SceneInstanceProcess sceneInstanceProcess = new SceneInstanceProcess(manage);

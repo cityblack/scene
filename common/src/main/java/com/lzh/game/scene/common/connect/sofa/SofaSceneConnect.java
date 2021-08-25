@@ -6,7 +6,10 @@ import com.lzh.game.scene.common.connect.Request;
 import com.lzh.game.scene.common.connect.Response;
 import com.lzh.game.scene.common.connect.scene.SceneConnect;
 
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
+
+import static com.lzh.game.scene.common.ContextConstant.SCENE_CONNECT_RELATION;
 
 /**
  * 包装connect对象
@@ -23,6 +26,7 @@ public class SofaSceneConnect implements SceneConnect {
         this.connect = connect;
         this.type = type;
         this.key = key;
+        this.connect.setAttr(SCENE_CONNECT_RELATION, key);
     }
 
     @Override
@@ -44,6 +48,7 @@ public class SofaSceneConnect implements SceneConnect {
     public <T> T getAttr(String key) {
         return connect.getAttr(key);
     }
+
     @Override
     public void setAttr(String key, Object o) {
         connect.setAttr(key, o);
@@ -60,7 +65,22 @@ public class SofaSceneConnect implements SceneConnect {
     }
 
     @Override
+    public String host() {
+        return connect.host();
+    }
+
+    @Override
+    public int port() {
+        return connect.port();
+    }
+
+    @Override
     public Connect bridge() {
         return connect;
+    }
+
+    @Override
+    public void close() throws IOException {
+        this.connect.close();
     }
 }

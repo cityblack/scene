@@ -3,6 +3,7 @@ package com.lzh.game.scene.common.connect.sofa;
 import com.alipay.remoting.Connection;
 import com.lzh.game.scene.common.connect.Connect;
 
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static com.lzh.game.scene.common.ContextConstant.SOURCE_CONNECT_RELATION;
@@ -22,7 +23,7 @@ public abstract class AbstractSofaConnect implements Connect {
     public AbstractSofaConnect(Connection connection, String address) {
         this.connection = connection;
         this.address = address;
-        this.connection.setAttribute(SOURCE_CONNECT_RELATION, key());
+        this.connection.setAttribute(SOURCE_CONNECT_RELATION, this);
         String[] values = address.split(":");
         this.host = values[0];
         this.port = Integer.parseInt(values[1]);
@@ -56,5 +57,10 @@ public abstract class AbstractSofaConnect implements Connect {
     @Override
     public int port() {
         return this.port;
+    }
+
+    @Override
+    public void close() throws IOException {
+
     }
 }

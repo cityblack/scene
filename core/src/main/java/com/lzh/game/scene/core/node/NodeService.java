@@ -16,12 +16,15 @@ public interface NodeService {
 
     /**
      * 将节点进行类型注册
+     * Connect注册完成之后成为SceneConnect
      * @param connect
      * @param request
      */
     List<NodeInfo> register(Connect connect, NodeInfoRequest request);
 
-    Stream<SceneConnect> getSceneNode();
+    Stream<NodeInfo> getSceneNode();
 
-    Stream<SceneConnect> getApiNode();
+    Stream<NodeInfo> getApiNode();
+
+    void deregister(Connect connect);
 }

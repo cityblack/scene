@@ -4,5 +4,5 @@ import java.util.Collection;
 
 public interface LoadBalance {
 
-    Connect choose(Collection<Connect> connects, Request request);
+    <T extends Connect>T choose(Collection<T> connects, Request request);
 }

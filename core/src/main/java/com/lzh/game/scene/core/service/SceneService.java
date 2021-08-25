@@ -20,9 +20,9 @@ public interface SceneService {
     /**
      * 移除场景实例
      * @param group
-     * @param instance
+     * @param unique
      */
-    void removeSceneInstance(String group, SceneInstance instance);
+    void removeSceneInstance(String group, String unique);
 
     /**
      * 获取所有场景 -- 指定地图

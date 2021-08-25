@@ -21,11 +21,6 @@ public abstract class SofaClusterServer<T extends ClusterServerConfig> extends A
     }
 
     @Override
-    public void shutdown() {
-
-    }
-
-    @Override
     protected RpcServer init(T config) {
         RpcServer rpcServer = doInit(config);
         this.rpcInit(rpcServer);
@@ -34,7 +29,7 @@ public abstract class SofaClusterServer<T extends ClusterServerConfig> extends A
 
     private void rpcInit(RpcServer server) {
         server.registerUserProcessor(getSofaUserProcess());
-        server.addConnectionEventProcessor(ConnectionEventType.CONNECT, new SofaConnectConnectedEvent(getConnectManage(), getConnectFactory()));
+        server.addConnectionEventProcessor(ConnectionEventType.CONNECT, new SofaConnectConnectedEvent(getConnectFactory()));
         server.addConnectionEventProcessor(ConnectionEventType.CLOSE, new SofaConnectCloseEvent(getConnectManage()));
     }
 

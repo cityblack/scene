@@ -7,8 +7,6 @@ public class CommonTestApp {
     @Test
     public void start() {
 
-
-
-
     }
+
 }

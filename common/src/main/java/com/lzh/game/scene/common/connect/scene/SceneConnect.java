@@ -16,6 +16,7 @@ public interface SceneConnect extends Connect {
      * 由场景类型连接原来的key(ip+port)主成唯一标识
      * @return
      */
+    @Override
     String key();
 
     /**

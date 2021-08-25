@@ -1,16 +1,12 @@
 package com.lzh.game.scene.common.connect.sofa;
 
-import com.alipay.remoting.Connection;
-import com.alipay.remoting.ConnectionEventProcessor;
 import com.alipay.remoting.ConnectionEventType;
 import com.alipay.remoting.rpc.RpcServer;
-import com.lzh.game.scene.common.ContextConstant;
-import com.lzh.game.scene.common.connect.BootstrapConfig;
-import com.lzh.game.scene.common.connect.server.*;
+import com.lzh.game.scene.common.connect.server.AbstractServerBootstrap;
+import com.lzh.game.scene.common.connect.server.ConnectServer;
+import com.lzh.game.scene.common.connect.server.ServerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Objects;
 
 public class SofaServer<T extends ServerConfig>
         extends AbstractServerBootstrap<T> implements ConnectServer<T> {
@@ -22,15 +18,10 @@ public class SofaServer<T extends ServerConfig>
     }
 
     @Override
-    public void shutdown() {
-
-    }
-
-    @Override
     protected RpcServer init(T config) {
         RpcServer server = new RpcServer(config.getPort());
         server.registerUserProcessor(getSofaUserProcess());
-        server.addConnectionEventProcessor(ConnectionEventType.CONNECT, new SofaConnectConnectedEvent(getConnectManage(), getConnectFactory()));
+        server.addConnectionEventProcessor(ConnectionEventType.CONNECT, new SofaConnectConnectedEvent(getConnectFactory()));
         server.addConnectionEventProcessor(ConnectionEventType.CLOSE, new SofaConnectCloseEvent(getConnectManage()));
         setRpcServer(this.getRpcServer());
         return server;

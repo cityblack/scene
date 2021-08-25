@@ -5,8 +5,8 @@ import com.lzh.game.scene.common.NodeType;
 import com.lzh.game.scene.common.connect.ConnectManage;
 import com.lzh.game.scene.common.connect.Request;
 import com.lzh.game.scene.common.connect.Response;
+import com.lzh.game.scene.common.connect.SceneConnectManage;
 import com.lzh.game.scene.common.connect.scene.SceneConnect;
-import com.lzh.game.scene.common.connect.scene.SceneConnectManage;
 import com.lzh.game.scene.common.connect.server.Bootstrap;
 
 import java.util.concurrent.CompletableFuture;
@@ -25,8 +25,6 @@ public interface ConnectClient extends Bootstrap<ApiConfig> {
     SceneConnect createConnect(String address, NodeType type);
 
     SceneConnect createConnect(String host, int port, NodeType type);
-
-    SceneConnectManage sceneConnectManage();
 
     ConnectManage connectManage();
 

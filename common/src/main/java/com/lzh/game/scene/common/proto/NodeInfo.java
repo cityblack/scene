@@ -31,4 +31,13 @@ public class NodeInfo {
     public void setKey(String key) {
         this.key = key;
     }
+
+    @Override
+    public String toString() {
+        return "NodeInfo{" +
+                "key='" + key + '\'' +
+                ", ip='" + ip + '\'' +
+                ", port=" + port +
+                '}';
+    }
 }

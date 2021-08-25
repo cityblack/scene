@@ -2,9 +2,7 @@ package com.lzh.game.scene.common.connect.server;
 
 import com.alipay.remoting.rpc.RpcServer;
 import com.lzh.game.scene.common.connect.AbstractBootstrap;
-import com.lzh.game.scene.common.connect.BootstrapConfig;
 import com.lzh.game.scene.common.connect.ConnectFactory;
-import com.lzh.game.scene.common.connect.scene.SceneConnectManage;
 import com.lzh.game.scene.common.connect.sofa.SofaServerConnectFactory;
 
 import java.util.Objects;
@@ -21,11 +19,6 @@ public abstract class AbstractServerBootstrap<T extends ServerConfig>
     @Override
     public int port() {
         return getConfig().getPort();
-    }
-
-    @Override
-    public SceneConnectManage manage() {
-        return getConnectManage();
     }
 
     @Override

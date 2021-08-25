@@ -1,6 +1,5 @@
 package com.lzh.game.scene.api;
 
-import com.lzh.game.scene.common.ContextConstant;
 import com.lzh.game.scene.common.SceneChangeStatus;
 import com.lzh.game.scene.common.SceneInstance;
 
