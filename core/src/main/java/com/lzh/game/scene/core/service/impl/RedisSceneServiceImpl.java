@@ -18,6 +18,9 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * 使用redis做共享 满足ap
+ */
 public class RedisSceneServiceImpl implements SceneService {
 
     private static final Logger logger = LoggerFactory.getLogger(RedisSceneServiceImpl.class);
@@ -41,10 +44,17 @@ public class RedisSceneServiceImpl implements SceneService {
                 .onComplete((id, throwable) -> {
                     if (Objects.nonNull(throwable)) {
                         logger.error("Register instance listener error!", throwable);
+                    } else {
+                        logger.info("Register redis top. id:{}", id);
                     }
                 });
     }
 
+    /**
+     * 批量注册 批量推送??
+     * @param group
+     * @param instance
+     */
     @Override
     public void registerSceneInstance(String group, SceneInstance instance) {
 
@@ -70,10 +80,10 @@ public class RedisSceneServiceImpl implements SceneService {
         SceneInstance instance = contain.remove(unique);
         if (Objects.nonNull(instance)) {
             SceneInstanceTop message = SceneInstanceTop.of(instance, SceneChangeStatus.DESTROY.ordinal());
+            getInstanceMapKeys(group, instance.getMap()).remove(instance.getGroup());
             this.client
                     .getTopic(INSTANCE_TOP)
                     .publish(message);
-            getInstanceMapKeys(group, instance.getMap()).remove(instance.getGroup());
         }
     }
 
@@ -103,7 +113,6 @@ public class RedisSceneServiceImpl implements SceneService {
      * @param msg
      */
     private void onMessage(CharSequence channel, SceneInstanceTop msg) {
-
     }
 
     public void setClient(RedissonClient client) {
