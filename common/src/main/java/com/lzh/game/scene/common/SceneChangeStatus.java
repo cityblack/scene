@@ -5,4 +5,6 @@ public enum SceneChangeStatus {
     CHANGE,
 
     DESTROY,
+
+    ALL,
 }

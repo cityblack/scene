@@ -1,5 +1,6 @@
 package com.lzh.game.scene.core.service.impl;
 
+import com.lzh.game.scene.common.ContextConstant;
 import com.lzh.game.scene.common.SceneChangeStatus;
 import com.lzh.game.scene.common.SceneInstance;
 import com.lzh.game.scene.common.connect.Connect;
@@ -7,14 +8,15 @@ import com.lzh.game.scene.core.service.SceneInstanceManage;
 import com.lzh.game.scene.core.service.SceneService;
 import com.lzh.game.scene.core.service.impl.mode.SceneInstanceTop;
 import org.redisson.api.RMap;
+import org.redisson.api.RSet;
 import org.redisson.api.RedissonClient;
 import org.redisson.api.listener.MessageListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class RedisSceneServiceImpl implements SceneService {
 
@@ -22,13 +24,14 @@ public class RedisSceneServiceImpl implements SceneService {
 
     private RedissonClient client;
 
-    private SceneInstanceManage manage;
-
     private static final String INSTANCE_TOP = "map_instance_top";
 
-    public RedisSceneServiceImpl(RedissonClient client, SceneInstanceManage manage) {
+    private static final String INSTANCE_PRE = "instance_";
+
+    private static final Function<String, String> TO_INSTANCE_PRE = s -> INSTANCE_PRE + s;
+
+    public RedisSceneServiceImpl(RedissonClient client) {
         this.client = client;
-        this.manage = manage;
         this.init();
     }
 
@@ -45,13 +48,16 @@ public class RedisSceneServiceImpl implements SceneService {
     @Override
     public void registerSceneInstance(String group, SceneInstance instance) {
 
-        RMap<String, Object> contain = getContain(group);
+        RMap<String, SceneInstance> contain = getGroupContain(group);
         String key = instance.getUnique();
         if (contain.containsKey(key)) {
             logger.error("Repeated registration instance [{}-{}-{}]", instance.getGroup(), instance.getMap(), instance.getUnique());
         }
         contain.put(key, instance);
         logger.info("Register instance:{}", instance);
+        RSet<String> keys = getInstanceMapKeys(group, instance.getMap());
+        keys.add(key);
+
         SceneInstanceTop top = SceneInstanceTop.of(instance, SceneChangeStatus.CHANGE.ordinal());
         this.client
                 .getTopic(INSTANCE_TOP)
@@ -60,20 +66,25 @@ public class RedisSceneServiceImpl implements SceneService {
 
     @Override
     public void removeSceneInstance(String group, String unique) {
-        RMap<String, Object> contain = getContain(group);
-        Object value = contain.remove(unique);
-        if (Objects.nonNull(value)) {
-            SceneInstance instance = (SceneInstance) value;
+        RMap<String, SceneInstance> contain = getGroupContain(group);
+        SceneInstance instance = contain.remove(unique);
+        if (Objects.nonNull(instance)) {
             SceneInstanceTop message = SceneInstanceTop.of(instance, SceneChangeStatus.DESTROY.ordinal());
             this.client
                     .getTopic(INSTANCE_TOP)
                     .publish(message);
+            getInstanceMapKeys(group, instance.getMap()).remove(instance.getGroup());
         }
     }
 
     @Override
     public List<SceneInstance> getSceneInstances(String group, int map) {
-        return null;
+        if (map == ContextConstant.ALL_MAP_LISTEN_KEY) {
+            return new ArrayList<>(getGroupContain(group).values());
+        }
+        RMap<String, SceneInstance> contain = getGroupContain(group);
+        RSet<String> keys = getInstanceMapKeys(group, map);
+        return new ArrayList<>(contain.getAll(keys).values());
     }
 
     @Override
@@ -87,6 +98,7 @@ public class RedisSceneServiceImpl implements SceneService {
     }
 
     /**
+     * Redis获取订阅的场景信息 进行推送
      * @param channel
      * @param msg
      */
@@ -98,11 +110,19 @@ public class RedisSceneServiceImpl implements SceneService {
         this.client = client;
     }
 
-    public void setManage(SceneInstanceManage manage) {
-        this.manage = manage;
+    public RMap<String, SceneInstance> getContain(String group) {
+        return this.client.getMap(group);
     }
 
-    public RMap<String, Object> getContain(String group) {
-        return this.client.getMap(group);
+    protected RMap<String, SceneInstance> getGroupContain(String group) {
+        return this.getContain(TO_INSTANCE_PRE.apply(group));
+    }
+
+    private String getInstanceMapIndexKey(String group, int map) {
+        return TO_INSTANCE_PRE.apply(group) + "_" + map;
+    }
+
+    private RSet<String> getInstanceMapKeys(String group, int map) {
+        return this.client.getSet(getInstanceMapIndexKey(group, map));
     }
 }
