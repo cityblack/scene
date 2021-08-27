@@ -4,7 +4,7 @@ import com.alipay.remoting.ConnectionEventType;
 import com.alipay.remoting.rpc.RpcServer;
 import com.lzh.game.scene.common.connect.server.AbstractServerBootstrap;
 import com.lzh.game.scene.common.connect.sofa.SofaConnectCloseEvent;
-import com.lzh.game.scene.common.connect.sofa.SofaConnectConnectedEvent;
+import com.lzh.game.scene.common.connect.sofa.SofaServerConnectedEvent;
 import com.lzh.game.scene.core.ClusterServerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +29,7 @@ public abstract class SofaClusterServer<T extends ClusterServerConfig> extends A
 
     private void rpcInit(RpcServer server) {
         server.registerUserProcessor(getSofaUserProcess());
-        server.addConnectionEventProcessor(ConnectionEventType.CONNECT, new SofaConnectConnectedEvent(getConnectFactory()));
+        server.addConnectionEventProcessor(ConnectionEventType.CONNECT, new SofaServerConnectedEvent(getConnectFactory()));
         server.addConnectionEventProcessor(ConnectionEventType.CLOSE, new SofaConnectCloseEvent(getConnectManage()));
     }
 

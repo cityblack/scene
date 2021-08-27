@@ -42,6 +42,10 @@ public class ApiConfig implements BootstrapConfig {
         this.nodeType = nodeType;
     }
 
+    public NodeType getDefinedNodeType() {
+        return NodeType.values()[getNodeType()];
+    }
+
     @Override
     public void check() {
         if (NodeType.isManageNode(this.nodeType)) {

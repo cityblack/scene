@@ -6,6 +6,7 @@ import com.lzh.game.scene.common.SceneInstance;
 import com.lzh.game.scene.common.connect.Connect;
 import com.lzh.game.scene.core.service.SceneInstanceManage;
 import com.lzh.game.scene.core.service.SceneService;
+import com.lzh.game.scene.core.service.impl.mode.InstanceSubscribeListener;
 import com.lzh.game.scene.core.service.impl.mode.SceneInstanceTop;
 import org.redisson.api.RMap;
 import org.redisson.api.RSet;
@@ -51,7 +52,8 @@ public class RedisSceneServiceImpl implements SceneService {
     }
 
     /**
-     * 批量注册 批量推送??
+     * 批量注册 批量推送?? 延迟队列?
+     *
      * @param group
      * @param instance
      */
@@ -99,7 +101,9 @@ public class RedisSceneServiceImpl implements SceneService {
 
     @Override
     public void subscribe(Connect connect, String group, SceneChangeStatus status, int map) {
-
+        InstanceSubscribeListener
+                .getInstance()
+                .addListener(group, connect.key(), map, status);
     }
 
     @Override
@@ -109,10 +113,15 @@ public class RedisSceneServiceImpl implements SceneService {
 
     /**
      * Redis获取订阅的场景信息 进行推送
+     *
      * @param channel
      * @param msg
      */
     private void onMessage(CharSequence channel, SceneInstanceTop msg) {
+        SceneInstance instance = msg.getSceneInstance();
+        InstanceSubscribeListener
+                .getInstance()
+                .notifyListener(instance.getGroup(), instance, SceneChangeStatus.values()[msg.getEventType()]);
     }
 
     public void setClient(RedissonClient client) {

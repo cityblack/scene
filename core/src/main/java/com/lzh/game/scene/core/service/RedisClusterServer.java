@@ -30,4 +30,12 @@ public class RedisClusterServer<T extends ClusterServerConfig> extends SofaClust
 
         return new RpcServer(config.getPort());
     }
+
+    public RedissonClient getClient() {
+        return client;
+    }
+
+    public void setClient(RedissonClient client) {
+        this.client = client;
+    }
 }

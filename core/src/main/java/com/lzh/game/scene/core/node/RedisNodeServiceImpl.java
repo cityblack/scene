@@ -7,7 +7,10 @@ import com.lzh.game.scene.common.connect.server.AbstractServerBootstrap;
 import com.lzh.game.scene.common.connect.sofa.SofaSceneConnect;
 import com.lzh.game.scene.common.proto.NodeInfo;
 import com.lzh.game.scene.common.proto.NodeInfoRequest;
+import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,6 +21,8 @@ import java.util.stream.Stream;
 import static com.lzh.game.scene.common.ContextConstant.SCENE_CONNECT_RELATION;
 
 public class RedisNodeServiceImpl implements NodeService {
+
+    private static final Logger logger = LoggerFactory.getLogger(RedisNodeServiceImpl.class);
 
     private AbstractServerBootstrap<?> bootstrap;
 
@@ -33,6 +38,7 @@ public class RedisNodeServiceImpl implements NodeService {
         NodeType type = request.getType();
         String key = SceneConnect.TO_UNIQUE.apply(connect.key(), type);
         SceneConnect sceneConnect = new SofaSceneConnect(connect, type, key);
+        logger.info("Connect {} bind {}", connect.key(), key);
         bootstrap.getConnectManage().putConnect(key, sceneConnect);
         NodeInfo info = new NodeInfo();
         info.setKey(key);
@@ -57,15 +63,12 @@ public class RedisNodeServiceImpl implements NodeService {
     @Override
     public void deregister(Connect connect) {
         // 为空说明未注册过
-        String value = connect.getAttr(SCENE_CONNECT_RELATION);
-        if (Objects.isNull(value)) {
+        SceneConnect sceneConnect = connect.getAttr(SCENE_CONNECT_RELATION);
+        if (Objects.isNull(sceneConnect)) {
             return;
         }
-        SceneConnect sceneConnect = bootstrap.getConnectManage().getConnect(value);
-        if (Objects.nonNull(sceneConnect)) {
-            NodeType type = sceneConnect.type();
-            client.getMap(type.getName()).remove(value);
-        }
+        NodeType type = sceneConnect.type();
+        client.getMap(type.getName()).remove(sceneConnect.key());
     }
 
     @Override
@@ -75,10 +78,13 @@ public class RedisNodeServiceImpl implements NodeService {
     }
 
     private Stream<NodeInfo> getNode(NodeType type) {
-        return client
-                .getMap(type.getName())
-                .values()
-                .stream()
-                .map(e -> (NodeInfo)e);
+        return getContain(type)
+                .readAllValues()
+                .stream();
+    }
+
+    private RMap<String, NodeInfo> getContain(NodeType type) {
+        return this.client
+                .getMap(type.getName());
     }
 }

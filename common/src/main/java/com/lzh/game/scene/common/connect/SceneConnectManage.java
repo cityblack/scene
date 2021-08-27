@@ -36,7 +36,7 @@ public class SceneConnectManage implements ConnectManage<SceneConnect> {
 
     @Override
     public SceneConnect removeConnect(String key) {
-        return this.removeConnect(key);
+        return this.connects.remove(key);
     }
 
     @Override

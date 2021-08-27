@@ -5,10 +5,7 @@ import com.alipay.remoting.BizContext;
 import com.alipay.remoting.Connection;
 import com.alipay.remoting.rpc.protocol.AsyncUserProcessor;
 import com.lzh.game.scene.common.ContextConstant;
-import com.lzh.game.scene.common.connect.ConnectManage;
-import com.lzh.game.scene.common.connect.Request;
-import com.lzh.game.scene.common.connect.RequestContext;
-import com.lzh.game.scene.common.connect.Response;
+import com.lzh.game.scene.common.connect.*;
 import com.lzh.game.scene.common.connect.server.RequestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,11 +21,8 @@ public class SofaUserProcess extends AsyncUserProcessor<Request> {
 
     private RequestHandler handler;
 
-    private ConnectManage connectManage;
-
-    public SofaUserProcess(RequestHandler requestHandler, ConnectManage connectManage) {
+    public SofaUserProcess(RequestHandler requestHandler) {
         this.handler = requestHandler;
-        this.connectManage = connectManage;
     }
 
     @Override
@@ -41,8 +35,8 @@ public class SofaUserProcess extends AsyncUserProcessor<Request> {
             RequestContext requestContext = new RequestContext();
             requestContext.setAttr(ContextConstant.SOFA_ASYNC_CONTEXT, asyncCtx);
             requestContext.setAttr(ContextConstant.SOFA_CONNECT_REQUEST, connection);
-            String key = (String) connection.getAttribute(SOURCE_CONNECT_RELATION);
-            requestContext.setConnect(connectManage.getConnect(key));
+            Connect connect = (Connect) connection.getAttribute(SOURCE_CONNECT_RELATION);
+            requestContext.setConnect(connect);
             request.setContext(requestContext);
 
             Response<?> response = handler.dispatch(request);

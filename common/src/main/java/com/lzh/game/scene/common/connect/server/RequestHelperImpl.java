@@ -1,20 +1,12 @@
 package com.lzh.game.scene.common.connect.server;
 
-import com.lzh.game.scene.common.connect.Connect;
 import com.lzh.game.scene.common.connect.Request;
-import com.lzh.game.scene.common.connect.Response;
+import com.lzh.game.scene.common.connect.server.convert.AbstractRequestParamConvert;
+import com.lzh.game.scene.common.connect.server.convert.RequestParamConvert;
 
 import java.util.Objects;
 
 public class RequestHelperImpl implements RequestHelper {
-
-    private Class<?>[] inner = new Class[]{Request.class, Response.class,
-            Connect.class};
-
-    @Override
-    public Class<?>[] innerParam() {
-        return inner;
-    }
 
     @Override
     public Object[] paramConvert(Request request, MethodInvoke methodInvoke) {
@@ -26,7 +18,7 @@ public class RequestHelperImpl implements RequestHelper {
         for (int i = 0; i < params.length; i++) {
             Class<?> type = paramType[i];
             if (methodInvoke.extParamIndex() != i) {
-                params[i] = convertInnerParam(type, request, request.getContext().getResponse(), request.getContext().getConnect());
+                params[i] = convertInnerParam(type, request);
             }
         }
         if (methodInvoke.extParamIndex() >= 0) {
@@ -44,15 +36,8 @@ public class RequestHelperImpl implements RequestHelper {
         }
     }
 
-    private Object convertInnerParam(Class<?> type, Object... params) {
-        for (Object o : params) {
-            if (Objects.isNull(o)) {
-                continue;
-            }
-            if (o.getClass() == type) {
-                return o;
-            }
-        }
-        return null;
+    private Object convertInnerParam(Class<?> type, Request request) {
+        RequestParamConvert convert = AbstractRequestParamConvert.getConvert(type);
+        return Objects.isNull(convert) ? null : convert.convert(request);
     }
 }

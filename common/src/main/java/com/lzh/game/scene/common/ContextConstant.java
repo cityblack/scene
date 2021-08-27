@@ -4,7 +4,7 @@ public class ContextConstant {
 
     // sofa connect标识包装的connect 通过该标识从connect找到sofa
     public static String SOURCE_CONNECT_RELATION = "connect.id.source.relation";
-
+    // connect 与SceneConnect 包装标识 connect可以通过该标识找到SceneConnect
     public static String SCENE_CONNECT_RELATION = "scene.connect.id.relation";
 
     public static String SOFA_ASYNC_CONTEXT = "async.context";

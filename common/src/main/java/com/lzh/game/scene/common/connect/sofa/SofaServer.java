@@ -21,7 +21,7 @@ public class SofaServer<T extends ServerConfig>
     protected RpcServer init(T config) {
         RpcServer server = new RpcServer(config.getPort());
         server.registerUserProcessor(getSofaUserProcess());
-        server.addConnectionEventProcessor(ConnectionEventType.CONNECT, new SofaConnectConnectedEvent(getConnectFactory()));
+        server.addConnectionEventProcessor(ConnectionEventType.CONNECT, new SofaServerConnectedEvent(getConnectFactory()));
         server.addConnectionEventProcessor(ConnectionEventType.CLOSE, new SofaConnectCloseEvent(getConnectManage()));
         setRpcServer(this.getRpcServer());
         return server;

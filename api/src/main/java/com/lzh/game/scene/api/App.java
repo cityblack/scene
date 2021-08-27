@@ -4,8 +4,10 @@ import com.lzh.game.scene.api.config.ApiConfig;
 import com.lzh.game.scene.api.config.Member;
 import com.lzh.game.scene.api.connect.sofa.SofaConnectClient;
 import com.lzh.game.scene.api.option.ListenController;
+import com.lzh.game.scene.api.server.ConnectClientServer;
 import com.lzh.game.scene.api.server.SceneService;
 import com.lzh.game.scene.api.server.SceneServiceImpl;
+import com.lzh.game.scene.common.SceneChangeStatus;
 import com.lzh.game.scene.common.SceneInstance;
 
 import java.util.Arrays;
@@ -29,6 +31,10 @@ public class App {
         SofaConnectClient client = new SofaConnectClient(config);
         client.init();
         client.addCmdTarget(Arrays.asList(controller));
+
+        ConnectClientServer clientServer = new ConnectClientServer();
+        clientServer.setClient(client);
+
         client.start();
 
         final AsyncSceneApi api = new AsyncSceneApiImpl(client, sceneService);
@@ -37,7 +43,7 @@ public class App {
         instance.setGroup(group);
         instance.setMap(1);
         instance.setUnique("group-1-1");
-//        api.subscribe(group, SceneChangeStatus.CHANGE, System.out::println);
+        api.subscribe(group, SceneChangeStatus.ALL, System.out::println);
         api.registerSceneInstance(group, instance);
         IntStream.range(0, 20).forEach(e -> {
             try {

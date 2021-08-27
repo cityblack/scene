@@ -10,8 +10,9 @@ import com.lzh.game.scene.common.NodeType;
 import com.lzh.game.scene.common.connect.*;
 import com.lzh.game.scene.common.connect.scene.SceneConnect;
 import com.lzh.game.scene.common.connect.sofa.SofaConnectCloseEvent;
-import com.lzh.game.scene.common.connect.sofa.SofaConnectConnectedEvent;
+import com.lzh.game.scene.common.connect.sofa.SofaServerConnectedEvent;
 import com.lzh.game.scene.common.connect.sofa.SofaSceneConnect;
+import com.lzh.game.scene.common.utils.EventBusUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +42,6 @@ public class SofaConnectClient extends AbstractBootstrap<ApiConfig>
         if (Objects.isNull(this.loadBalance)) {
             this.loadBalance = new ClientLoadBalance();
         }
-        rpcClient.addConnectionEventProcessor(ConnectionEventType.CONNECT, new SofaConnectConnectedEvent(getConnectFactory()));
         rpcClient.addConnectionEventProcessor(ConnectionEventType.CLOSE, new SofaConnectCloseEvent(getConnectManage()));
         rpcClient.registerUserProcessor(getSofaUserProcess());
     }
@@ -70,6 +70,7 @@ public class SofaConnectClient extends AbstractBootstrap<ApiConfig>
         Connect connect = create(address);
         String key = SceneConnect.TO_UNIQUE.apply(address, type);
         SofaSceneConnect sceneConnect = new SofaSceneConnect(connect, type, key);
+        sendConnectEvent(connect);
         return sceneConnect;
     }
 
@@ -131,5 +132,12 @@ public class SofaConnectClient extends AbstractBootstrap<ApiConfig>
         for (Member member : members) {
             getConnect(member.getHost(), member.getPort(), NodeType.SCENE_NODE);
         }
+    }
+
+    private void sendConnectEvent(Connect connect) {
+        ConnectEvent event = new ConnectEvent();
+        event.setType(ConnectEvent.CONNECTED);
+        event.setConnect(connect);
+        EventBusUtils.getInstance().post(event);
     }
 }

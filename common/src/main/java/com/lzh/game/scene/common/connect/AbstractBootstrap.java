@@ -77,10 +77,10 @@ public abstract class AbstractBootstrap<T extends BootstrapConfig> implements Bo
             this.connectManage = new SceneConnectManage();
         }
         if (Objects.isNull(sofaUserProcess)) {
-            this.sofaUserProcess = new SofaUserProcess(this.requestHandler, this.connectManage);
+            this.sofaUserProcess = new SofaUserProcess(this.requestHandler);
         }
         if (Objects.isNull(methodInvokeHelper)) {
-            this.methodInvokeHelper = new SimpleInvokeHelper(this.requestHelper);
+            this.methodInvokeHelper = new SimpleInvokeHelper();
         }
         SofaRpcSerializationRegister.setSerialization(getSerializer());
     }
@@ -182,8 +182,8 @@ public abstract class AbstractBootstrap<T extends BootstrapConfig> implements Bo
         if (this.status != INIT) {
             throw new RuntimeException("Bootstrap not init..");
         }
-        this.doStart();
         this.status = STARTED;
+        this.doStart();
     }
 
     protected abstract void doInit();

@@ -34,7 +34,7 @@ public class SceneController {
     }
 
     @Cmd(INSTANCE_SUBSCRIBE)
-    public void subscribe(Connect connect, SubscribeSceneRequest request) {
+    public void subscribe(SceneConnect connect, SubscribeSceneRequest request) {
         sceneService.subscribe(connect, request.getGroup(), request.getStatus());
     }
 }

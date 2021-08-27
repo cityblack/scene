@@ -3,13 +3,19 @@ package com.lzh.game.scene.core;
 import com.lzh.game.scene.common.connect.server.ConnectServer;
 import com.lzh.game.scene.common.connect.server.MethodInvokeHelper;
 import com.lzh.game.scene.common.connect.server.SimpleInvokeHelper;
+import com.lzh.game.scene.core.controller.NodeController;
 import com.lzh.game.scene.core.controller.SceneController;
 import com.lzh.game.scene.core.jrfa.ReplicatorCmd;
 import com.lzh.game.scene.core.jrfa.process.SceneInstanceProcess;
+import com.lzh.game.scene.core.node.NodeService;
+import com.lzh.game.scene.core.node.RedisNodeServiceImpl;
 import com.lzh.game.scene.core.service.JRafClusterServer;
+import com.lzh.game.scene.core.service.RedisClusterServer;
 import com.lzh.game.scene.core.service.SceneService;
 import com.lzh.game.scene.core.service.impl.CpSceneServiceImpl;
+import com.lzh.game.scene.core.service.impl.RedisSceneServiceImpl;
 import com.lzh.game.scene.core.service.impl.SceneInstanceManageImpl;
+import com.lzh.game.scene.core.service.impl.mode.InstanceSubscribeListener;
 
 import java.io.File;
 import java.util.Arrays;
@@ -32,17 +38,23 @@ public class Star {
     }
 
     private static ConnectServer buildJRaftClusterServer(ClusterServerConfig config) {
-        JRafClusterServer<ClusterServerConfig> server = new JRafClusterServer<>(config);
+        RedisClusterServer<ClusterServerConfig> server = new RedisClusterServer<>(config);
+//        JRafClusterServer<ClusterServerConfig> server = new JRafClusterServer<>(config);
         server.init();
-
-        final SceneInstanceManageImpl manage = new SceneInstanceManageImpl();
-        SceneService service = new CpSceneServiceImpl(manage, server);
+        InstanceSubscribeListener.init(server);
+//        final SceneInstanceManageImpl manage = new SceneInstanceManageImpl();
+//        SceneService service = new CpSceneServiceImpl(manage, server);
+        SceneService service = new RedisSceneServiceImpl(server.getClient());
         SceneController sceneController = new SceneController();
         sceneController.setSceneService(service);
 
-        server.addCmdTarget(Arrays.asList(sceneController));
-        SceneInstanceProcess sceneInstanceProcess = new SceneInstanceProcess(manage);
-        server.getJrService().addRequestProcess(ReplicatorCmd.REGISTER_SCENE, sceneInstanceProcess);
+        NodeService nodeService = new RedisNodeServiceImpl(server, server.getClient());
+        NodeController nodeController = new NodeController();
+        nodeController.setNodeService(nodeService);
+
+        server.addCmdTarget(Arrays.asList(sceneController, nodeController));
+//        SceneInstanceProcess sceneInstanceProcess = new SceneInstanceProcess(manage);
+//        server.getJrService().addRequestProcess(ReplicatorCmd.REGISTER_SCENE, sceneInstanceProcess);
 
         server.start();
         return server;

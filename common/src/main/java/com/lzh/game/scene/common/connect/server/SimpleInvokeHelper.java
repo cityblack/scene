@@ -2,6 +2,7 @@ package com.lzh.game.scene.common.connect.server;
 
 import com.lzh.game.scene.common.connect.server.cmd.Action;
 import com.lzh.game.scene.common.connect.server.cmd.Cmd;
+import com.lzh.game.scene.common.connect.server.convert.AbstractRequestParamConvert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,16 +14,10 @@ public class SimpleInvokeHelper implements MethodInvokeHelper {
 
     private static final Logger logger = LoggerFactory.getLogger(SimpleInvokeHelper.class);
 
-    private RequestHelper helper;
-
-    public SimpleInvokeHelper(RequestHelper helper) {
-        this.helper = helper;
-    }
-
     @Override
     public void addMethodInvoke(InvokeManage manage, List<Object> targets) {
         synchronized (SimpleInvokeHelper.class) {
-            final Set<Class<?>> innerParam = getInnerParamType(helper);
+            final Set<Class<?>> innerParam = getInnerParamType();
             targets.forEach((v) -> {
                 Class<?> clazz = v.getClass();
                 Action action = clazz.getAnnotation(Action.class);
@@ -64,9 +59,9 @@ public class SimpleInvokeHelper implements MethodInvokeHelper {
         return index;
     }
 
-    private static Set<Class<?>> getInnerParamType(RequestHelper helper) {
+    private static Set<Class<?>> getInnerParamType() {
         Set<Class<?>> set = new HashSet<>(8);
-        for (Class<?> type : helper.innerParam()) {
+        for (Class<?> type : AbstractRequestParamConvert.getInnerParamTypes()) {
             set.add(type);
         }
         return set;

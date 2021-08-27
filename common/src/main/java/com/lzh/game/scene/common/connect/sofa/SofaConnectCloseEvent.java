@@ -34,9 +34,9 @@ public class SofaConnectCloseEvent implements ConnectionEventProcessor {
         EventBusUtils.getInstance().post(closeEvent);
 
         // 为null的情况可能是节点连接了但是还没注册就关闭了
-        String key = connect.getAttr(ContextConstant.SCENE_CONNECT_RELATION);
-        if (Objects.nonNull(key)) {
-            connectManage.removeConnect(key);
+        SceneConnect sceneConnect = connect.getAttr(ContextConstant.SCENE_CONNECT_RELATION);
+        if (Objects.nonNull(sceneConnect)) {
+            connectManage.removeConnect(sceneConnect.key());
         }
         try {
             connect.close();

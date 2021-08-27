@@ -26,7 +26,7 @@ public class SofaSceneConnect implements SceneConnect {
         this.connect = connect;
         this.type = type;
         this.key = key;
-        this.connect.setAttr(SCENE_CONNECT_RELATION, key);
+        this.connect.setAttr(SCENE_CONNECT_RELATION, this);
     }
 
     @Override
