@@ -1,11 +1,16 @@
 package com.lzh.game.scene.core.service.impl;
 
+import com.google.common.eventbus.Subscribe;
 import com.lzh.game.scene.common.ContextConstant;
 import com.lzh.game.scene.common.SceneChangeStatus;
 import com.lzh.game.scene.common.SceneInstance;
 import com.lzh.game.scene.common.connect.Connect;
+import com.lzh.game.scene.common.connect.ConnectEvent;
+import com.lzh.game.scene.common.connect.scene.SceneConnect;
+import com.lzh.game.scene.common.utils.EventBusUtils;
 import com.lzh.game.scene.core.service.SceneInstanceManage;
 import com.lzh.game.scene.core.service.SceneService;
+import com.lzh.game.scene.core.service.impl.mode.InstanceSubscribe;
 import com.lzh.game.scene.core.service.impl.mode.InstanceSubscribeListener;
 import com.lzh.game.scene.core.service.impl.mode.SceneInstanceTop;
 import org.redisson.api.RMap;
@@ -26,16 +31,19 @@ public class RedisSceneServiceImpl implements SceneService {
 
     private static final Logger logger = LoggerFactory.getLogger(RedisSceneServiceImpl.class);
 
-    private RedissonClient client;
-
     private static final String INSTANCE_TOP = "map_instance_top";
 
     private static final String INSTANCE_PRE = "instance_";
 
     private static final Function<String, String> TO_INSTANCE_PRE = s -> INSTANCE_PRE + s;
 
-    public RedisSceneServiceImpl(RedissonClient client) {
+    private RedissonClient client;
+
+    private InstanceSubscribe listener;
+
+    public RedisSceneServiceImpl(RedissonClient client, InstanceSubscribe listener) {
         this.client = client;
+        this.listener = listener;
         this.init();
     }
 
@@ -49,6 +57,7 @@ public class RedisSceneServiceImpl implements SceneService {
                         logger.info("Register redis top. id:{}", id);
                     }
                 });
+        EventBusUtils.getInstance().register(this);
     }
 
     /**
@@ -101,9 +110,7 @@ public class RedisSceneServiceImpl implements SceneService {
 
     @Override
     public void subscribe(Connect connect, String group, SceneChangeStatus status, int map) {
-        InstanceSubscribeListener
-                .getInstance()
-                .addListener(group, connect.key(), map, status);
+        this.listener.addListener(group, connect.key(), map, status);
     }
 
     @Override
@@ -119,8 +126,7 @@ public class RedisSceneServiceImpl implements SceneService {
      */
     private void onMessage(CharSequence channel, SceneInstanceTop msg) {
         SceneInstance instance = msg.getSceneInstance();
-        InstanceSubscribeListener
-                .getInstance()
+        this.listener
                 .notifyListener(instance.getGroup(), instance, SceneChangeStatus.values()[msg.getEventType()]);
     }
 
@@ -142,5 +148,18 @@ public class RedisSceneServiceImpl implements SceneService {
 
     private RSet<String> getInstanceMapKeys(String group, int map) {
         return this.client.getSet(getInstanceMapIndexKey(group, map));
+    }
+
+    @Subscribe
+    public void onConnectClose(ConnectEvent connectEvent) {
+        if (connectEvent.getType() != ConnectEvent.CLOSED) {
+            return;
+        }
+        SceneConnect connect = connectEvent.getConnect().getAttr(ContextConstant.SCENE_CONNECT_RELATION);
+        if (Objects.isNull(connect)) {
+            return;
+        }
+        this.listener
+                .removeListener(connect.key());
     }
 }

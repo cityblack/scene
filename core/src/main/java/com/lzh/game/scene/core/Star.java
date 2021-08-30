@@ -15,6 +15,7 @@ import com.lzh.game.scene.core.service.SceneService;
 import com.lzh.game.scene.core.service.impl.CpSceneServiceImpl;
 import com.lzh.game.scene.core.service.impl.RedisSceneServiceImpl;
 import com.lzh.game.scene.core.service.impl.SceneInstanceManageImpl;
+import com.lzh.game.scene.core.service.impl.mode.InstanceSubscribe;
 import com.lzh.game.scene.core.service.impl.mode.InstanceSubscribeListener;
 
 import java.io.File;
@@ -41,10 +42,10 @@ public class Star {
         RedisClusterServer<ClusterServerConfig> server = new RedisClusterServer<>(config);
 //        JRafClusterServer<ClusterServerConfig> server = new JRafClusterServer<>(config);
         server.init();
-        InstanceSubscribeListener.init(server);
+        InstanceSubscribe subscribe = new InstanceSubscribeListener(server);
 //        final SceneInstanceManageImpl manage = new SceneInstanceManageImpl();
 //        SceneService service = new CpSceneServiceImpl(manage, server);
-        SceneService service = new RedisSceneServiceImpl(server.getClient());
+        SceneService service = new RedisSceneServiceImpl(server.getClient(), subscribe);
         SceneController sceneController = new SceneController();
         sceneController.setSceneService(service);
 

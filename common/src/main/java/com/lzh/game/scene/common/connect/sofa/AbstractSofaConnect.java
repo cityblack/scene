@@ -4,6 +4,7 @@ import com.alipay.remoting.Connection;
 import com.lzh.game.scene.common.connect.Connect;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static com.lzh.game.scene.common.ContextConstant.SOURCE_CONNECT_RELATION;
@@ -36,7 +37,8 @@ public abstract class AbstractSofaConnect implements Connect {
 
     @Override
     public <T> T getAttr(String key) {
-        return (T) connection.getAttribute(key);
+        Object o = connection.getAttribute(key);
+        return Objects.isNull(o) ? null : (T)o;
     }
 
     @Override

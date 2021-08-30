@@ -7,13 +7,10 @@ import com.lzh.game.scene.common.connect.Request;
 import com.lzh.game.scene.common.connect.scene.SceneConnect;
 import com.lzh.game.scene.common.connect.server.AbstractServerBootstrap;
 import com.lzh.game.scene.common.proto.SceneChangeListen;
-import org.checkerframework.checker.units.qual.C;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -23,54 +20,93 @@ import static com.lzh.game.scene.common.RequestSpace.*;
 
 /**
  * 如果批量上线?
+ * 是否直接通过group绑定线程 不上锁和并发容器？
  */
-public class InstanceSubscribeListener {
+public class InstanceSubscribeListener implements InstanceSubscribe {
 
     private static final Logger logger = LoggerFactory.getLogger(InstanceSubscribeListener.class);
-
-    private static InstanceSubscribeListener listener = new InstanceSubscribeListener();
 
     private AbstractServerBootstrap<?> server;
 
     private Map<String, GroupListener> groupListeners;
 
-    public static void init(AbstractServerBootstrap<?> server) {
-        init(server, 2 << 8);
+    private Map<String, ClientListener> clients;
+
+    public InstanceSubscribeListener(AbstractServerBootstrap<?> server, int predictGroupSize) {
+        this.server = server;
+        // 并发容器 减少锁的力度
+        this.groupListeners = new ConcurrentHashMap<>(predictGroupSize);
+        this.clients = new ConcurrentHashMap<>();
     }
 
-    public static void init(AbstractServerBootstrap<?> server, int predictGroupSize) {
-        listener.server = server;
-        listener.groupListeners = new ConcurrentHashMap<>(predictGroupSize);
+    public InstanceSubscribeListener(AbstractServerBootstrap<?> server) {
+        this(server, 2 << 8);
     }
 
-    public static InstanceSubscribeListener getInstance() {
-        return listener;
-    }
-
+    @Override
     public void addListener(String group, String connectKey, int map, SceneChangeStatus status) {
         GroupListener listener = groupListeners.computeIfAbsent(group, e -> new GroupListener());
         listener.writeLock.lock();
         try {
-            ClientListener client = listener.getClientListener(connectKey);
+            listener.clientListeners.add(connectKey);
+            ClientListener client = clients.computeIfAbsent(connectKey, e -> new ClientListener());
             if (map == ContextConstant.ALL_MAP_LISTEN_KEY) {
                 client.allMap = true;
                 client.allMapStatus = status;
             } else {
                 client.mapListenStatus.put(map, status);
             }
+            client.addGroupKey(group);
         } finally {
             listener.writeLock.unlock();
         }
     }
 
+    @Override
     public void notifyListener(String group, SceneInstance instance, SceneChangeStatus status) {
         // group map
-        GroupListener listener = groupListeners.computeIfAbsent(group, e -> new GroupListener());
+        GroupListener listener = groupListeners.get(group);
+        if (Objects.isNull(listener)) {
+            return;
+        }
         listener.readLock.lock();
         try {
-            listener.notifyInstance(instance, status);
+            listener.clientListeners.forEach(k -> {
+                ClientListener client = clients.get(k);
+                if (Objects.isNull(client)) {
+                    return;
+                }
+                if (!client.isSendClientStatus(status)) {
+                    return;
+                }
+                if (client.allMap) {
+                    client.sendToClient(k, instance, status);
+                } else {
+                    Map<Integer, SceneChangeStatus> statusMap = client.mapListenStatus;
+                    SceneChangeStatus cacheStatus = statusMap.get(instance.getMap());
+                    if (Objects.nonNull(cacheStatus) && client.isSendClientStatus(status)) {
+                        client.sendToClient(k, instance, status);
+                    }
+                }
+            });
         } finally {
             listener.readLock.unlock();
+        }
+    }
+
+    @Override
+    public void removeListener(String connectKey) {
+        ClientListener listener = this.clients.remove(connectKey);
+        if (Objects.isNull(listener)) {
+            return;
+        }
+        Set<String> groups = listener.groupsKey;
+        for (String group : groups) {
+            GroupListener groupListener = this.groupListeners.get(group);
+            if (Objects.isNull(groupListener)) {
+                continue;
+            }
+            groupListener.clientListeners.remove(connectKey);
         }
     }
 
@@ -81,32 +117,11 @@ public class InstanceSubscribeListener {
         private boolean allMap;
         // 监听所有map的instance状态
         private SceneChangeStatus allMapStatus;
-    }
+        // 删除引用 指向哪些组包含该对象
+        private Set<String> groupsKey = new HashSet<>();
 
-    protected class GroupListener {
-
-        private ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
-        private Lock readLock = readWriteLock.readLock();
-        private Lock writeLock = readWriteLock.writeLock();
-
-        private Map<String, ClientListener> clientListeners = new HashMap<>();
-
-        public ClientListener getClientListener(String connectKey) {
-            return this.clientListeners.computeIfAbsent(connectKey, e -> new ClientListener());
-        }
-
-        public void notifyInstance(SceneInstance instance, SceneChangeStatus status) {
-            this.clientListeners.forEach((k, v) -> {
-                if (v.allMap && isSendClientStatus(v.allMapStatus, status)) {
-                    sendToClient(k, instance, status);
-                } else {
-                    Map<Integer, SceneChangeStatus> statusMap = v.mapListenStatus;
-                    SceneChangeStatus cacheStatus = statusMap.get(instance.getMap());
-                    if (Objects.nonNull(cacheStatus) && isSendClientStatus(v.allMapStatus, status)) {
-                        sendToClient(k, instance, status);
-                    }
-                }
-            });
+        private boolean isSendClientStatus(SceneChangeStatus status) {
+            return allMapStatus == SceneChangeStatus.ALL || status == allMapStatus;
         }
 
         private void sendToClient(String key, SceneInstance instance, SceneChangeStatus status) {
@@ -121,13 +136,22 @@ public class InstanceSubscribeListener {
             listen.setInstance(instance);
             listen.setStatus(status);
 
-            Request request = Request.of(cmd(LISTEN_INSTANCE_SPACE, LISTEN_INSTANCE_CHANGE));
+            Request request = Request.of(cmd(LISTEN_INSTANCE_SPACE, LISTEN_INSTANCE_CHANGE), listen);
             connect.sendOneWay(request);
         }
 
-        private boolean isSendClientStatus(SceneChangeStatus status, SceneChangeStatus target) {
-            return status == SceneChangeStatus.ALL || status == target;
+        public void addGroupKey(String group) {
+            this.groupsKey.add(group);
         }
+    }
+
+    protected class GroupListener {
+
+        private ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+        private Lock readLock = readWriteLock.readLock();
+        private Lock writeLock = readWriteLock.writeLock();
+
+        private Set<String> clientListeners = new HashSet<>();
     }
 
     private InstanceSubscribeListener() {

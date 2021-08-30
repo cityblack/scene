@@ -38,7 +38,7 @@ public class RedisNodeServiceImpl implements NodeService {
         NodeType type = request.getType();
         String key = SceneConnect.TO_UNIQUE.apply(connect.key(), type);
         SceneConnect sceneConnect = new SofaSceneConnect(connect, type, key);
-        logger.info("Connect {} bind {}", connect.key(), key);
+        logger.info("Connect {} bind {} {}", connect.key(), key, bootstrap.getConfig().getPort());
         bootstrap.getConnectManage().putConnect(key, sceneConnect);
         NodeInfo info = new NodeInfo();
         info.setKey(key);
