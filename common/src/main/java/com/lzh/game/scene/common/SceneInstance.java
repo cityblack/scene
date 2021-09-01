@@ -1,6 +1,7 @@
 package com.lzh.game.scene.common;
 
 import java.io.Serializable;
+import java.util.Map;
 
 public class SceneInstance implements Serializable {
 
@@ -11,6 +12,9 @@ public class SceneInstance implements Serializable {
     private String unique;
 
     private int map;
+
+    // 额外信息
+    private Map<String, String> extInfo;
 
     public String getGroup() {
         return group;
@@ -34,6 +38,14 @@ public class SceneInstance implements Serializable {
 
     public void setMap(int map) {
         this.map = map;
+    }
+
+    public Map<String, String> getExtInfo() {
+        return extInfo;
+    }
+
+    public void setExtInfo(Map<String, String> extInfo) {
+        this.extInfo = extInfo;
     }
 
     @Override

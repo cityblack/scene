@@ -8,6 +8,10 @@ import com.lzh.game.scene.common.connect.server.ServerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Standalone server
+ * @param <T>
+ */
 public class SofaServer<T extends ServerConfig>
         extends AbstractServerBootstrap<T> implements ConnectServer<T> {
 

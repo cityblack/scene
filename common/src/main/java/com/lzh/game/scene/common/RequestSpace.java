@@ -9,6 +9,7 @@ public interface RequestSpace {
 
     int LISTEN_INSTANCE_SPACE = 2000;
     int LISTEN_INSTANCE_CHANGE = 1;
+    int LISTEN_NODE_CHANGE = 2;
 
     int NODE_SPACE = 3000;
     int NODE_REGISTER = 1;

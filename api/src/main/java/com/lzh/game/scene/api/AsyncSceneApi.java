@@ -20,6 +20,8 @@ public interface AsyncSceneApi {
      * @param group -- 游戏组
      * @param map -- 游戏地图
      * @param weight -- 权重, 该标识主要分辨场景是否是热点场景(人多)，尽量会避免热点场景在一起
+     *               0 -- 同组的尽量分配在一台物理机, 至到负载上限(静态场景)
+     *               1 -- 同组的负载不高的情况下 分配在一台物理机
      */
     void createScene(String group, int map, int weight);
 

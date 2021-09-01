@@ -1,17 +1,21 @@
 package com.lzh.game.scene.core.node;
 
 import com.lzh.game.scene.common.NodeType;
+import com.lzh.game.scene.common.RequestSpace;
 import com.lzh.game.scene.common.connect.Connect;
+import com.lzh.game.scene.common.connect.Request;
 import com.lzh.game.scene.common.connect.scene.SceneConnect;
 import com.lzh.game.scene.common.connect.server.AbstractServerBootstrap;
 import com.lzh.game.scene.common.connect.sofa.SofaSceneConnect;
 import com.lzh.game.scene.common.proto.NodeInfo;
 import com.lzh.game.scene.common.proto.NodeInfoRequest;
+import com.lzh.game.scene.core.jrfa.ReplicatorCmd;
 import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -35,20 +39,25 @@ public class RedisNodeServiceImpl implements NodeService {
 
     @Override
     public List<NodeInfo> register(Connect connect, NodeInfoRequest request) {
-        NodeType type = request.getType();
+        NodeType type = NodeType.values()[request.getType()];
+
         String key = SceneConnect.TO_UNIQUE.apply(connect.key(), type);
         SceneConnect sceneConnect = new SofaSceneConnect(connect, type, key);
         logger.info("Connect {} bind {} {}", connect.key(), key, bootstrap.getConfig().getPort());
         bootstrap.getConnectManage().putConnect(key, sceneConnect);
+
         NodeInfo info = new NodeInfo();
         info.setKey(key);
         info.setIp(sceneConnect.host());
-        info.setPort(sceneConnect.port());
+        info.setPort(request.getPort());
+        info.setType(request.getType());
 
         client.getMap(type.getName()).put(key, info);
-        if (type == NodeType.SCENE_NODE) {
+
+        if (NodeType.isSceneNode(type)) {
             return Collections.EMPTY_LIST;
         }
+
         return getSceneNode()
                 .collect(Collectors.toList());
     }
@@ -69,6 +78,22 @@ public class RedisNodeServiceImpl implements NodeService {
         }
         NodeType type = sceneConnect.type();
         client.getMap(type.getName()).remove(sceneConnect.key());
+    }
+
+    @Override
+    public void onNodeChange(NodeInfo info) {
+        if (!NodeType.isSceneNode(info.getType())) {
+            return;
+        }
+        Collection<SceneConnect> connects = bootstrap.getConnectManage().getAllConnect();
+        for (SceneConnect connect : connects) {
+            if (!NodeType.isClientNode(connect.type())) {
+                continue;
+            }
+            Request request = Request.of(RequestSpace.cmd(RequestSpace.LISTEN_INSTANCE_SPACE
+                    , RequestSpace.LISTEN_NODE_CHANGE), info);
+            connect.sendOneWay(request);
+        }
     }
 
     @Override

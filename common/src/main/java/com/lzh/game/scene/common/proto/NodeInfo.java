@@ -8,6 +8,10 @@ public class NodeInfo {
 
     private int port;
 
+    private int type;
+
+    private int status;
+
     public String getIp() {
         return ip;
     }
@@ -32,12 +36,29 @@ public class NodeInfo {
         this.key = key;
     }
 
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
     @Override
     public String toString() {
         return "NodeInfo{" +
                 "key='" + key + '\'' +
                 ", ip='" + ip + '\'' +
                 ", port=" + port +
+                ", type=" + type +
                 '}';
     }
 }

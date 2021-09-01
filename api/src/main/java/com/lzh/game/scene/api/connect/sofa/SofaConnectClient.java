@@ -62,7 +62,6 @@ public class SofaConnectClient extends AbstractBootstrap<ApiConfig>
         if (!this.rpcClient.isStarted()) {
             this.rpcClient.startup();
         }
-        this.connectCluster(this.getConfig().getCluster());
     }
 
     @Override
@@ -126,12 +125,6 @@ public class SofaConnectClient extends AbstractBootstrap<ApiConfig>
 
     public RpcClient getRpcClient() {
         return rpcClient;
-    }
-
-    private void connectCluster(List<Member> members) {
-        for (Member member : members) {
-            getConnect(member.getHost(), member.getPort(), NodeType.SCENE_NODE);
-        }
     }
 
     private void sendConnectEvent(Connect connect) {

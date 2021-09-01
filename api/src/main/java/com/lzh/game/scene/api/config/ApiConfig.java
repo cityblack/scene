@@ -13,6 +13,10 @@ public class ApiConfig implements BootstrapConfig {
     private int nodeType = 1;
 
     private int requestOutTime = 5000;
+    // 当场景类型为场景节点时候生效
+    private int port;
+    // 连接场景节点失败尝试重新连接次数
+    private int connectErrorRetryTimes = 3;
 
     public List<Member> getCluster() {
         return cluster;
@@ -44,6 +48,22 @@ public class ApiConfig implements BootstrapConfig {
 
     public NodeType getDefinedNodeType() {
         return NodeType.values()[getNodeType()];
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public int getConnectErrorRetryTimes() {
+        return connectErrorRetryTimes;
+    }
+
+    public void setConnectErrorRetryTimes(int connectErrorRetryTimes) {
+        this.connectErrorRetryTimes = connectErrorRetryTimes;
     }
 
     @Override

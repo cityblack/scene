@@ -1,18 +1,18 @@
 package com.lzh.game.scene.common.proto;
 
-import com.lzh.game.scene.common.NodeType;
-
 public class NodeInfoRequest {
 
-    private NodeType type;
+    private int type;
 
     private int weight;
 
-    public NodeType getType() {
+    private int port;
+
+    public int getType() {
         return type;
     }
 
-    public void setType(NodeType type) {
+    public void setType(int type) {
         this.type = type;
     }
 
@@ -22,5 +22,13 @@ public class NodeInfoRequest {
 
     public void setWeight(int weight) {
         this.weight = weight;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
     }
 }

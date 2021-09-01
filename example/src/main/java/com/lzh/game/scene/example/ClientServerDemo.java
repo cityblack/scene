@@ -4,9 +4,9 @@ import com.lzh.game.scene.api.AsyncSceneApi;
 import com.lzh.game.scene.api.AsyncSceneApiImpl;
 import com.lzh.game.scene.api.config.ApiConfig;
 import com.lzh.game.scene.api.config.Member;
+import com.lzh.game.scene.api.connect.sofa.ApiClient;
 import com.lzh.game.scene.api.connect.sofa.SofaConnectClient;
 import com.lzh.game.scene.api.option.ListenController;
-import com.lzh.game.scene.api.server.ConnectClientServer;
 import com.lzh.game.scene.api.server.SceneService;
 import com.lzh.game.scene.api.server.SceneServiceImpl;
 import com.lzh.game.scene.common.SceneChangeStatus;
@@ -26,20 +26,19 @@ public class ClientServerDemo {
         member.setPort(8081);
         config.addMember(member);
 
+        ApiClient client = new ApiClient(config);
+        client.init();
+
         SceneService sceneService = new SceneServiceImpl();
         ListenController controller = new ListenController();
         controller.setSceneService(sceneService);
+        controller.setClientServer(client);
 
-        SofaConnectClient client = new SofaConnectClient(config);
-        client.init();
         client.addCmdTarget(Arrays.asList(controller));
-
-        ConnectClientServer clientServer = new ConnectClientServer();
-        clientServer.setClient(client);
 
         client.start();
 
-        final AsyncSceneApi api = new AsyncSceneApiImpl(client, sceneService);
+        /*final AsyncSceneApi api = new AsyncSceneApiImpl(client, sceneService);
         String group = "group";
         SceneInstance instance = new SceneInstance();
         instance.setGroup(group);
@@ -59,6 +58,6 @@ public class ClientServerDemo {
             } catch (InterruptedException interruptedException) {
                 interruptedException.printStackTrace();
             }
-        });
+        });*/
     }
 }

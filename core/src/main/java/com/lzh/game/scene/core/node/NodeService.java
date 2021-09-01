@@ -27,4 +27,6 @@ public interface NodeService {
     Stream<NodeInfo> getApiNode();
 
     void deregister(Connect connect);
+
+    void onNodeChange(NodeInfo info);
 }

@@ -8,11 +8,15 @@ import io.protostuff.runtime.RuntimeSchema;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class ProtostuffSerializer implements Serializer {
 
     @Override
     public byte[] encode(Object object) {
+        if (Objects.isNull(object)) {
+            return new byte[0];
+        }
         Class<?> clazz = object.getClass();
         if (isWrapperType(clazz)) {
             Wrapper wrapper = new Wrapper();
