@@ -1,6 +1,8 @@
 package com.lzh.game.scene.common.utils;
 
-
+/**
+ * 雪花算法
+ */
 public class SnowflakeIdUtils {
     /**
      * 起始的时间戳

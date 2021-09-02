@@ -1,19 +1,13 @@
 package com.lzh.game.scene.example;
 
-import com.lzh.game.scene.api.AsyncSceneApi;
-import com.lzh.game.scene.api.AsyncSceneApiImpl;
 import com.lzh.game.scene.api.config.ApiConfig;
 import com.lzh.game.scene.api.config.Member;
 import com.lzh.game.scene.api.connect.sofa.ApiClient;
-import com.lzh.game.scene.api.connect.sofa.SofaConnectClient;
 import com.lzh.game.scene.api.option.ListenController;
 import com.lzh.game.scene.api.server.SceneService;
 import com.lzh.game.scene.api.server.SceneServiceImpl;
-import com.lzh.game.scene.common.SceneChangeStatus;
-import com.lzh.game.scene.common.SceneInstance;
 
 import java.util.Arrays;
-import java.util.stream.IntStream;
 
 public class ClientServerDemo {
 

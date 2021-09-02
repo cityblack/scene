@@ -16,12 +16,26 @@ import static com.lzh.game.scene.common.ContextConstant.ALL_MAP_LISTEN_KEY;
 public interface AsyncSceneApi {
 
     /**
+     * 进入指定的场景
+     * @param sceneKey
+     */
+    void transferScene(String group, String sceneKey);
+
+    /**
+     * 进入指定地图 动态分配
+     * @param group
+     * @param map
+     */
+    void transferScene(String group, int map);
+
+    /**
      * 主动请求创建场景, 将自动从场景管理中根据负载均衡算法自动找到对应的节点, 然后通知创建场景
      * @param group -- 游戏组
      * @param map -- 游戏地图
      * @param weight -- 权重, 该标识主要分辨场景是否是热点场景(人多)，尽量会避免热点场景在一起
      *               0 -- 同组的尽量分配在一台物理机, 至到负载上限(静态场景)
      *               1 -- 同组的负载不高的情况下 分配在一台物理机
+     *               2 -- 尽量分配到不同的物理机
      */
     void createScene(String group, int map, int weight);
 

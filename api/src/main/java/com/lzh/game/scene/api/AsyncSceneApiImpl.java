@@ -31,6 +31,16 @@ public class AsyncSceneApiImpl implements AsyncSceneApi {
     }
 
     @Override
+    public void transferScene(String group, String sceneKey) {
+
+    }
+
+    @Override
+    public void transferScene(String group, int map) {
+
+    }
+
+    @Override
     public void createScene(String group, int map, int weight) {
 
     }
