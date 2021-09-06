@@ -10,6 +10,9 @@ import com.lzh.game.scene.common.connect.server.RequestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+
 import static com.lzh.game.scene.common.ContextConstant.ERROR_COMMON_RESPONSE;
 import static com.lzh.game.scene.common.ContextConstant.SOURCE_CONNECT_RELATION;
 
@@ -48,6 +51,24 @@ public class SofaUserProcess extends AsyncUserProcessor<Request> {
                 logger.error("Request error:", response.getError());
             }
             if (!request.isOneWay()) {
+                // future做特殊处理
+                if (Objects.nonNull(response.getParam())) {
+                    Object responseData = response.getParam();
+                    if (responseData instanceof CompletableFuture) {
+                        CompletableFuture future = (CompletableFuture) responseData;
+                        future.thenAccept(data -> {
+                            if (isTimeout(request, bizCtx, asyncCtx, response)) {
+                                logger.error("Request timeout!!");
+                                return;
+                            }
+                            Response futureResponse = Response.of();
+                            futureResponse.setStatus(status);
+                            futureResponse.setParamWithType(data);
+                            asyncCtx.sendResponse(futureResponse);
+                        });
+                        return;
+                    }
+                }
                 asyncCtx.sendResponse(response);
             }
         } catch (Exception e) {

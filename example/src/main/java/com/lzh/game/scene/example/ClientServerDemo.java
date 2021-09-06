@@ -1,5 +1,8 @@
 package com.lzh.game.scene.example;
 
+import com.lzh.game.scene.api.AsyncSceneApi;
+import com.lzh.game.scene.api.AsyncSceneApiImpl;
+import com.lzh.game.scene.api.TransportSceneData;
 import com.lzh.game.scene.api.config.ApiConfig;
 import com.lzh.game.scene.api.config.Member;
 import com.lzh.game.scene.api.connect.sofa.ApiClient;
@@ -32,8 +35,9 @@ public class ClientServerDemo {
 
         client.start();
 
-        /*final AsyncSceneApi api = new AsyncSceneApiImpl(client, sceneService);
-        String group = "group";
+        final AsyncSceneApi api = new AsyncSceneApiImpl(client, sceneService);
+        enterCopy(api);
+        /*String group = "group";
         SceneInstance instance = new SceneInstance();
         instance.setGroup(group);
         instance.setMap(1);
@@ -53,5 +57,12 @@ public class ClientServerDemo {
                 interruptedException.printStackTrace();
             }
         });*/
+    }
+
+    private static void enterCopy(AsyncSceneApi api) {
+        api.createScene("123", 1, 0, instance -> {
+            TransportSceneData<Long> sceneData = new TransportSceneData<>(1, 10086L);
+            api.transportScene(instance.getGroup(), instance.getUnique(), sceneData);
+        });
     }
 }
