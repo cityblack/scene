@@ -3,6 +3,7 @@ package com.lzh.game.scene.core.service;
 import com.lzh.game.scene.common.SceneChangeStatus;
 import com.lzh.game.scene.common.SceneInstance;
 import com.lzh.game.scene.common.connect.Connect;
+import com.lzh.game.scene.common.connect.scene.SceneConnect;
 
 import java.util.List;
 
@@ -56,4 +57,12 @@ public interface SceneService {
      * @param numLimit
      */
     void keepMapInstances(String group, int map, int numLimit);
+
+    /**
+     *
+     * @param group
+     * @param mapId
+     * @param weight
+     */
+    void createScene(SceneConnect connect, String group, int mapId, int weight);
 }

@@ -66,6 +66,11 @@ public class CpSceneServiceImpl implements SceneService {
 
     }
 
+    @Override
+    public void createScene(SceneConnect connect, String group, int mapId, int weight) {
+
+    }
+
     private <T extends Serializable> CompletableFuture<Void> commitTask(ReplicatorCmd cmd, T param) {
         return connectServer.getJrService().commitWrite(param, buildRequest(ReplicatorCmd.REGISTER_SCENE, param));
     }

@@ -16,6 +16,9 @@ public class SceneInstance implements Serializable {
     // 额外信息
     private Map<String, String> extInfo;
 
+    // === 调度器设置 ===
+    private String address;
+
     public String getGroup() {
         return group;
     }
@@ -46,6 +49,14 @@ public class SceneInstance implements Serializable {
 
     public void setExtInfo(Map<String, String> extInfo) {
         this.extInfo = extInfo;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     @Override

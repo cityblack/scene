@@ -1,7 +1,7 @@
-package com.lzh.game.scene.api.option;
+package com.lzh.game.scene.api.controller;
 
 import com.lzh.game.scene.api.connect.sofa.ApiClient;
-import com.lzh.game.scene.api.server.SceneService;
+import com.lzh.game.scene.api.scene.SceneService;
 import static com.lzh.game.scene.common.RequestSpace.*;
 import com.lzh.game.scene.common.connect.server.cmd.Action;
 import com.lzh.game.scene.common.connect.server.cmd.Cmd;

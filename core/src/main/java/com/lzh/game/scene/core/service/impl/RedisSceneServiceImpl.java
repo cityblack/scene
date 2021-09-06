@@ -118,6 +118,11 @@ public class RedisSceneServiceImpl implements SceneService {
 
     }
 
+    @Override
+    public void createScene(SceneConnect connect, String group, int mapId, int weight) {
+        
+    }
+
     /**
      * Redis获取订阅的场景信息 进行推送
      *

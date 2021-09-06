@@ -65,10 +65,9 @@ public class ApiClient extends SofaConnectClient {
                 if (response.getStatus() == ContextConstant.RIGHT_RESPONSE) {
                     List<NodeInfo> infos = response.getParam();
                     Map<String, Integer> retryTimes = new HashMap<>();
-                    String self = IpUtils.localIp();
 
                     for (NodeInfo info : infos) {
-                        connect(info, self, retryTimes);
+                        connect(info, retryTimes);
                     }
                 }
             } catch (Exception e) {
@@ -78,11 +77,10 @@ public class ApiClient extends SofaConnectClient {
         }
     }
 
-    private void connect(NodeInfo info, String selfIp, Map<String, Integer> retryTimes) {
+    private void connect(NodeInfo info, Map<String, Integer> retryTimes) {
         // 这种情况下 当前节点可能也是场景节点
         if (NodeType.isSceneNode(info.getType())) {
-            if (Objects.equals(info.getIp(), "127.0.0.1")
-                    || Objects.equals(info.getIp(), "0.0.0.0") || Objects.equals(info.getIp(), selfIp)) {
+            if (IpUtils.isLocalIp(info.getIp())) {
                 if (info.getPort() == getConfig().getPort()) {
                     return;
                 }
@@ -102,8 +100,7 @@ public class ApiClient extends SofaConnectClient {
 
     public void onNodeChange(NodeInfo info) {
         if (info.getStatus() == 0) {
-            String self = IpUtils.localIp();
-            connect(info, self, new HashMap<>(2));
+            connect(info, new HashMap<>(2));
         }
     }
 }

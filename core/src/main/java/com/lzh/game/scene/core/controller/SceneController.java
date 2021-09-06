@@ -6,6 +6,7 @@ import com.lzh.game.scene.common.connect.Response;
 import com.lzh.game.scene.common.connect.scene.SceneConnect;
 import com.lzh.game.scene.common.connect.server.cmd.Action;
 import com.lzh.game.scene.common.connect.server.cmd.Cmd;
+import com.lzh.game.scene.common.proto.CreateSceneRequest;
 import com.lzh.game.scene.common.proto.MapSceneRequest;
 import com.lzh.game.scene.common.proto.SubscribeSceneRequest;
 import com.lzh.game.scene.core.service.SceneService;
@@ -24,7 +25,8 @@ public class SceneController {
     }
 
     @Cmd(INSTANCE_REGISTER)
-    public void register(SceneInstance instance) {
+    public void register(SceneConnect connect, SceneInstance instance) {
+        instance.setAddress(connect.key());
         sceneService.registerSceneInstance(instance.getGroup(), instance);
     }
 
@@ -36,5 +38,10 @@ public class SceneController {
     @Cmd(INSTANCE_SUBSCRIBE)
     public void subscribe(SceneConnect connect, SubscribeSceneRequest request) {
         sceneService.subscribe(connect, request.getGroup(), request.getStatus());
+    }
+
+    @Cmd(SCENE_CREATE)
+    public void createScene(SceneConnect connect, CreateSceneRequest request) {
+        sceneService.createScene(connect, request.getGroup(), request.getMap(), request.getWeight());
     }
 }

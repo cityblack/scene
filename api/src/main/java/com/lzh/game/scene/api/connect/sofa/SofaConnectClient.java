@@ -24,7 +24,7 @@ import java.util.concurrent.CompletableFuture;
  * SOFA BLOT已经做好了各种网络机制，所以不再过度封装
  */
 public class SofaConnectClient extends AbstractBootstrap<ApiConfig>
-        implements ConnectClient {
+        implements ConnectClient<SceneConnect> {
 
     private final Logger logger = LoggerFactory.getLogger(SofaConnectClient.class);
 
@@ -80,7 +80,7 @@ public class SofaConnectClient extends AbstractBootstrap<ApiConfig>
     }
 
     @Override
-    public ConnectManage connectManage() {
+    public ConnectManage<SceneConnect> connectManage() {
         return getConnectManage();
     }
 

@@ -3,6 +3,7 @@ package com.lzh.game.scene.api;
 import com.lzh.game.scene.common.SceneChangeStatus;
 import com.lzh.game.scene.common.SceneInstance;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -19,25 +20,29 @@ public interface AsyncSceneApi {
      * 进入指定的场景
      * @param sceneKey
      */
-    void transferScene(String group, String sceneKey);
+    <K extends Serializable>void transportScene(String group, String sceneKey, TransportSceneData<K> request);
 
     /**
      * 进入指定地图 动态分配
      * @param group
      * @param map
      */
-    void transferScene(String group, int map);
+    <K extends Serializable>void transportScene(String group, int map, TransportSceneData<K> request);
+
+    default void createScene(String group, int map, int weight) {
+        this.createScene(group, map, weight, null);
+    }
 
     /**
      * 主动请求创建场景, 将自动从场景管理中根据负载均衡算法自动找到对应的节点, 然后通知创建场景
      * @param group -- 游戏组
      * @param map -- 游戏地图
      * @param weight -- 权重, 该标识主要分辨场景是否是热点场景(人多)，尽量会避免热点场景在一起
-     *               0 -- 同组的尽量分配在一台物理机, 至到负载上限(静态场景)
+     *               0 -- 同组的尽量分配在一台物理机, 至到负载上限
      *               1 -- 同组的负载不高的情况下 分配在一台物理机
      *               2 -- 尽量分配到不同的物理机
      */
-    void createScene(String group, int map, int weight);
+    void createScene(String group, int map, int weight, Consumer<SceneInstance> instance);
 
     /**
      * 向场景管理中心订阅场景改变事件

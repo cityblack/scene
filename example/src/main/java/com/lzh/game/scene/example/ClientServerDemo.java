@@ -3,9 +3,9 @@ package com.lzh.game.scene.example;
 import com.lzh.game.scene.api.config.ApiConfig;
 import com.lzh.game.scene.api.config.Member;
 import com.lzh.game.scene.api.connect.sofa.ApiClient;
-import com.lzh.game.scene.api.option.ListenController;
-import com.lzh.game.scene.api.server.SceneService;
-import com.lzh.game.scene.api.server.SceneServiceImpl;
+import com.lzh.game.scene.api.controller.ListenController;
+import com.lzh.game.scene.api.scene.SceneService;
+import com.lzh.game.scene.api.scene.SceneServiceImpl;
 
 import java.util.Arrays;
 

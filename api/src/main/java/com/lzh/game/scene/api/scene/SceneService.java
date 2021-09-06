@@ -1,4 +1,4 @@
-package com.lzh.game.scene.api.server;
+package com.lzh.game.scene.api.scene;
 
 import com.lzh.game.scene.common.SceneChangeStatus;
 import com.lzh.game.scene.common.SceneInstance;
