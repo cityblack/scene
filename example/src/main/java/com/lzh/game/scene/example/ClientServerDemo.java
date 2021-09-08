@@ -36,7 +36,8 @@ public class ClientServerDemo {
         client.start();
 
         final AsyncSceneApi api = new AsyncSceneApiImpl(client, sceneService);
-        enterCopy(api);
+        api.createScene("10086", 1, 0);
+//        enterCopy(api);
         /*String group = "group";
         SceneInstance instance = new SceneInstance();
         instance.setGroup(group);

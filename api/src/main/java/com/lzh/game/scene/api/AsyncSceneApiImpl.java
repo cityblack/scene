@@ -71,7 +71,9 @@ public class AsyncSceneApiImpl implements AsyncSceneApi {
             client.sendOneWay(value);
         } else {
             CompletableFuture<Response<SceneInstance>> response = client.sendMessage(value);
-            response.thenAccept(resp -> instance.accept(resp.getParam()));
+            response
+                    .thenApply(Response::getParam)
+                    .thenAccept(e -> instance.accept(e));
         }
     }
 

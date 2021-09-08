@@ -2,27 +2,36 @@ package com.lzh.game.scene.core.service.impl;
 
 import com.google.common.eventbus.Subscribe;
 import com.lzh.game.scene.common.ContextConstant;
+import com.lzh.game.scene.common.RequestSpace;
 import com.lzh.game.scene.common.SceneChangeStatus;
 import com.lzh.game.scene.common.SceneInstance;
 import com.lzh.game.scene.common.connect.Connect;
 import com.lzh.game.scene.common.connect.ConnectEvent;
+import com.lzh.game.scene.common.connect.Request;
+import com.lzh.game.scene.common.connect.Response;
 import com.lzh.game.scene.common.connect.scene.SceneConnect;
+import com.lzh.game.scene.common.proto.NodeInfo;
 import com.lzh.game.scene.common.utils.EventBusUtils;
-import com.lzh.game.scene.core.service.SceneInstanceManage;
+import com.lzh.game.scene.core.node.NodeService;
+import com.lzh.game.scene.core.service.RedisClusterServer;
 import com.lzh.game.scene.core.service.SceneService;
 import com.lzh.game.scene.core.service.impl.mode.InstanceSubscribe;
-import com.lzh.game.scene.core.service.impl.mode.InstanceSubscribeListener;
 import com.lzh.game.scene.core.service.impl.mode.SceneInstanceTop;
 import org.redisson.api.RMap;
 import org.redisson.api.RSet;
 import org.redisson.api.RedissonClient;
-import org.redisson.api.listener.MessageListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Random;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.lzh.game.scene.common.RequestSpace.*;
 
 /**
  * 使用redis做共享 满足ap
@@ -41,9 +50,15 @@ public class RedisSceneServiceImpl implements SceneService {
 
     private InstanceSubscribe listener;
 
-    public RedisSceneServiceImpl(RedissonClient client, InstanceSubscribe listener) {
+    private RedisClusterServer redisClusterServer;
+
+    private NodeService nodeService;
+
+    public RedisSceneServiceImpl(RedissonClient client, InstanceSubscribe listener, NodeService nodeService, RedisClusterServer clusterServer) {
         this.client = client;
         this.listener = listener;
+        this.nodeService = nodeService;
+        this.redisClusterServer = clusterServer;
         this.init();
     }
 
@@ -119,8 +134,23 @@ public class RedisSceneServiceImpl implements SceneService {
     }
 
     @Override
-    public void createScene(SceneConnect connect, String group, int mapId, int weight) {
-        
+    public CompletableFuture<SceneInstance> createScene(SceneConnect connect, String group, int mapId, int weight) {
+        NodeInfo nodeInfo = selectNode();
+
+        Connect sceneNodeConnect = redisClusterServer.getConnectManage().getConnect(nodeInfo.getKey());
+
+        Request request = Request.of(cmd(NODE_SPACE, NODE_CLIENT_CREATE), mapId);
+        CompletableFuture<Response<SceneInstance>> future = sceneNodeConnect.sendMessage(request);
+        CompletableFuture<SceneInstance> response = future.thenApply(Response::getParam);
+        response.thenAccept(e -> this.registerSceneInstance(e.getGroup(), e));
+        return response;
+    }
+
+    private NodeInfo selectNode() {
+        List<NodeInfo> nodes = nodeService.getSceneNode().collect(Collectors.toList());
+        Random random = new Random();
+        int index = random.nextInt(nodes.size());
+        return nodes.get(index);
     }
 
     /**

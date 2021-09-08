@@ -16,7 +16,11 @@ class AppTest {
 
     @Test
     public void start() throws InterruptedException {
-
+        CompletableFuture<Integer> future = new CompletableFuture<>();
+        CompletableFuture<Integer> intFuture = future.thenApply(e -> 2 * e);
+        intFuture.thenAccept(System.out::println);
+        intFuture.thenAccept(System.out::println);
+        future.complete(3);
     }
 
     @Test

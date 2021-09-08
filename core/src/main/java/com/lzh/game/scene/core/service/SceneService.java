@@ -6,6 +6,7 @@ import com.lzh.game.scene.common.connect.Connect;
 import com.lzh.game.scene.common.connect.scene.SceneConnect;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import static com.lzh.game.scene.common.ContextConstant.ALL_MAP_LISTEN_KEY;
 
@@ -64,5 +65,5 @@ public interface SceneService {
      * @param mapId
      * @param weight
      */
-    void createScene(SceneConnect connect, String group, int mapId, int weight);
+    CompletableFuture<SceneInstance> createScene(SceneConnect connect, String group, int mapId, int weight);
 }

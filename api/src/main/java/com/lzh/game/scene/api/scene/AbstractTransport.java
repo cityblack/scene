@@ -30,9 +30,9 @@ public abstract class AbstractTransport<K extends Serializable>
         registerTransport(strategy(), this);
     }
 
-    private static final Map<Integer, AbstractTransport> TRANSPORT = new HashMap<>();
+    private static final Map<Integer, AbstractTransport<?>> TRANSPORT = new HashMap<>();
 
-    public static void registerTransport(int strategy, AbstractTransport transport) {
+    public static void registerTransport(int strategy, AbstractTransport<?> transport) {
         TRANSPORT.put(strategy, transport);
     }
 

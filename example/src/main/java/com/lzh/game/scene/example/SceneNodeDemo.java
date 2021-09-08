@@ -3,10 +3,15 @@ package com.lzh.game.scene.example;
 import com.lzh.game.scene.api.config.ApiConfig;
 import com.lzh.game.scene.api.config.Member;
 import com.lzh.game.scene.api.connect.sofa.ApiClient;
-import com.lzh.game.scene.api.connect.sofa.SofaConnectClient;
+import com.lzh.game.scene.api.controller.SceneController;
+import com.lzh.game.scene.api.scene.CreateSceneProcess;
+import com.lzh.game.scene.api.scene.SceneNodeBootstrap;
 import com.lzh.game.scene.common.NodeType;
+import com.lzh.game.scene.common.SceneInstance;
 import com.lzh.game.scene.common.connect.server.ServerConfig;
 import com.lzh.game.scene.common.connect.sofa.SofaServer;
+
+import java.util.Arrays;
 
 public class SceneNodeDemo {
 
@@ -32,5 +37,23 @@ public class SceneNodeDemo {
 
         ApiClient client = new ApiClient(config);
         client.startup();
+
+        SceneNodeBootstrap bootstrap = new SceneNodeBootstrap();
+        bootstrap.setClient(client);
+        bootstrap.setProcess(newProcess());
+        SceneController controller = new SceneController();
+        controller.setBootstrap(bootstrap);
+
+        client.addCmdTarget(Arrays.asList(controller));
+    }
+
+    public static CreateSceneProcess newProcess() {
+        return (map -> {
+            SceneInstance instance = new SceneInstance();
+            instance.setUnique("10086-" + map);
+            instance.setMap(map);
+            instance.setGroup("10086");
+            return instance;
+        });
     }
 }

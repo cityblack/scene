@@ -34,8 +34,8 @@ public class SofaClientConnectFactory implements ConnectFactory {
     @Override
     public Connect createConnect(String address, Object... param) {
         try {
-            Connection connection = client.getRpcClient().createStandaloneConnection(address, 5000);
-            Connect connect = new SofaClientConnect(connection, address);
+            Connection connection = client.getRpcClient().createStandaloneConnection(address, requestOutTime);
+            Connect connect = new SofaClientConnect(connection, address, client.getIoExecutor());
             return connect;
         } catch (RemotingException e) {
             logger.error("Create connect error:", e);
@@ -45,8 +45,8 @@ public class SofaClientConnectFactory implements ConnectFactory {
 
     private class SofaClientConnect extends AbstractSofaConnect {
 
-        public SofaClientConnect(Connection connection, String address) {
-            super(connection, address);
+        public SofaClientConnect(Connection connection, String address, Executor executor) {
+            super(connection, address, executor);
         }
 
         @Override
@@ -62,38 +62,7 @@ public class SofaClientConnectFactory implements ConnectFactory {
         public <T>CompletableFuture<Response<T>> sendMessage(Request request) {
             CompletableFuture<Response<T>> future = new CompletableFuture<>();
             try {
-                client.getRpcClient().invokeWithCallback(connection, request, new InvokeCallback() {
-
-                    @Override
-                    public void onResponse(Object result) {
-                        try {
-                            if (future.isCancelled()) {
-                                return;
-                            }
-                            if (future.isDone()) {
-                                logger.error("Response message but future is done!");
-                                return;
-                            }
-                            future.complete((Response<T>) result);
-                        } catch (Exception e) {
-                            future.completeExceptionally(e);
-                        }
-                    }
-
-                    @Override
-                    public void onException(Throwable e) {
-                        if (future.isCancelled()) {
-                            return;
-                        }
-                        future.completeExceptionally(e);
-                        logger.error("Response error:", e);
-                    }
-
-                    @Override
-                    public Executor getExecutor() {
-                        return null;
-                    }
-                }, requestOutTime);
+                client.getRpcClient().invokeWithCallback(connection, request, newFutureCallBack(future), requestOutTime);
             } catch (RemotingException e) {
                 future.completeExceptionally(e);
             }

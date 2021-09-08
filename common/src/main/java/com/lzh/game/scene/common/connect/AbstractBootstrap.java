@@ -8,9 +8,11 @@ import com.lzh.game.scene.common.connect.server.cmd.ServerMessageManage;
 import com.lzh.game.scene.common.connect.sofa.SofaRequestHandler;
 import com.lzh.game.scene.common.connect.sofa.SofaRpcSerializationRegister;
 import com.lzh.game.scene.common.connect.sofa.SofaUserProcess;
+import com.lzh.game.scene.common.utils.ThreadUtils;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executor;
 
 /**
  * 双工通信 抽出服务端和客户端相同的
@@ -50,6 +52,9 @@ public abstract class AbstractBootstrap<T extends BootstrapConfig> implements Bo
     private Serializer serializer;
 
     private MethodInvokeHelper methodInvokeHelper;
+
+    // io 处理线程 最好是自行定义传入
+    private Executor ioExecutor;
     /**
      * Build Default bean
      */
@@ -82,7 +87,18 @@ public abstract class AbstractBootstrap<T extends BootstrapConfig> implements Bo
         if (Objects.isNull(methodInvokeHelper)) {
             this.methodInvokeHelper = new SimpleInvokeHelper();
         }
+        if (Objects.isNull(ioExecutor)) {
+            this.ioExecutor = ThreadUtils.createIoFixedService("default-io-executor");
+        }
         SofaRpcSerializationRegister.setSerialization(getSerializer());
+    }
+
+    public Executor getIoExecutor() {
+        return ioExecutor;
+    }
+
+    public void setIoExecutor(Executor ioExecutor) {
+        this.ioExecutor = ioExecutor;
     }
 
     public ConnectFactory getConnectFactory() {

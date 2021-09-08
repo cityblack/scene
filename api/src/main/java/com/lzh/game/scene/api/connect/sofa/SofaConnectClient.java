@@ -13,12 +13,14 @@ import com.lzh.game.scene.common.connect.sofa.SofaConnectCloseEvent;
 import com.lzh.game.scene.common.connect.sofa.SofaServerConnectedEvent;
 import com.lzh.game.scene.common.connect.sofa.SofaSceneConnect;
 import com.lzh.game.scene.common.utils.EventBusUtils;
+import com.lzh.game.scene.common.utils.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 /**
  * SOFA BLOT已经做好了各种网络机制，所以不再过度封装

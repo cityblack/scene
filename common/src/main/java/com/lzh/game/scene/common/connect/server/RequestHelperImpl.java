@@ -28,12 +28,12 @@ public class RequestHelperImpl implements RequestHelper {
     }
 
     private void convertCheck(Request request, MethodInvoke methodInvoke) {
-        if (methodInvoke.extParamIndex() > -1) {
+        /*if (methodInvoke.extParamIndex() > -1) {
             Class<?> clazz = methodInvoke.params()[methodInvoke.extParamIndex()];
             if (clazz != request.getParamClass()) {
                 throw new IllegalArgumentException("Proto error. mapping " + request.getId() + " Request param type isn't " + clazz.getName());
             }
-        }
+        }*/
     }
 
     private Object convertInnerParam(Class<?> type, Request request) {

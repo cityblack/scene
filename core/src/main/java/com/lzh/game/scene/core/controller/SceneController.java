@@ -12,6 +12,7 @@ import com.lzh.game.scene.common.proto.SubscribeSceneRequest;
 import com.lzh.game.scene.core.service.SceneService;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import static com.lzh.game.scene.common.RequestSpace.*;
 
@@ -41,7 +42,7 @@ public class SceneController {
     }
 
     @Cmd(SCENE_CREATE)
-    public void createScene(SceneConnect connect, CreateSceneRequest request) {
-        sceneService.createScene(connect, request.getGroup(), request.getMap(), request.getWeight());
+    public CompletableFuture<SceneInstance> createScene(SceneConnect connect, CreateSceneRequest request) {
+        return sceneService.createScene(connect, request.getGroup(), request.getMap(), request.getWeight());
     }
 }

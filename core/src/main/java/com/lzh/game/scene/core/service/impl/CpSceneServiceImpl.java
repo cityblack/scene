@@ -67,8 +67,8 @@ public class CpSceneServiceImpl implements SceneService {
     }
 
     @Override
-    public void createScene(SceneConnect connect, String group, int mapId, int weight) {
-
+    public CompletableFuture<SceneInstance> createScene(SceneConnect connect, String group, int mapId, int weight) {
+        return null;
     }
 
     private <T extends Serializable> CompletableFuture<Void> commitTask(ReplicatorCmd cmd, T param) {

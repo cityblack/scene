@@ -1,15 +1,24 @@
 package com.lzh.game.scene.common.connect.sofa;
 
 import com.alipay.remoting.Connection;
+import com.alipay.remoting.InvokeCallback;
 import com.lzh.game.scene.common.connect.Connect;
+import com.lzh.game.scene.common.connect.Response;
+import com.lzh.game.scene.common.utils.ThreadUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static com.lzh.game.scene.common.ContextConstant.SOURCE_CONNECT_RELATION;
 
 public abstract class AbstractSofaConnect implements Connect {
+
+    private static final Logger logger = LoggerFactory.getLogger(AbstractSofaConnect.class);
 
     protected AtomicLong CONNECT_COUNT = new AtomicLong();
 
@@ -21,13 +30,16 @@ public abstract class AbstractSofaConnect implements Connect {
 
     private int port;
 
-    public AbstractSofaConnect(Connection connection, String address) {
+    private Executor executor;
+
+    public AbstractSofaConnect(Connection connection, String address, Executor executor) {
         this.connection = connection;
         this.address = address;
         this.connection.setAttribute(SOURCE_CONNECT_RELATION, this);
         String[] values = address.split(":");
         this.host = values[0];
         this.port = Integer.parseInt(values[1]);
+        this.executor = executor;
     }
 
     @Override
@@ -64,5 +76,39 @@ public abstract class AbstractSofaConnect implements Connect {
     @Override
     public void close() throws IOException {
 
+    }
+
+    protected <T>InvokeCallback newFutureCallBack(CompletableFuture<Response<T>> future) {
+        return new InvokeCallback() {
+            @Override
+            public void onResponse(Object result) {
+                try {
+                    if (future.isCancelled()) {
+                        return;
+                    }
+                    if (future.isDone()) {
+                        logger.error("Response message but future is done!");
+                        return;
+                    }
+                    future.complete((Response<T>) result);
+                } catch (Exception e) {
+                    future.completeExceptionally(e);
+                }
+            }
+
+            @Override
+            public void onException(Throwable e) {
+                if (future.isCancelled()) {
+                    return;
+                }
+                future.completeExceptionally(e);
+                logger.error("Response error:", e);
+            }
+
+            @Override
+            public Executor getExecutor() {
+                return executor;
+            }
+        };
     }
 }

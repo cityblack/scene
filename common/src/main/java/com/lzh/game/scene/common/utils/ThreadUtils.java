@@ -7,11 +7,19 @@ import java.util.concurrent.Executors;
 
 public class ThreadUtils {
 
-    public ExecutorService createSingleService(String name) {
+    public static ExecutorService createSingleService(String name) {
         return Executors.newSingleThreadExecutor(new NamedThreadFactory(name));
     }
 
-    public ExecutorService createFixedService(int core, String name) {
+    public static ExecutorService createFixedService(int core, String name) {
         return Executors.newFixedThreadPool(core, new NamedThreadFactory(name));
+    }
+
+    public static ExecutorService createCpuFixedService(String name) {
+        return createFixedService(Runtime.getRuntime().availableProcessors(), name);
+    }
+
+    public static ExecutorService createIoFixedService(String name) {
+        return createFixedService(Runtime.getRuntime().availableProcessors() * 2, name);
     }
 }

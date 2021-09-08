@@ -16,7 +16,7 @@ public interface RequestSpace {
 
     int NODE_SPACE = 300;
     int NODE_REGISTER = 1;
-
+    int NODE_CLIENT_CREATE = 2;
 
     static int cmd(int space, int target) {
         return space + target;

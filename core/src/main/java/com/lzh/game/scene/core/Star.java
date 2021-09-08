@@ -43,15 +43,17 @@ public class Star {
 //        JRafClusterServer<ClusterServerConfig> server = new JRafClusterServer<>(config);
         server.init();
         InstanceSubscribe subscribe = new InstanceSubscribeListener(server);
-//        final SceneInstanceManageImpl manage = new SceneInstanceManageImpl();
-//        SceneService service = new CpSceneServiceImpl(manage, server);
-        SceneService service = new RedisSceneServiceImpl(server.getClient(), subscribe);
-        SceneController sceneController = new SceneController();
-        sceneController.setSceneService(service);
 
         NodeService nodeService = new RedisNodeServiceImpl(server, server.getClient());
         NodeController nodeController = new NodeController();
         nodeController.setNodeService(nodeService);
+//        final SceneInstanceManageImpl manage = new SceneInstanceManageImpl();
+//        SceneService service = new CpSceneServiceImpl(manage, server);
+        SceneService service = new RedisSceneServiceImpl(server.getClient(), subscribe, nodeService, server);
+        SceneController sceneController = new SceneController();
+        sceneController.setSceneService(service);
+
+
 
         server.addCmdTarget(Arrays.asList(sceneController, nodeController));
 //        SceneInstanceProcess sceneInstanceProcess = new SceneInstanceProcess(manage);

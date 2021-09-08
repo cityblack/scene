@@ -47,9 +47,6 @@ public class SofaUserProcess extends AsyncUserProcessor<Request> {
                 return;
             }
             byte status = response.getStatus();
-            if (status != ContextConstant.RIGHT_RESPONSE) {
-                logger.error("Request error:", response.getError());
-            }
             if (!request.isOneWay()) {
                 // future做特殊处理
                 if (Objects.nonNull(response.getParam())) {

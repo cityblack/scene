@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 public class SofaServerConnectFactory implements ConnectFactory {
 
@@ -23,15 +24,15 @@ public class SofaServerConnectFactory implements ConnectFactory {
     public Connect createConnect(String address, Object... param) {
 
         if (param[0] instanceof Connection) {
-            return new SofaConnect((Connection) param[0], address);
+            return new SofaConnect((Connection) param[0], address, bootstrap.getIoExecutor());
         }
         throw new IllegalArgumentException("Create server connect error. param isn't Connect type");
     }
 
     private class SofaConnect extends AbstractSofaConnect {
 
-        public SofaConnect(Connection connection, String address) {
-            super(connection, address);
+        public SofaConnect(Connection connection, String address, Executor executor) {
+            super(connection, address, executor);
         }
 
         @Override
@@ -45,7 +46,13 @@ public class SofaServerConnectFactory implements ConnectFactory {
 
         @Override
         public <T>CompletableFuture<Response<T>> sendMessage(Request request) {
-            throw new IllegalArgumentException("Server can't use future!!");
+            CompletableFuture<Response<T>> future = new CompletableFuture<>();
+            try {
+                bootstrap.getRpcServer().invokeWithCallback(connection, request, newFutureCallBack(future), 5000);
+            } catch (RemotingException e) {
+                future.completeExceptionally(e);
+            }
+            return future;
         }
     }
 }
