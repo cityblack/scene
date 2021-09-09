@@ -52,7 +52,6 @@ public class SceneNodeDemo {
             SceneInstance instance = new SceneInstance();
             instance.setUnique("10086-" + map);
             instance.setMap(map);
-            instance.setGroup("10086");
             return instance;
         });
     }

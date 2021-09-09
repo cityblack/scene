@@ -151,12 +151,16 @@ public class RedisSceneServiceImpl implements SceneService {
 
         Connect sceneNodeConnect = redisClusterServer.getConnectManage().getConnect(nodeInfo.getKey());
         if (Objects.isNull(sceneNodeConnect)) {
+            logger.error("找不到对应的节点:{}", nodeInfo);
             return CompletableFuture.completedFuture(null);
         }
         Request request = Request.of(cmd(NODE_SPACE, NODE_CLIENT_CREATE), mapId);
         CompletableFuture<Response<SceneInstance>> future = sceneNodeConnect.sendMessage(request);
         CompletableFuture<SceneInstance> response = future.thenApply(Response::getParam);
-        response.thenAccept(e -> this.registerSceneInstance(e.getGroup(), e));
+        response.thenAccept(e -> {
+            e.setGroup(group);
+            this.registerSceneInstance(e.getGroup(), e);
+        });
         return response;
     }
 

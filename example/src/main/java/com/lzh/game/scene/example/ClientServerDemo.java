@@ -9,6 +9,7 @@ import com.lzh.game.scene.api.connect.sofa.ApiClient;
 import com.lzh.game.scene.api.controller.ListenController;
 import com.lzh.game.scene.api.scene.SceneService;
 import com.lzh.game.scene.api.scene.impl.SceneServiceImpl;
+import com.lzh.game.scene.common.SceneChangeStatus;
 
 import java.util.Arrays;
 
@@ -36,6 +37,9 @@ public class ClientServerDemo {
         client.start();
 
         final AsyncSceneApi api = new AsyncSceneApiImpl(client, sceneService);
+        api.subscribe("10086", SceneChangeStatus.ALL, instance -> {
+            System.out.println("获取场景:" + instance);
+        });
         api.createScene("10086", 1, 0);
 //        enterCopy(api);
         /*String group = "group";

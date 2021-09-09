@@ -18,26 +18,28 @@ public class SimpleInvokeHelper implements MethodInvokeHelper {
     public void addMethodInvoke(InvokeManage manage, List<Object> targets) {
         synchronized (SimpleInvokeHelper.class) {
             final Set<Class<?>> innerParam = getInnerParamType();
-            targets.forEach((v) -> {
-                Class<?> clazz = v.getClass();
-                Action action = clazz.getAnnotation(Action.class);
-                if (Objects.isNull(action)) {
-                    throw new IllegalArgumentException("Target " + clazz.getName() + " bean is not @Action");
-                }
-                int value = action.value();
-                Method[] methods = clazz.getDeclaredMethods();
-                for (Method method: methods) {
-                    Cmd cmd = method.getAnnotation(Cmd.class);
-                    if (Objects.isNull(cmd)) {
-                        continue;
-                    }
-                    int cmdValue = value + cmd.value();
-                    int index = parseMethodRequestParamIndex(innerParam, method);
-                    MethodInvoke invoke = new MethodInvokeEndpoint(v, method, index);
-                    manage.registerInvoke(cmdValue, invoke);
-                    logger.info("Loaded {} cmd mapping {}#{}", cmdValue, clazz.getName(), method.getName());
-                }
-            });
+            targets.forEach((v) -> parseBean(v, manage, innerParam));
+        }
+    }
+
+    private void parseBean(Object target, final InvokeManage manage, final Set<Class<?>> innerParam) {
+        Class<?> clazz = target.getClass();
+        Action action = clazz.getAnnotation(Action.class);
+        if (Objects.isNull(action)) {
+            throw new IllegalArgumentException("Target " + clazz.getName() + " bean is not @Action");
+        }
+        int value = action.value();
+        Method[] methods = clazz.getDeclaredMethods();
+        for (Method method: methods) {
+            Cmd cmd = method.getAnnotation(Cmd.class);
+            if (Objects.isNull(cmd)) {
+                continue;
+            }
+            int cmdValue = value + cmd.value();
+            int index = parseMethodRequestParamIndex(innerParam, method);
+            MethodInvoke invoke = new MethodInvokeEndpoint(target, method, index);
+            manage.registerInvoke(cmdValue, invoke);
+            logger.info("Loaded {} cmd mapping {}#{}", cmdValue, clazz.getName(), method.getName());
         }
     }
 
