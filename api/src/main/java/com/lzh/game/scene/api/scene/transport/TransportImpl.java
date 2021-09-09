@@ -1,6 +1,5 @@
 package com.lzh.game.scene.api.scene.transport;
 
-import com.lzh.game.scene.api.TransportSceneData;
 import com.lzh.game.scene.api.scene.SceneLocalManage;
 import com.lzh.game.scene.api.scene.SceneNodeBootstrap;
 import com.lzh.game.scene.api.scene.Transport;
@@ -8,7 +7,6 @@ import com.lzh.game.scene.api.scene.TransportLocal;
 import com.lzh.game.scene.common.SceneInstance;
 import com.lzh.game.scene.common.connect.scene.SceneConnect;
 import com.lzh.game.scene.common.connect.server.AbstractServerBootstrap;
-import com.lzh.game.scene.common.connect.server.ConnectServer;
 import com.lzh.game.scene.common.connect.server.ServerConfig;
 import com.lzh.game.scene.common.utils.IpUtils;
 

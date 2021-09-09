@@ -2,7 +2,7 @@ package com.lzh.game.scene.example;
 
 import com.lzh.game.scene.api.AsyncSceneApi;
 import com.lzh.game.scene.api.AsyncSceneApiImpl;
-import com.lzh.game.scene.api.TransportSceneData;
+import com.lzh.game.scene.api.scene.transport.TransportSceneData;
 import com.lzh.game.scene.api.config.ApiConfig;
 import com.lzh.game.scene.api.config.Member;
 import com.lzh.game.scene.api.connect.sofa.ApiClient;

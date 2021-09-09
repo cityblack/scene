@@ -1,6 +1,6 @@
 package com.lzh.game.scene.api.scene;
 
-import com.lzh.game.scene.api.TransportSceneData;
+import com.lzh.game.scene.api.scene.transport.TransportSceneData;
 
 import java.io.Serializable;
 

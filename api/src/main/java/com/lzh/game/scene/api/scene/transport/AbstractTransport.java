@@ -1,6 +1,5 @@
 package com.lzh.game.scene.api.scene.transport;
 
-import com.lzh.game.scene.api.TransportSceneData;
 import com.lzh.game.scene.api.proto.SceneTransportRequest;
 import com.lzh.game.scene.api.proto.SceneTransportVerifyRequest;
 import com.lzh.game.scene.api.scene.TransportLocal;

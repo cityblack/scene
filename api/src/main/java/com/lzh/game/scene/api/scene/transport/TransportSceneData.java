@@ -1,4 +1,4 @@
-package com.lzh.game.scene.api;
+package com.lzh.game.scene.api.scene.transport;
 
 import java.io.Serializable;
 import java.util.Map;
