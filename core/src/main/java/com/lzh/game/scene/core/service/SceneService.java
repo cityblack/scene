@@ -43,6 +43,7 @@ public interface SceneService {
         this.subscribe(connect, group, status, ALL_MAP_LISTEN_KEY);
     }
 
+    SceneInstance getSceneInstance(String group, String unique);
     /**
      * 向场景管理中心订阅场景改变事件 指定map
      * @param group

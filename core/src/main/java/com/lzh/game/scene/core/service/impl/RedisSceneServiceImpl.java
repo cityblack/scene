@@ -35,6 +35,9 @@ import static com.lzh.game.scene.common.RequestSpace.*;
 
 /**
  * 使用redis做共享 满足ap
+ * 场景实例分组
+ * 场景缓存数据结构 -> 场景节点+address+group做key Map<String(场景主键), SceneInstance>
+ * 场景根据mapId索引(根据mapId分组) -> 场景节点+address+group+mapId Set<String(场景主键)>
  */
 public class RedisSceneServiceImpl implements SceneService {
 
@@ -121,6 +124,15 @@ public class RedisSceneServiceImpl implements SceneService {
         RMap<String, SceneInstance> contain = getGroupContain(group);
         RSet<String> keys = getInstanceMapKeys(group, map);
         return new ArrayList<>(contain.getAll(keys).values());
+    }
+
+    @Override
+    public SceneInstance getSceneInstance(String group, String unique) {
+        RMap<String, SceneInstance> contain = getGroupContain(group);
+        if (Objects.isNull(contain)) {
+            return null;
+        }
+        return contain.get(unique);
     }
 
     @Override

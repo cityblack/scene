@@ -81,14 +81,14 @@ public abstract class AbstractBootstrap<T extends BootstrapConfig> implements Bo
         if (Objects.isNull(connectManage)) {
             this.connectManage = new SceneConnectManage();
         }
+        if (Objects.isNull(ioExecutor)) {
+            this.ioExecutor = ThreadUtils.createIoFixedService("default-io-executor");
+        }
         if (Objects.isNull(sofaUserProcess)) {
-            this.sofaUserProcess = new SofaUserProcess(this.requestHandler);
+            this.sofaUserProcess = new SofaUserProcess(this.requestHandler, this.ioExecutor);
         }
         if (Objects.isNull(methodInvokeHelper)) {
             this.methodInvokeHelper = new SimpleInvokeHelper();
-        }
-        if (Objects.isNull(ioExecutor)) {
-            this.ioExecutor = ThreadUtils.createIoFixedService("default-io-executor");
         }
         SofaRpcSerializationRegister.setSerialization(getSerializer());
     }

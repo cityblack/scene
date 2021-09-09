@@ -57,6 +57,11 @@ public class CpSceneServiceImpl implements SceneService {
     }
 
     @Override
+    public SceneInstance getSceneInstance(String group, String unique) {
+        return null;
+    }
+
+    @Override
     public void subscribe(Connect connect, String group, SceneChangeStatus status, int map) {
 
     }

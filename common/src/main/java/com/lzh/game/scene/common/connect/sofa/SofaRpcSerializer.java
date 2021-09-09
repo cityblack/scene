@@ -12,6 +12,7 @@ import com.alipay.remoting.rpc.protocol.RpcResponseCommand;
 import com.lzh.game.scene.common.connect.Request;
 import com.lzh.game.scene.common.connect.Response;
 import com.lzh.game.scene.common.connect.codec.Serializer;
+import com.lzh.game.scene.common.utils.ClassUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,10 +26,6 @@ import static com.lzh.game.scene.common.ContextConstant.*;
 public class SofaRpcSerializer extends DefaultCustomSerializer {
 
     private Serializer serializer;
-
-    private Map<Integer, String> typeKey = new HashMap<>();
-
-    private Map<String, Class<?>> keyClass = new HashMap<>();
 
     public SofaRpcSerializer() {
     }
@@ -123,7 +120,7 @@ public class SofaRpcSerializer extends DefaultCustomSerializer {
                 Map<Byte, String> header = new HashMap<>(4);
                 header.put(EXCHANGE_CMD, String.valueOf(r.getId()));
                 if (Objects.nonNull(r.getParam())) {
-                    header.put(EXCHANGE_TYPE, getTypeKey(r));
+                    header.put(EXCHANGE_TYPE, r.getParamClassName());
                 }
                 command.setHeader(serializer.encode(header));
             }
@@ -187,39 +184,10 @@ public class SofaRpcSerializer extends DefaultCustomSerializer {
         this.serializer = serializer;
     }
 
-    private String getTypeKey(Request request) {
-        int cmd = request.getId();
-        String key = this.typeKey.get(cmd);
-        if (Objects.isNull(key)) {
-            synchronized (this.typeKey) {
-                key = this.typeKey.get(cmd);
-                if (Objects.isNull(key)) {
-                    key = request.getParamClassName();
-                    this.typeKey.put(cmd, key);
-                }
-            }
-        }
-        return key;
-    }
-
     private Class<?> getParamClass(String key) {
         if (Objects.isNull(key)) {
             return null;
         }
-        Class<?> type = this.keyClass.get(key);
-        if (Objects.isNull(type)) {
-            synchronized (this.keyClass) {
-                type = this.keyClass.get(key);
-                if (Objects.isNull(type)) {
-                    try {
-                        type = Class.forName(key);
-                    } catch (ClassNotFoundException e) {
-                        type = null;
-                    }
-                }
-                this.keyClass.put(key, type);
-            }
-        }
-        return type;
+        return ClassUtils.getClassByName(key);
     }
 }

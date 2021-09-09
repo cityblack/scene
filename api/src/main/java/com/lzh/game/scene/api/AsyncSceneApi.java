@@ -11,23 +11,9 @@ import java.util.function.Consumer;
 import static com.lzh.game.scene.common.ContextConstant.ALL_MAP_LISTEN_KEY;
 
 /**
- *
- *
+ * 与远程场景交互接口
  */
 public interface AsyncSceneApi {
-
-    /**
-     * 进入指定的场景
-     * @param sceneKey
-     */
-    <K extends Serializable>void transportScene(String group, String sceneKey, TransportSceneData<K> request);
-
-    /**
-     * 进入指定地图 动态分配
-     * @param group
-     * @param map
-     */
-    <K extends Serializable>void transportScene(String group, int map, TransportSceneData<K> request);
 
     default void createScene(String group, int map, int weight) {
         this.createScene(group, map, weight, null);
@@ -77,6 +63,13 @@ public interface AsyncSceneApi {
         return this.getSceneInstances(group, ALL_MAP_LISTEN_KEY);
     }
 
+    /**
+     * 获取某个场景具体信息
+     * @param group
+     * @param unique
+     * @return
+     */
+    CompletableFuture<SceneInstance> getSceneInstance(String group, String unique);
     /**
      * 注册场景实例
      * @param group

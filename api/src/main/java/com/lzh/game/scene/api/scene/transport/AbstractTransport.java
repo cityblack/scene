@@ -1,8 +1,10 @@
-package com.lzh.game.scene.api.scene;
+package com.lzh.game.scene.api.scene.transport;
 
 import com.lzh.game.scene.api.TransportSceneData;
 import com.lzh.game.scene.api.proto.SceneTransportRequest;
 import com.lzh.game.scene.api.proto.SceneTransportVerifyRequest;
+import com.lzh.game.scene.api.scene.TransportLocal;
+import com.lzh.game.scene.api.scene.TransportRemote;
 import com.lzh.game.scene.common.connect.Request;
 import com.lzh.game.scene.common.connect.Response;
 import com.lzh.game.scene.common.connect.codec.Serializer;
@@ -11,8 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -27,17 +27,6 @@ public abstract class AbstractTransport<K extends Serializable>
 
     public AbstractTransport(Serializer serializer) {
         this.serializer = serializer;
-        registerTransport(strategy(), this);
-    }
-
-    private static final Map<Integer, AbstractTransport<?>> TRANSPORT = new HashMap<>();
-
-    public static void registerTransport(int strategy, AbstractTransport<?> transport) {
-        TRANSPORT.put(strategy, transport);
-    }
-
-    public static AbstractTransport getTransport(int strategy) {
-        return TRANSPORT.get(strategy);
     }
 
     /**
@@ -54,11 +43,6 @@ public abstract class AbstractTransport<K extends Serializable>
      */
     public abstract <V>V buildVerifyData(TransportSceneData<K> requestData);
 
-    /**
-     * 验证失败后的回调
-     * @param i18n
-     */
-    public abstract void verifyError(TransportSceneData<K> request, int i18n);
     /**
      * 切场景前
      */
@@ -123,11 +107,12 @@ public abstract class AbstractTransport<K extends Serializable>
                 result = response.getParam();
             } catch (Exception e) {
                 logger.error("切场景远程验证异常", e);
+                onError(requestData, REMOTE_VERIFY_ERROR);
                 return false;
             }
         }
         if (result != 0) {
-            verifyError(requestData, result);
+            onError(requestData, result);
         }
         return result == 0;
     }

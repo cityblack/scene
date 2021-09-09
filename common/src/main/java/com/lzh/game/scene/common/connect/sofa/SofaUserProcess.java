@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 import static com.lzh.game.scene.common.ContextConstant.ERROR_COMMON_RESPONSE;
 import static com.lzh.game.scene.common.ContextConstant.SOURCE_CONNECT_RELATION;
@@ -24,8 +25,9 @@ public class SofaUserProcess extends AsyncUserProcessor<Request> {
 
     private RequestHandler handler;
 
-    public SofaUserProcess(RequestHandler requestHandler) {
+    public SofaUserProcess(RequestHandler requestHandler, Executor executor) {
         this.handler = requestHandler;
+        setExecutorSelector(new Selector(executor));
     }
 
     @Override
@@ -83,12 +85,6 @@ public class SofaUserProcess extends AsyncUserProcessor<Request> {
         return INTEREST;
     }
 
-    @Override
-    public ExecutorSelector getExecutorSelector() {
-        // todo 将jfra的线程和工作线程分开
-        return super.getExecutorSelector();
-    }
-
     private boolean isTimeout(Request request, BizContext bizCtx, AsyncContext asyncCtx, Response<?> response) {
         if (request.isOneWay()) {
             return false;
@@ -100,4 +96,19 @@ public class SofaUserProcess extends AsyncUserProcessor<Request> {
         }
         return false;
     }
+
+    class Selector implements ExecutorSelector {
+
+        private Executor executor;
+
+        public Selector(Executor executor) {
+            this.executor = executor;
+        }
+
+        @Override
+        public Executor select(String requestClass, Object requestHeader) {
+            return executor;
+        }
+    }
+
 }

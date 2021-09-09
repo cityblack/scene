@@ -7,6 +7,7 @@ import com.lzh.game.scene.common.connect.scene.SceneConnect;
 import com.lzh.game.scene.common.connect.server.cmd.Action;
 import com.lzh.game.scene.common.connect.server.cmd.Cmd;
 import com.lzh.game.scene.common.proto.CreateSceneRequest;
+import com.lzh.game.scene.common.proto.GetUniqueSceneInstanceRequest;
 import com.lzh.game.scene.common.proto.MapSceneRequest;
 import com.lzh.game.scene.common.proto.SubscribeSceneRequest;
 import com.lzh.game.scene.core.service.SceneService;
@@ -44,5 +45,10 @@ public class SceneController {
     @Cmd(SCENE_CREATE)
     public CompletableFuture<SceneInstance> createScene(SceneConnect connect, CreateSceneRequest request) {
         return sceneService.createScene(connect, request.getGroup(), request.getMap(), request.getWeight());
+    }
+
+    @Cmd(INSTANCE_UNIQUE_GET)
+    public SceneInstance getScene(GetUniqueSceneInstanceRequest request) {
+        return sceneService.getSceneInstance(request.getGroup(), request.getUnique());
     }
 }

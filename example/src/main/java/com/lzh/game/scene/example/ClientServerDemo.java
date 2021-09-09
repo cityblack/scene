@@ -8,7 +8,7 @@ import com.lzh.game.scene.api.config.Member;
 import com.lzh.game.scene.api.connect.sofa.ApiClient;
 import com.lzh.game.scene.api.controller.ListenController;
 import com.lzh.game.scene.api.scene.SceneService;
-import com.lzh.game.scene.api.scene.SceneServiceImpl;
+import com.lzh.game.scene.api.scene.impl.SceneServiceImpl;
 
 import java.util.Arrays;
 
@@ -63,7 +63,7 @@ public class ClientServerDemo {
     private static void enterCopy(AsyncSceneApi api) {
         api.createScene("123", 1, 0, instance -> {
             TransportSceneData<Long> sceneData = new TransportSceneData<>(1, 10086L);
-            api.transportScene(instance.getGroup(), instance.getUnique(), sceneData);
+//            api.transportScene(instance.getGroup(), instance.getUnique(), sceneData);
         });
     }
 }

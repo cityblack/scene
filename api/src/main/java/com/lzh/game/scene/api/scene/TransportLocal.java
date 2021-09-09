@@ -6,6 +6,15 @@ import com.lzh.game.scene.common.connect.scene.SceneConnect;
 import java.io.Serializable;
 
 public interface TransportLocal<K extends Serializable> {
+    // 错误信息
+    int NULL_INSTANCE = 0;
+    int REMOTE_VERIFY_ERROR = 1;
+
+    /**
+     * 本地发生异常时候调用
+     * @param errorSign -- 上面的提示码或者i18n
+     */
+    void onError(TransportSceneData<K> request, int errorSign);
 
     /**
      * 切换场景

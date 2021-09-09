@@ -1,18 +1,18 @@
 package com.lzh.game.scene.api;
 
 import com.lzh.game.scene.api.connect.ConnectClient;
+
+import static com.lzh.game.scene.api.scene.TransportLocal.NULL_INSTANCE;
 import static com.lzh.game.scene.common.RequestSpace.*;
 
-import com.lzh.game.scene.api.scene.AbstractTransport;
-import com.lzh.game.scene.api.scene.SceneLocalManage;
-import com.lzh.game.scene.api.scene.SceneService;
-import com.lzh.game.scene.api.scene.TransportLocal;
+import com.lzh.game.scene.api.scene.*;
 import com.lzh.game.scene.common.SceneChangeStatus;
 import com.lzh.game.scene.common.SceneInstance;
 import com.lzh.game.scene.common.connect.Request;
 import com.lzh.game.scene.common.connect.Response;
 import com.lzh.game.scene.common.connect.scene.SceneConnect;
 import com.lzh.game.scene.common.proto.CreateSceneRequest;
+import com.lzh.game.scene.common.proto.GetUniqueSceneInstanceRequest;
 import com.lzh.game.scene.common.proto.MapSceneRequest;
 import com.lzh.game.scene.common.proto.SubscribeSceneRequest;
 import com.lzh.game.scene.common.utils.IpUtils;
@@ -33,30 +33,9 @@ public class AsyncSceneApiImpl implements AsyncSceneApi {
 
     private SceneService sceneService;
 
-    private SceneLocalManage sceneLocalManage;
-
     public AsyncSceneApiImpl(ConnectClient<SceneConnect> client, SceneService sceneService) {
         this.client = client;
         this.sceneService = sceneService;
-    }
-
-    @Override
-    public <K extends Serializable> void transportScene(String group, String sceneKey, TransportSceneData<K> request) {
-        SceneInstance instance = sceneLocalManage.getSceneInstanceByKey(group, sceneKey);
-        String address = instance.getAddress();
-        SceneConnect connect = client.connectManage().getConnect(address);
-        TransportLocal<K> transport = getTransport(request.getStrategy());
-        boolean local = IpUtils.isLocalIp(address) && connect.port() == client.getConfig().getPort();
-        transport.transport(connect, request, local);
-    }
-
-    @Override
-    public <K extends Serializable> void transportScene(String group, int map, TransportSceneData<K> request) {
-
-    }
-
-    protected <K extends Serializable>TransportLocal<K> getTransport(int strategy) {
-        return AbstractTransport.getTransport(strategy);
     }
 
     @Override
@@ -102,6 +81,17 @@ public class AsyncSceneApiImpl implements AsyncSceneApi {
         CompletableFuture<Response<List<SceneInstance>>> future = client.sendMessage(request);
         return future
                 .thenApply(Response::getParam);
+    }
+
+    @Override
+    public CompletableFuture<SceneInstance> getSceneInstance(String group, String unique) {
+        GetUniqueSceneInstanceRequest data = new GetUniqueSceneInstanceRequest();
+        data.setGroup(group);
+        data.setUnique(unique);
+
+        Request request = buildRequest(INSTANCE_UNIQUE_GET, data);
+        CompletableFuture<Response<SceneInstance>> future = client.sendMessage(request);
+        return future.thenApply(Response::getParam);
     }
 
     @Override

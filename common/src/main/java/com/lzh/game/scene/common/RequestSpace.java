@@ -9,6 +9,7 @@ public interface RequestSpace {
     int SCENE_TRANSPORT_VERIFY = 4;
     int SCENE_TRANSPORT = 5;
     int SCENE_CREATE = 6;
+    int INSTANCE_UNIQUE_GET = 7;
 
     int LISTEN_INSTANCE_SPACE = 200;
     int LISTEN_INSTANCE_CHANGE = 1;

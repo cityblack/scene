@@ -5,7 +5,7 @@ import com.lzh.game.scene.api.config.Member;
 import com.lzh.game.scene.api.connect.sofa.ApiClient;
 import com.lzh.game.scene.api.controller.ListenController;
 import com.lzh.game.scene.api.scene.SceneService;
-import com.lzh.game.scene.api.scene.SceneServiceImpl;
+import com.lzh.game.scene.api.scene.impl.SceneServiceImpl;
 import com.lzh.game.scene.common.NodeType;
 import com.lzh.game.scene.common.SceneChangeStatus;
 import com.lzh.game.scene.common.SceneInstance;
